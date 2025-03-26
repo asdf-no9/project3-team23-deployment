@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<head>
+    <title> Users </title>
+</head>
+<body>
+    <% for (var m in members) {%>
+    <p> Name: <%=members[m].student_name%> <br>
+        Class Section: <%=members[m].section%> <br>
+        Favorite Movie: <%=members[m].favorite_movie%> <br>
+    </p>
+    <% } %>
+</body>
