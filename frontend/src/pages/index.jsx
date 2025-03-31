@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
+import reactLogo from '../assets/react.svg'
 import viteLogo from '/vite.svg'
 
-import './App.css'
+import '../styles/index.css'
 
-function App() {
+function Index() {
   const [count, setCount] = useState(0)
   const [text, setText] = useState("NOTHING!!!")
 
   useEffect(() => {
-    fetch("http://localhost:3000/user")
+    fetch("http://localhost:3000/")
       .then((response) => response.json())
       .then((r) => {
         setText(JSON.stringify(r))
@@ -46,4 +46,4 @@ function App() {
   )
 }
 
-export default App
+export default Index
