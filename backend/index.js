@@ -1,6 +1,6 @@
 
 const express = require('express');
-const {Pool} = require('pg');
+const { Pool } = require('pg');
 const dotenv = require('dotenv').config();
 
 const app = express();
@@ -12,20 +12,18 @@ const pool = new Pool({
     database: process.env.PSQL_DATABASE,
     password: process.env.PSQL_PASSWORD,
     port: process.env.PSQL_PORT,
-    ssl: {rejectUnauthorized: false}
+    ssl: { rejectUnauthorized: false }
 });
 
-process.on('SIGINT', function() {
+process.on('SIGINT', function () {
     pool.end();
     console.log('good terminate');
     process.exit(0);
 });
 
-app.set("view engine", "ejs");
-
 app.get('/', (req, res) => {
-    const data = {name: 'Bob'};
-    res.render('index', data);
+    const data = { name: 'Bob' };
+    res.status(200).send('index', data);
 });
 
 app.get('/user', (req, res) => {
@@ -36,9 +34,8 @@ app.get('/user', (req, res) => {
             for (let i = 0; i < result.rowCount; i++) {
                 members.push(result.rows[i]);
             }
-            const data = {members: members};
-            console.log(members);
-            res.render('user', data);
+            const data = { members: members };
+            res.status(200).send(data);
         });
 });
 
