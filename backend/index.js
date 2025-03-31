@@ -2,9 +2,12 @@
 const express = require('express');
 const { Pool } = require('pg');
 const dotenv = require('dotenv').config();
+const cors = require('cors');
 
 const app = express();
 const port = 3000;
+
+app.use(cors());
 
 const pool = new Pool({
     user: process.env.PSQL_USER,
