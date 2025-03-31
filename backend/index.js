@@ -25,6 +25,10 @@ process.on('SIGINT', function () {
     process.exit(0);
 });
 
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency', currency: 'USD',
+});
+
 /**
  * A local cache of tokens. Stores until API resets.
  * 
@@ -32,7 +36,8 @@ process.on('SIGINT', function () {
  * {
  *      UUID: {
  *          "creation_date": UTC Timestamp,
- *          "id": User ID
+ *          "id": User ID,
+ *          "manager": boolean, if they are or are not a manager
  *      },
  * }
  */
@@ -48,8 +53,9 @@ const LOGGED_IN_MANAGER = 2;
  * *****************************
  * URI: /
  * 
- * PARAMETERS
- * token: the token to check if the current user is auth'd
+ * NEEDS AUTH: no
+ * PARAMETERS:
+ *      token: the token to check if the current user is auth'd
  * 
  * RESPONSE
  * {
@@ -70,10 +76,11 @@ app.get('/', (req, res) => {
  * ********************
  * URI: /login
  * 
+ * NEEDS AUTH: no
  * PARAMETERS:
- * firstname: the user's first name
- * lastname: the user's last name
- * password: the user's attempted password
+ *      firstname: the user's first name
+ *      lastname: the user's last name
+ *      password: the user's attempted password
  * 
  * RESPONSE
  * {
@@ -144,6 +151,7 @@ app.get('/login', (req, res) => {
  * *****************
  * URI: /logout
  * 
+ * NEEDS AUTH: yes
  * PARAMETERS: n/a
  * RESPONSE: 
  * {
@@ -166,7 +174,109 @@ app.get('/logout', (req, res) => {
     token_cache[token] = null
 })
 
+/**
+ * Get Menu
+ * *******************
+ * URI: /menu
+ * 
+ * NEEDS AUTH: no
+ * PARAMETERS: n/a
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error message, (optional)
+ *      categories: [
+ *          category_name: [
+ *              {
+ *                  "name": text
+ *                  "price": int
+ *                  "in_stock": boolean
+ *              },
+ *          ],
+ *      ]
+ * }
+ */
+app.get('/menu', (req, res) => {
+    pool.query('SELECT * FROM menu;')
+        .then((result) => {
+            if (result.rowCount == 0) {
+                result.status(500).send({ error: "Menu empty.", categories: [] })
+                return
+            }
 
+            menu = {}
+
+            for (let i in result.rows) {
+                const row = result.rows[i]
+                const cat_name_capital = capitalizeEveryWord(String(row["category"]).toLowerCase())
+
+                // create empty list if category is new
+                if (!menu[cat_name_capital])
+                    menu[cat_name_capital] = []
+
+                let price = currencyFormatter.format(row["price"] / 100000);
+
+                menu[cat_name_capital].push({
+                    name: row["name"],
+                    price: price,
+                    in_stock: row["in_stock"]
+                })
+            }
+
+            res.status(200).send({ categories: menu })
+
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send({ error: "Server error.", categories: [] })
+        })
+})
+
+/**
+ * Get Toppings
+ * *******************
+ * URI: /toppings
+ * 
+ * NEEDS AUTH: no
+ * PARAMETERS: n/a
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      toppings: [
+ *           {
+ *               "name": text
+ *               "in_stock": boolean
+ *           },
+ *      ]
+ * }
+ */
+app.get('/toppings', (req, res) => {
+    pool.query('SELECT name, quantity, unit_base_consumption FROM inventory WHERE is_topping = true;')
+        .then((result) => {
+            if (result.rowCount == 0) {
+                result.status(500).send({ error: "Topping list empty.", categories: [] })
+                return
+            }
+
+            const toppings = []
+
+            for (let i in result.rows) {
+                const row = result.rows[i]
+
+                toppings.push({
+                    name: capitalizeEveryWord(row["name"]),
+                    in_stock: row["quantity"] > row["unit_base_consumption"]
+                })
+            }
+
+            res.status(200).send({ toppings: toppings })
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send({ error: "Server error.", toppings: [] })
+        })
+})
 
 function auth(req, res) {
     token = req.query.token
@@ -176,6 +286,18 @@ function auth(req, res) {
 
     res.status(401).send({ success: false, error: "Not authenticated." })
     return -1
+}
+
+/**
+ * Capitalizes every first-letter of a word in a string.
+ * @param {string} input The string to modify
+ * @returns {string} The new string
+ */
+function capitalizeEveryWord(input) {
+    return input
+        .split(" ")
+        .map(w => w ? w[0].toUpperCase() + w.slice(1) : "")
+        .join(" ");
 }
 
 app.listen(port, () => {
