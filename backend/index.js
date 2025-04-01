@@ -245,12 +245,13 @@ app.get('/menu', (req, res) => {
  * RESPONSE: 
  * {
  *      error: error message, (optional)
- *      categories: [
- *          category_name: [
+ *      inventory: [
+ *          inventory_item: [
  *              {
- *                  "name": text
- *                  "price": int
- *                  "in_stock": boolean
+ *                  "name": text,
+ *                  "quantity": int,
+ *                  "fill_rate": int,
+ *                  "unit": text
  *              },
  *          ],
  *      ]
