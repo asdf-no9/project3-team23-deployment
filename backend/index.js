@@ -25,7 +25,6 @@ process.on('SIGINT', function () {
     process.exit(0);
 });
 
-let fill_updated = false
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency', currency: 'USD',
@@ -258,6 +257,7 @@ app.get('/menu', (req, res) => {
  * }
  */
 app.get('/inventory', (req, res) => {
+    let fillUpdate = req.query.fillUpdate || false; 
 
     const getInventory = () => {
         pool.query('SELECT * FROM Inventory ORDER BY name;')
@@ -268,10 +268,6 @@ app.get('/inventory', (req, res) => {
                 }
 
                 inventory_items = [];
-
-                if(!fill_updated){
-                    
-                }
 
                 for (let i in result.rows) {
                     const row = result.rows[i];
@@ -294,11 +290,11 @@ app.get('/inventory', (req, res) => {
             })
     }
 
-    if(!fill_updated){
+    if(!fillUpdate){
         pool.query('SELECT update_rec_fill()')
             .then( () => {
                 getInventory();
-                fill_updated = true;
+                fillUpdate = true;
             });
     }
     else{
