@@ -258,39 +258,53 @@ app.get('/menu', (req, res) => {
  * }
  */
 app.get('/inventory', (req, res) => {
-    pool.query('SELECT * FROM Inventory ORDER BY name;')
-        .then((result) => {
-            if (result.rowCount == 0) {
-                res.status(500).send({ error: "Inventory empty.", inventory: [] })
-                return
-            }
 
-            inventory_items = []
+    const getInventory = () => {
+        pool.query('SELECT * FROM Inventory ORDER BY name;')
+            .then((result) => {
+                if (result.rowCount == 0) {
+                    res.status(500).send({ error: "Inventory empty.", inventory: [] });
+                    return;
+                }
 
-            if(!fill_updated){
-                pool.query('SELECT update_rec_fill()')
-                    .then( () => fill_updated = true)
-            }
+                inventory_items = [];
 
-            for (let i in result.rows) {
-                const row = result.rows[i]
-                const inventory_name_capital = capitalizeEveryWord(String(row["name"]).toLowerCase()) 
+                if(!fill_updated){
+                    
+                }
 
-                inventory_items.push({
-                    name: inventory_name_capital,
-                    quantity: row["quantity"],
-                    fill_rate: row["rec_fill_wk"],
-                    unit: row["unit"]
-                })
-            }
+                for (let i in result.rows) {
+                    const row = result.rows[i];
+                    const inventory_name_capital = capitalizeEveryWord(String(row["name"]).toLowerCase());
 
-            res.status(200).send({ inventory: inventory_items })
+                    inventory_items.push({
+                        name: inventory_name_capital,
+                        quantity: row["quantity"],
+                        fill_rate: row["rec_fill_wk"],
+                        unit: row["unit"]
+                    });
+                }
 
-        })
-        .catch((err) => {
-            console.error(err)
-            res.status(500).send({ error: "Server error.", inventory: [] })
-        })
+                res.status(200).send({ inventory: inventory_items });
+
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).send({ error: "Server error.", inventory: [] });
+            })
+    }
+
+    if(!fill_updated){
+        pool.query('SELECT update_rec_fill()')
+            .then( () => {
+                getInventory();
+                fill_updated = true;
+            });
+    }
+    else{
+        getInventory();
+    }
+    
 })
 
 /**
