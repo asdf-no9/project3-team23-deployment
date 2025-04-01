@@ -17,3 +17,9 @@ p {
 .startTitle:hover {
     transform: scale(1.2);
 }
+
+.logoContainer{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}

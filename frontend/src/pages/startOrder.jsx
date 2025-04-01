@@ -10,8 +10,8 @@ export default function startOrder() {
         <div>
             <div className="logoContainer">
                 <img src={logo} alt="Logo" className="logo" />
-                <p className="startTitle"> Tap to Start Order </p>
             </div>
+            <p className="startTitle"> Tap to Start Order </p>
         </div>
         )   
 }
