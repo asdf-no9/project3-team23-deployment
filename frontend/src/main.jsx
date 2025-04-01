@@ -7,6 +7,7 @@ import OrderKiosk from './pages/orderKiosk.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <div>SIDEBAR</div>
     <Router>
       <Routes>
         <Route path="/" element={<StartOrder />} />

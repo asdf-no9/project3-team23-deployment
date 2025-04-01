@@ -161,7 +161,7 @@ app.get('/login', (req, res) => {
  * }
  */
 app.get('/logout', (req, res) => {
-    if (auth(req, res) == -1) return
+    if (!auth(req, res)) return
 
     pool.query('SELECT logout($1);', [token_cache[token].id])
         .then(() => {
@@ -238,8 +238,9 @@ app.get('/menu', (req, res) => {
  * *******************
  * URI: /inventory
  * 
- * NEEDS AUTH: no
- * PARAMETERS: n/a
+ * NEEDS AUTH: manager
+ * PARAMETERS: 
+ *      fillupdate: whether or not to update the fillrate column before returning data
  * 
  * RESPONSE: 
  * {
@@ -257,7 +258,9 @@ app.get('/menu', (req, res) => {
  * }
  */
 app.get('/inventory', (req, res) => {
-    let fillUpdate = req.query.fillUpdate || false; 
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    let fillUpdate = req.query.fillupdate || false;
 
     const getInventory = () => {
         pool.query('SELECT * FROM Inventory ORDER BY name;')
@@ -290,17 +293,17 @@ app.get('/inventory', (req, res) => {
             })
     }
 
-    if(!fillUpdate){
+    if (!fillUpdate) {
         pool.query('SELECT update_rec_fill()')
-            .then( () => {
+            .then(() => {
                 getInventory();
                 fillUpdate = true;
             });
     }
-    else{
+    else {
         getInventory();
     }
-    
+
 })
 
 /**
@@ -349,14 +352,15 @@ app.get('/toppings', (req, res) => {
         })
 })
 
-function auth(req, res) {
+function auth(req, res, level = LOGGED_IN_EMPLOYEE) {
     token = req.query.token
 
     if (token && token_cache[token])
-        return token_cache[token].manager ? LOGGED_IN_MANAGER : LOGGED_IN_EMPLOYEE
+        if (level == LOGGED_IN_EMPLOYEE || (level == LOGGED_IN_MANAGER && token_cache[token].manager))
+            return true
 
     res.status(401).send({ success: false, error: "Not authenticated." })
-    return -1
+    return false
 }
 
 /**
