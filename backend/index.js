@@ -25,6 +25,8 @@ process.on('SIGINT', function () {
     process.exit(0);
 });
 
+let fill_updated = false
+
 const currencyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency', currency: 'USD',
 });
@@ -229,6 +231,64 @@ app.get('/menu', (req, res) => {
         .catch((err) => {
             console.error(err)
             res.status(500).send({ error: "Server error.", categories: [] })
+        })
+})
+
+/**
+ * Get Inventory
+ * *******************
+ * URI: /inventory
+ * 
+ * NEEDS AUTH: no
+ * PARAMETERS: n/a
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error message, (optional)
+ *      categories: [
+ *          category_name: [
+ *              {
+ *                  "name": text
+ *                  "price": int
+ *                  "in_stock": boolean
+ *              },
+ *          ],
+ *      ]
+ * }
+ */
+app.get('/inventory', (req, res) => {
+    pool.query('SELECT * FROM Inventory ORDER BY name;')
+        .then((result) => {
+            if (result.rowCount == 0) {
+                res.status(500).send({ error: "Inventory empty.", inventory: [] })
+                return
+            }
+
+            inventory_items = []
+
+            if(!fill_updated){
+                pool.query('SELECT update_rec_fill()')
+                    .then( () => fill_updated = true)
+            }
+
+            for (let i in result.rows) {
+                const row = result.rows[i]
+                const inventory_name_capital = capitalizeEveryWord(String(row["name"]).toLowerCase()) 
+
+                inventory_items.push({
+                    name: inventory_name_capital,
+                    quantity: row["quantity"],
+                    fill_rate: row["rec_fill_wk"],
+                    unit: row["unit"]
+                })
+            }
+
+            res.status(200).send({ inventory: inventory_items })
+
+        })
+        .catch((err) => {
+            console.error(err)
+            res.status(500).send({ error: "Server error.", inventory: [] })
         })
 })
 
