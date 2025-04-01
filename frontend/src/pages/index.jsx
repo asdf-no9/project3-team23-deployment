@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import reactLogo from '../assets/react.svg'
 import viteLogo from '/vite.svg'
-import Ddd from './ddd'
+import StartOrder from './startOrder'
 
 import '../styles/index.css'
 
@@ -23,7 +23,7 @@ function Index() {
 
   return (
     <>
-      <Ddd />
+      <StartOrder />
     </>
   )
 }

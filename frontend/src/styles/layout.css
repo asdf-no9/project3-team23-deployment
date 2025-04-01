@@ -1,0 +1,19 @@
+body {
+    background-color: #F87C7C;
+}
+
+p {
+    color: #000000;
+    font-size: 1.2rem;
+    line-height: 1.5rem;
+}
+
+/*Tap to Start Order text*/
+.startTitle {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+.startTitle:hover {
+    transform: scale(1.2);
+}
