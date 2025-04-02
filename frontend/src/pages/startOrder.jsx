@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 
 export default function StartOrder() {
     return (
-        <div>
+        <div className="startBody">
             <Link to='/order-kiosk'>
                 <div className="logoContainer">
                     <img src={logo} alt="ShareTea Logo" className="logo" />

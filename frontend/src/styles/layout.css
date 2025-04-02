@@ -1,46 +1,61 @@
-body {
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.startBody {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     background-color: #F87C7C;
+    margin: 0;
+    padding: 0;
+    z-index: 9999;
 }
 
-p {
-    color: #000000;
-    font-size: 1.2rem;
-    line-height: 1.5rem;
-}
-
-/*Tap to Start Order text*/
 .startTitle {
-
+    justify-content: center;
     font-size: 2rem;
     font-weight: bold;
     color: #ffffff;
 }
+
 .startTitle:hover {
     transform: scale(1.2);
 }
 
-.logoContainer{
+.logoContainer {
     text-align: center;
     display: flex;
     justify-content: center;
 }
 
-/*Order Kiosk layout*/
 .layout {
-    background-color: white;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    grid-column-gap: 20px;
-    grid-row-gap: px;
-    }
-    
-.sidebar { 
+    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-rows: auto;
+    height: 100vh;
+}
+
+.sidebar {
     background-color: #F87C7C;
-    grid-area: 1 / 1 / 6 / 2; }
-.mainBody { 
-    grid-area: 1 / 2 / 6 / 5; }
-.subtotal { 
+    padding: 20px;
+}
+
+.mainBody {
+    background-color: white;
+    padding: 20px;
+}
+
+.subtotal {
     background-color: #F87C7C;
-    grid-area: 1 / 5 / 6 / 6; }
+    padding: 20px;
+}
