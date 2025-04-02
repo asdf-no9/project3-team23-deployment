@@ -11,7 +11,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
 }
 
 a {
@@ -21,16 +20,6 @@ a {
 }
 a:hover {
   color: #535bf2;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  display: block;
-
-  
 }
 
 h1 {
@@ -68,4 +57,15 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+#bodysplit {
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+  grid-template-rows: auto;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
