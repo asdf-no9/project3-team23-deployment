@@ -8,7 +8,7 @@ export default function OrderKiosk() {
     const [text, setText] = useState("NOTHING!!!")
 
     useEffect(() => {
-        fetch("http://localhost:3000/")
+        fetch("http://localhost:3000/menu")
             .then((response) => response.json())
             .then((r) => {
                 setText(JSON.stringify(r))
@@ -20,10 +20,12 @@ export default function OrderKiosk() {
     }, [])
 
     return (
-        <div class="layout">
-            <div class="sidebar"></div>
-            <div class="mainBody"><p>{text}</p>  </div>
-            <div class="subtotal"> </div>
+        <div className="layout">
+            <div className="sidebar"></div>
+            <div className="mainBody"><p>{text}</p>  
+            
+            </div>
+            <div className="subtotal"> </div>
         </div>
     )
 }
