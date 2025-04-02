@@ -21,6 +21,7 @@ export default function OrderKiosk() {
 
     return (
         <div class="layout">
+            <div class="sidebar"></div>
             <div class="mainBody"><p>{text}</p>  </div>
             <div class="subtotal"> </div>
         </div>
