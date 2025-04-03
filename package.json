@@ -1,0 +1,14 @@
+{
+  "name": "project3-team23",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "install": "concurrently \"npm run install_back\" \"npm run install_front\"",
+    "install_back": "cd backend && npm install",
+    "install_front": "cd frontend && npm install",
+    "start": "concurrently \"npm --prefix backend start\" \"npm --prefix frontend start\""
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
