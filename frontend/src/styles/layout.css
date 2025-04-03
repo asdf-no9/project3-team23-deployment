@@ -30,6 +30,9 @@
   background-color: #f87c7c;
   padding: 20px;
 }
+.logo {
+  border-radius: 8px;
+}
 /* 
 .logo {
   border-color: #f87c7c;
@@ -48,6 +51,13 @@
 .sidebar {
   background-color: #f87c7c;
   height: 100%;
+  grid-template-rows: auto 1fr auto;
+}
+
+.sidebarContent {
+  display: grid;
+  height: 100%;
+  padding: 20px;
 }
 
 .mainBody {
@@ -58,4 +68,36 @@
 .subtotal {
   height: 100%;
   background-color: #f87c7c;
+}
+
+/*This is for the general category buttons*/
+.buttonContainer {
+  display: flex;
+  flex-direction: column; 
+  padding-left: 20px;
+  padding-right: 20px;
+  grid-row: 2;
+}
+.buttonContainer button {
+  background-color: white;;
+  color: black;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/*This is for the accessibility options*/
+.accessibleFeatures {
+  margin-top: auto;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column; 
+  padding-left: 20px;
+  padding-right: 20px;
+  grid-row: 3;
+}
+.accessibleFeatures button {
+  background-color: white;;
+  color: black;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
