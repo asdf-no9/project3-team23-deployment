@@ -20,9 +20,13 @@ export default function OrderKiosk() {
     }, [])
 
     return (
-        <div className="layout">
-            <div className="mainBody"><p>{text}</p></div>
-            <div className="subtotal"> </div>
+        <div class="layout">
+            <div class="mainBody"><p>{text}</p></div>
+            <div class="subtotal">
+                <div className='itemlist'>
+
+                </div>
+            </div>
         </div>
     )
 }
