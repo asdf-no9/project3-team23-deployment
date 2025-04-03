@@ -17,7 +17,7 @@ export default function OrderKiosk() {
     useEffect(() => {
         if (isLoading) {
             setLoading(false);
-            fetch("http://localhost:3000/menu")
+            fetch("https://project3-team23.onrender.com/menu")
                 .then((response) => response.json())
                 .then((r) => {
                     setLoading(false);
