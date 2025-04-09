@@ -1,0 +1,40 @@
+SCRUM Meeting 2 for Project 3
+Meeting Date: 3/24/25
+
+Meeting Attendees
+ - Brayden Bailey
+ - Elliot Michlin
+ - Antony Quach
+ - Luke Zhang
+ 
+Meeting Agenda Items
+- Create Ordering page
+- Create Sidebar
+- Start on Inventory API
+- Clean up database
+
+Status Update Since Last Meeting
+Accomplishments:
+- Repo Created
+- High-level design complete
+
+Tasks Completed:
+- Repo Created: Elliot, Luke
+- Design Document: All 
+- Familiarize with project design approach: All
+
+Befere The Next Meeting
+Plans:
+- Begin working on Inventory API
+- Create order page
+- Create sidebar component
+- Begin working on React Router
+- Clean up database
+
+Task Assignments:
+- Create Order Page: Elliot
+- React Router: Antony
+- Create Inventory API: Brayden
+- Clean Up Database: Luke
+- Create Sidebar: Elliot
+
