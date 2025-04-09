@@ -1,0 +1,43 @@
+SCRUM Meeting 3 for Project 3
+Meeting Date: 3/28/25
+
+Meeting Attendees
+ - Brayden Bailey
+ - Elliot Michlin
+ - Antony Quach
+ - Luke Zhang
+ 
+Meeting Agenda Items
+- Discuss goals to end the sprint
+- Discuss progress
+- Talk about roadblocks
+- Questions for each other
+
+Status Update Since Last Meeting
+Accomplishments:
+- Order page is now up and running
+- Sidebar component has been created
+- Database cleaned up
+- Inventory API is being worked on
+- React Router is being worked on
+
+Tasks Completed: 
+- Create Order Page: Elliot
+- (NOT COMPLETED) React Router: Antony
+- (NOT COMPLETED)  Inventory API: Brayden
+- Clean Up Database: Luke
+- Create Sidebar: Elliot
+
+Befere The Next Meeting
+Plans:
+- Wrap up remaining sprint 1 work to release MVP 1
+- Start work on sprint 1 written materials & mid-project presentation
+- Begin planning for sprint 2 assignments
+
+Task Assignments:
+- Finish Inventory API: Brayden
+- Inventory Page: Brayden
+- Start Order Checkout: Elliot
+- Set Up Web Deployment: Luke
+- React Router: Antony
+
