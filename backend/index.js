@@ -3,7 +3,8 @@ const express = require('express');
 const { Pool } = require('pg');
 const dotenv = require('dotenv').config();
 const cors = require('cors');
-const crypto = require('crypto')
+const crypto = require('crypto');
+const { error } = require('console');
 
 const app = express();
 const port = 3000;
@@ -234,6 +235,144 @@ app.get('/menu', (req, res) => {
 })
 
 /**
+ * Modify Menu
+ * *******************
+ * URI: /menu/edit
+ * 
+ * NEEDS AUTH: manager
+ * 
+ * PARAMETERS: {
+ *      name: string,
+ *      quantity: int
+ * }
+ * 
+ * RESPONSE:
+ * {
+ *     name: text,
+ *     price: float,
+ * }
+ *
+ */
+app.get('/menu/edit', (req, res) => {
+    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+
+    let {name, price } = req.query;
+    price = parseFloat(price);
+
+    if( typeof name != "string" || typeof price != "number"){
+        res.status(500).send({ error: "Unable to add, please check properties", name: name, price: price});
+        return;
+    }
+
+    pool.query("UPDATE menu SET price = $1 WHERE name = $2", [price * 100_000, name])
+        .then((result) => {
+            if(result.rowCount < 1){
+                res.status(500).send({ error: "Menu item not found", name: name, price: price });
+                return;
+            }
+            res.status(200).send({name: name, price: price});
+        })
+        .catch( (error) => {
+            console.log(error);
+            res.status(200).send({error: "Server Error, check console", name: name, price: price});
+        })
+})
+
+/**
+ * Add Menu item
+ * *******************
+ * URI: /menu/add
+ * 
+ * NEEDS AUTH: manager
+ * 
+ * PARAMETERS: {
+ *      name: string,
+ *      price: float,
+ *      option_hot
+ * }
+ * 
+ * RESPONSE:
+ * {
+ *      name: text,
+ *      price: float,
+ *      in_stock: bool
+ * }
+ */
+app.get('/menu/add', (req, res) => {
+    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+
+    let {name, category, price, option_hot } = req.query;
+    price = parseFloat(price);
+    option_hot = (option_hot === "true")
+
+    if( typeof name != "string" || typeof category != "string" || typeof price != "number" || typeof option_hot != "boolean"){
+        res.status(500).send({ error: "Unable to add, please check properties", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
+        return;
+    }
+
+    pool.query("INSERT INTO menu(name, category, price, in_stock, option_hot, ingredients) VALUES ($1, $2, $3, $4, $5, $6)", [name, category, price * 100_000, true, option_hot, [] ])
+        .then((result) => {
+            if(result.rowCount < 1){
+                res.status(500).send({ error: "Unable to add item", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: []  });
+                return;
+            }
+            res.status(200).send({name: name, category: category, price: price, in_stock: true, option_hot: option_hot, ingredients: [] });
+        })
+        .catch( (error) => {
+            console.log(error);
+            res.status(200).send({error: "Server Error, check console", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
+        })
+})
+
+app.get('/menu/get', (req, res) => {
+    pool.query("SELECT * FROM menu WHERE name = $1", ["Test"])
+        .then((result) => {
+            res.status(500).send({result: result.rows});
+        })
+})
+
+/**
+ * Delete Menu Item
+ * *******************
+ * URI: /menu/edit
+ * 
+ * NEEDS AUTH: manager
+ * 
+ * PARAMETERS: {
+ *      name: string,
+ * }
+ * 
+ * RESPONSE:
+ * {
+ *     name: text,
+ * }
+ *
+ */
+app.get('/menu/delete', (req, res) => {
+    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+
+    let {name} = req.query;
+
+    if( typeof name != "string"){
+        res.status(500).send({ error: "Unable to delete, please check properties", name: name});
+        return;
+    }
+
+    pool.query("DELETE FROM menu WHERE name = $1", [name])
+        .then((result) => {
+            if(result.rowCount < 1){
+                res.status(500).send({ error: "Menu item not found", name: name});
+                return;
+            }
+            res.status(200).send({name: name});
+        })
+        .catch( (error) => {
+            console.log(error);
+            res.status(200).send({error: "Server Error, check console", name: name });
+        })
+})
+
+/**
  * Get Inventory
  * *******************
  * URI: /inventory
@@ -345,6 +484,10 @@ app.get('/inventory/edit', (req, res) => {
             }
             res.status(200).send({name: name, quantity: quantity});
         })
+        .catch( (error) => {
+            console.log(error);
+            res.status(200).send({error: "Server Error, check console", name: name, quantity: quantity});
+        })
 })
 
 /**
@@ -389,6 +532,10 @@ app.get('/inventory/add', (req, res) => {
             }
             res.status(200).send({name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping});
         })
+        .catch( (error) => {
+            console.log(error);
+            res.status(200).send({error: "Server Error, check console", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
+        })
 
     
 })
@@ -429,6 +576,10 @@ app.get('/inventory/delete', (req, res) => {
             }
             res.status(200).send({name: name});
             
+        })
+        .catch( (error) => {
+            console.log(error);
+            res.status(200).send({error: "Server Error, check console", name: name});
         })
 
     
