@@ -325,7 +325,7 @@ app.get('/menu/add', (req, res) => {
 })
 
 app.get('/menu/get', (req, res) => {
-    pool.query("SELECT * FROM menu WHERE name = $1", ["Test"])
+    pool.query("SELECT * FROM menu ORDER BY id ASC")
         .then((result) => {
             res.status(500).send({result: result.rows});
         })
