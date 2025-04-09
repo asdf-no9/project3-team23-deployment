@@ -1,0 +1,30 @@
+Sprint 2 Scrum Meeting (4/7/2025, 4:02 PM, REMOTE)
+SCRUM MASTER: Elliot
+Agenda:
+  Sprint 1 continuation
+  Sprint 2
+
+Luke: Web deployment
+  POS system render takes time
+  Find possible alternatives to load API
+  Database ordering separation: To be finished soon
+  Authentication API: Determine what API to use
+Antony: Accessibility
+  Access Gemini API to translate language (void Function)
+  Sidebar implementation with accessibility features
+Elliot: Ordering API
+  Ordering API finished (menu, category), waiting on Luke to separate: Order page API is finished
+  Testing completed and verified
+  User authentication: 
+  Toppings need to be finished (Ordering API 80% complete): To be finished by next SCRUM meeting (Wednesday, 4/9/25)
+  Ordering workflow: 2 of 3 screens completed (50% completed), to be finished by next SCRUM meeting (Wednesday, 4/9/25)
+  Drink selection/customization page to be finished
+  Category selection page: Completed, 10% finished for drinks
+  Side bar currently in planning stage: Worked on by everyone, frontend design is finished (50%)
+  Manager pages not in progress
+Brayden: Inventory API & System
+  Menu API will be the same as Inventory API
+  Create actual Inventory page with Elliot (React)
+  Look into ways to display information: Maybe React Tables
+  API side should be finished by next SCRUM meeting (Wednesday, 4/9/25)
+  Inventory API requires Adding, Removing: Will be finished
