@@ -1,0 +1,29 @@
+SCRUM Meeting 1 for Project 3
+Meeting Date: 3/17/25
+
+Meeting Attendees
+ - Brayden Bailey
+ - Elliot Michlin
+ - Antony Quach
+ - Luke Zhang
+ 
+Meeting Agenda Items
+- Beginning Project
+- Define Backlog
+- Divvy up tasks
+- Discuss plans for the future
+
+Status Update Since Last Meeting
+Accomplishments:
+ None - this is a planning/initial meeting
+
+Befere The Next Meeting
+Plans:
+- Begin creating our project
+- Start learning React and Express
+
+Task Assignments:
+- Familiarize with project design approach
+- Draft frontend design prototypes
+- Write up project design management reports
+- Create project repos
