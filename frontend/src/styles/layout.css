@@ -76,9 +76,11 @@
   color: black;
   height: 100vh;
   background-color: white;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .subtotal {
@@ -103,9 +105,9 @@
   grid-template-columns: 1fr 1fr;
   grid-auto-flow: row;
 }
-.buttonContainer button {
-  background-color: white;
-  color: black;
+.buttonContainer a button {
+  height: 100%;
+  width: 100%;
 }
 
 /*This is for the accessibility options*/
@@ -126,10 +128,12 @@
   background-color: white;
   height: 80vh;
   max-height: 80vh;
-
   margin-top: 20px;
   border-radius: 8px;
   padding: 10px;
+  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .centeralign {
@@ -168,6 +172,34 @@
   margin-top: 50px;
 }
 
+.drinkgrid {
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  grid-auto-flow: column;
+  gap: 10px;
+  max-height: 80%;
+  margin-right: auto;
+  margin-top: 50px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.drinkbuttons {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  align-items: start;
+  max-width: 1000px;
+  gap: 10px;
+  margin-right: 20px;
+}
+
+.drinkbuttonitem {
+  margin: 10px;
+  height: 100%;
+  width: 100%;
+}
+
 .catbuttonitem {
   background-color: lightgray;
   color: black;
@@ -179,17 +211,39 @@
   margin-left: 10%;
 }
 
+button.white {
+  background-color: white;
+  color: black;
+}
+
 button.blue {
   background-color: cornflowerblue;
+  color: white;
+}
+
+button.gray {
+  background-color: lightgray;
+  color: black;
 }
 
 button.darkgray {
   background-color: gray;
+  color: white;
+}
+
+button.black {
+  background-color: black;
+  color: white;
+}
+
+.headerbar h1 {
+  margin-left: 30px;
+  font-size: xx-large;
 }
 
 .headerbar.two {
   display: grid;
-  grid-template-columns: 2fr 1fr 2fr 2fr;
+  grid-template-columns: 2.9fr 0.1fr 2fr 2fr;
   gap: 10px;
   margin-right: 20px;
 }
@@ -198,4 +252,9 @@ button.darkgray {
   min-height: 50px;
   margin-top: auto;
   margin-bottom: auto;
+}
+
+.drinkgrid div h2 {
+  margin: 10px;
+  padding: 0;
 }
