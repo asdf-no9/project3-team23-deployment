@@ -59,7 +59,7 @@ export default function OrderKiosk() {
 
     const interactionAddToOrder = () => {
 
-        if ()
+        //if ()
 
             changeOrderState({ ...orderState, orderStep: 0, drinkSelections: [...orderState.drinkSelections, orderState.currentDrinkSelection], currentDrinkSelection: { drink: null, iceLevel: 2, sugarLevel: 1, toppings: [] } });
     }
@@ -176,7 +176,7 @@ export default function OrderKiosk() {
                 {orderStepHTML}
 
             </div>
-            <div class="subtotal">
+            <div className="subtotal">
                 <div className='itemlist'>
                     <h3 className='centeralign'>Current Order</h3>
                     <hr />
