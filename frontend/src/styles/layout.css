@@ -43,7 +43,7 @@
 
 .layout {
   display: grid;
-  grid-template-columns: 4fr 2fr;
+  grid-template-columns: 4fr auto;
   grid-template-rows: auto;
   height: 100%;
   width: 100%;
@@ -89,13 +89,16 @@
 
 .subtotal {
   min-width: 200px;
+  width: 20vw;
+  max-width: 400px;
   height: 100vh;
   background-color: #f87c7c;
   display: flex;
   flex-direction: column;
   padding-left: 20px;
   padding-right: 20px;
-  row-gap: 10px;
+  /* grid-auto-flow: row; */
+  /* grid-template-rows: 80% 20%; */
 }
 
 /*This is for the general category buttons*/
@@ -129,6 +132,7 @@
   background-color: white;
   color: black;
   max-height: 40px;
+  width: 100%;
 }
 
 .itemlist {
@@ -176,28 +180,41 @@
   gap: 10px;
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: auto;
+  margin-bottom: 100px;
   margin-top: 50px;
 }
 
 .drinkgrid {
   display: grid;
-  grid-template-rows: 1fr 1fr 1fr 1fr;
-  grid-auto-flow: column;
+  grid-auto-flow: row;
   gap: 10px;
-  max-height: 80%;
-  margin-left: 20px;
+  height: 90%;
+  max-height: 90%;
+  max-width: 1000px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.drinkgrid div {
+  margin-left: 10px;
   margin-right: 20px;
 }
 
+.drinkgrid h2 {
+  margin-left: 20px;
+}
+
 .drinkbuttons {
-  margin-top: 10px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(220px, calc((100% - 40px) / 5)), 1fr)
+  );
   align-items: start;
-  max-width: 1000px;
   gap: 10px;
-  margin-right: 20px;
+  margin-bottom: 20px;
+  align-self: flex-start;
 }
 
 .drinkbuttons.tips {
@@ -225,8 +242,12 @@
   min-height: 10vw;
 }
 
-.mainBody h2 {
+/* .mainBody h2 {
   margin-left: 10%;
+} */
+
+button {
+  transition: all 250ms;
 }
 
 button.white {
@@ -294,13 +315,17 @@ button.red {
 }
 
 .drinkgrid div h2 {
-  margin: 10px;
+  /* margin: 10px; */
   padding: 0;
 }
 
 .totalButton {
   transition: all;
   transition-duration: 250ms;
+  /* margin-top: 20px;
+  margin-bottom: 20px; */
+  /* height: 100%; */
+  /* margin: 30px; */
 }
 
 /*For high-contrast theme*/
@@ -397,6 +422,10 @@ body.high-contrast .subtotal {
   cursor: pointer;
 }
 
+.invisible {
+  display: none;
+}
+
 .input-button input.invisible {
   opacity: 0;
   cursor: pointer;
@@ -408,10 +437,42 @@ body.high-contrast .subtotal {
   margin-top: -5px;
 }
 
+div.addbutton {
+  display: flex;
+  width: 100%;
+  margin-top: auto;
+}
+
+div.checkoutbutton {
+  display: flex;
+  width: 100%;
+  height: 100px;
+  margin: 40px;
+  margin-top: auto;
+}
+
+div.checkoutbutton button {
+  margin: auto;
+  /* max-width: 1000px; */
+  width: 100%;
+  min-height: 75px;
+  font-size: x-large;
+  margin-right: 80px;
+}
+
 .finalcheckout {
   max-width: 1000px;
   width: 100%;
   margin-bottom: 20px;
+  margin-left: 10px;
+  /* align-self: end; */
+  margin-top: auto;
+  height: 60px;
+  font-size: larger;
+}
+
+div.addbutton button {
+  margin-right: 30px;
 }
 
 .completedscreen {
@@ -440,4 +501,16 @@ body.high-contrast .subtotal {
   max-width: 1000px;
   width: 80%;
   font-size: x-large;
+}
+
+hr {
+  border-color: lightgray;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 8px;
 }

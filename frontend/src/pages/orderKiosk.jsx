@@ -9,7 +9,7 @@ import Confetti from 'react-confetti'
 const options = ["drinks", "ice-cream", "food", "specialty"]
 
 export default function OrderKiosk() {
-    const { category, subcat } = useParams();
+    const { category } = useParams();
 
     const [orderState, changeOrderState] = useState({
         menuLoading: true,
@@ -193,6 +193,7 @@ export default function OrderKiosk() {
 
     const interactionChangeTip = (option, other) => {
         if (orderState.checkoutLoading) return;
+
         if (orderState.tipSelection != option) {
             changeOrderState({ ...orderState, tipSelection: option })
             return;
@@ -238,6 +239,10 @@ export default function OrderKiosk() {
     let orderStepHTML;
 
     if (orderState.orderStep == 0) {
+
+        const enableCheckout = orderState.drinkSelections.length > 0 && orderState.orderStep != 2 && !orderState.menuLoading && !orderState.toppingsLoading && !orderState.drinkAddLoading;
+        const checkoutText = orderState.orderStep == 2 ? "Pending..." : (orderState.menuLoading || orderState.toppingsLoading || orderState.drinkAddLoading) ? "Loading..." : ("Checkout: " + orderState.subtotal)
+
         const categoryButtons = [];
         for (let i in orderState.categories) {
             console.log(orderState.categories[i]);
@@ -255,6 +260,9 @@ export default function OrderKiosk() {
                     <p className='centeralign'>Loading...</p> :
                     <div className='catbuttons'>{categoryButtons}</div>
                 }
+                <div className='checkoutbutton'>
+                    <button disabled={!enableCheckout} className={'totalButton' + (enableCheckout ? ' blue' : ' invisible')} onClick={interactionOrderComplete}>{checkoutText}</button>
+                </div>
             </>;
     } else if (orderState.orderStep == 1) {
         const drinkArray = [];
@@ -294,14 +302,15 @@ export default function OrderKiosk() {
 
         orderStepHTML =
             <>
-                <div className='headerbar two'>
-                    <h1>Select Drink</h1>
+                <div className='headerbar one'>
+                    <h1>{orderState.selectedCategory}</h1>
                     <div></div>
                     <button className='darkgray' onClick={() => interactionCancelDrink()}>Back</button>
-                    <button disabled={!addButtonEnabled} className={"totalButton " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button>
+                    {/* <button disabled={!addButtonEnabled} className={"totalButton " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button> */}
                 </div>
                 <div className='drinkgrid'>
                     <div>
+                        <h2>Select Drink</h2>
                         <div className='drinkbuttons'>{drinkArray}</div>
                     </div>
                     <div>
@@ -323,7 +332,13 @@ export default function OrderKiosk() {
                             <div className='spacer drinkbuttons'>{toppingArray}</div>
                         }
                     </div>
+                    {/* <hr /> */}
+                    <div className='addbutton'>
+                        <button disabled={!addButtonEnabled} className={"finalcheckout " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button>
+                    </div>
                 </div>
+
+
             </>;
     } else if (orderState.orderStep == 2) {
 
@@ -410,9 +425,6 @@ export default function OrderKiosk() {
         )
     }
 
-    const enableCheckout = orderState.drinkSelections.length > 0 && orderState.orderStep != 2 && !orderState.menuLoading && !orderState.toppingsLoading && !orderState.drinkAddLoading;
-    const checkoutText = orderState.orderStep == 2 ? "Pending..." : (orderState.menuLoading || orderState.toppingsLoading || orderState.drinkAddLoading) ? "Loading..." : ("Checkout: " + orderState.subtotal)
-
     const itemList = [];
 
     for (let item in orderState.drinkSelections) {
@@ -420,6 +432,9 @@ export default function OrderKiosk() {
         itemList.push(<li>{parseInt(item) + 1}. ({price_formatted}) {orderState.drinkSelections[item].drink.name}</li>);
     }
 
+    // const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !orderState.drinkAddLoading;
+    // const addButtonText = orderState.drinkAddLoading ? "Loading..." : "Add to Order +";
+    // <button disabled={!enableCheckout} className={'totalButton' + (enableCheckout ? ' blue' : ' black')} onClick={interactionOrderComplete}>{checkoutText}</button>
     return (
         <div className={orderState.orderStep == 3 ? "layout complete" : "layout"}>
             <div className="mainBody" id="mainBody">
@@ -436,9 +451,6 @@ export default function OrderKiosk() {
                             {itemList}
                         </ol>
                     </div>
-                    {orderState.orderStep == 2 ? <></> :
-                        <button disabled={!enableCheckout} className={'totalButton' + (enableCheckout ? ' blue' : ' black')} onClick={interactionOrderComplete}>{checkoutText}</button>
-                    }
 
                 </div> : <></>
             }

@@ -8,6 +8,7 @@ import { HighContrastProvider } from './context/highContrast.jsx';
 import StartOrder from './pages/startOrder.jsx';
 import OrderKiosk from './pages/orderKiosk.jsx';
 import Sidebar from './components/sidebar.jsx';
+import Login from './pages/login.jsx';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD',
@@ -25,6 +26,7 @@ createRoot(document.getElementById('root')).render(
 
             <Routes>
               <Route path="/" element={<StartOrder />} />
+              <Route path="/login" element={<Login />} />
               <Route path='/order-kiosk/' element={<Navigate to="/order-kiosk/drinks" />} />
               <Route path="/order-kiosk/:category" element={<OrderKiosk />} />
               <Route path="/order-kiosk/:category/:subcat" element={<OrderKiosk />} />
