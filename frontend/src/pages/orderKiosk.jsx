@@ -3,6 +3,8 @@ import '../styles/layout.css'
 import { useState, useEffect } from 'react'
 import { Link, useParams, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
+import Confetti from 'react-confetti'
+
 
 const options = ["drinks", "ice-cream", "food", "specialty"]
 
@@ -16,7 +18,7 @@ export default function OrderKiosk() {
         checkoutLoading: false,
         categories: {},
         toppings: {},
-        orderStep: 3,
+        orderStep: 0,
         selectedCategory: null,
         currentDrinkSelection: { drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0 },
         drinkSelections: [],
@@ -375,8 +377,7 @@ export default function OrderKiosk() {
                         <button onClick={() => interactionSelectPaymentType(1)} className={'drinkbuttonitem ' + (orderState.paymentType == 1 ? 'darkgray' : 'gray')}>Cash</button>
                     </div>
                 </div>
-                <hr />
-                <div>
+                <div className='orderdetails'>
                     <h2 className='subtext'>Subtotal: {orderState.subtotal}</h2>
                     <h2 className='subtext'>Tax: {currencyFormatter.format(tax)}</h2>
                     <h2 className='subtext'>Tip: {currencyFormatter.format(tip)}</h2>
@@ -386,12 +387,26 @@ export default function OrderKiosk() {
             </div>
         </>;
     } else if (orderState.orderStep == 3) {
+
+        let width, x;
+        const main = document.getElementById("mainBody");
+        if (main && main.offsetWidth) {
+            x = main.offsetLeft;
+            width = window.innerWidth - x;
+        } else {
+            width = window.innerWidth;
+            x = 0;
+        }
+
         orderStepHTML = (
-            <div>
-                <h1>Order Complete!</h1>
-                <p>Thank you for your order!</p>
-                <Link to="/"><button className='blue'>Start Over</button></Link>
-            </div>
+            <>
+                <Confetti confettiSource={{ x: x, w: width }} numberOfPieces={300} recycle={false} initialVelocityY={10} gravity={0.2} initialVelocityX={5} tweenDuration={2000} run={true} onConfettiComplete={(confetti) => confetti.reset()} />
+                <div className='completedscreen'>
+                    <h1>Thank You!</h1>
+                    <p>Your order is complete.</p>
+                    <Link to="/"><button className='blue'>Start Another Order</button></Link>
+                </div>
+            </>
         )
     }
 
@@ -407,7 +422,7 @@ export default function OrderKiosk() {
 
     return (
         <div className={orderState.orderStep == 3 ? "layout complete" : "layout"}>
-            <div className="mainBody">
+            <div className="mainBody" id="mainBody">
 
                 {orderStepHTML}
 

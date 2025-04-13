@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "concurrently": "^9.1.2",
-    "project3-team23": "file:"
+    "project3-team23": "file:",
+    "react-confetti": "^6.4.0"
   }
 }

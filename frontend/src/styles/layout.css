@@ -413,3 +413,31 @@ body.high-contrast .subtotal {
   width: 100%;
   margin-bottom: 20px;
 }
+
+.completedscreen {
+  margin-top: auto;
+  margin-bottom: auto;
+  text-align: center;
+}
+
+.completedscreen h1 {
+  margin: 0;
+  padding: 5px;
+}
+
+.orderdetails {
+  margin-top: 20px;
+}
+
+.completedscreen p {
+  margin: 0;
+  padding: 5px;
+  font-size: x-large;
+  padding-bottom: 20vh;
+}
+
+.completedscreen button {
+  max-width: 1000px;
+  width: 80%;
+  font-size: x-large;
+}
