@@ -2,6 +2,7 @@
 import '../styles/layout.css'
 import { useState, useEffect } from 'react'
 import { Link, useParams, Navigate } from 'react-router';
+import { currencyFormatter } from '../main';
 
 const options = ["drinks", "ice-cream", "food", "specialty"]
 
@@ -11,12 +12,23 @@ export default function OrderKiosk() {
     const [orderState, changeOrderState] = useState({
         menuLoading: true,
         toppingsLoading: true,
+        drinkAddLoading: false,
+        checkoutLoading: false,
         categories: {},
         toppings: {},
-        orderStep: 0,
+        orderStep: 3,
         selectedCategory: null,
-        currentDrinkSelection: { drink: null, iceLevel: 2, sugarLevel: 1, toppings: [] },
+        currentDrinkSelection: { drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0 },
         drinkSelections: [],
+        tipSelection: 0,
+        customTipChoice: 0,
+        customTipChoice_raw: "",
+        tipError: false,
+        oldsubtotal_raw: 0,
+        subtotal_raw: 0,
+        subtotal: "$0.00",
+        paymentType: 0,
+        checkoutError: false,
     });
 
     useEffect(() => {
@@ -46,22 +58,114 @@ export default function OrderKiosk() {
         return (<Navigate to="/order-kiosk/drinks" />)
 
     const interactionCategorySelection = (name) => {
-        changeOrderState({ ...orderState, selectedCategory: name, orderStep: 1, currentDrinkSelection: { drink: null, iceLevel: 2, sugarLevel: 1, toppings: [] } });
+        changeOrderState({
+            ...orderState, selectedCategory: name, orderStep: 1, currentDrinkSelection: {
+                drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
+            }
+        });
+    }
+
+    const interactionCompleteCheckout = () => {
+        if (orderState.checkoutLoading || orderState.tipError)
+            return;
+
+        changeOrderState({ ...orderState, checkoutLoading: true, checkoutError: false });
+
+        let tip = 0;
+
+        if (orderState.tipSelection == 4) {
+            tip = orderState.customTipChoice;
+        } else if (orderState.tipSelection == 3) {
+            tip = 0.25 * orderState.subtotal_raw / 100000;
+        }
+        else if (orderState.tipSelection == 2) {
+            tip = 0.2 * orderState.subtotal_raw / 100000;
+        } else if (orderState.tipSelection == 1) {
+            tip = 0.15 * orderState.subtotal_raw / 100000;
+        }
+        else {
+            tip = 0;
+        }
+
+        fetch("http://localhost:3000/order/checkout", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                paymentType: orderState.paymentType,
+                tip: tip
+            })
+        })
+            .then((response) => response.json())
+            .then((r) => {
+                console.log(r)
+
+                if (r["success"] == false || r["error"]) {
+                    changeOrderState({ ...orderState, checkoutLoading: false, checkoutError: true });
+                    return;
+                }
+
+                changeOrderState({ ...orderState, checkoutLoading: false, orderStep: 3 });
+            })
+            .catch((e) => {
+                console.error(e);
+            });
     }
 
     const interactionOrderComplete = () => {
-        changeOrderState({ ...orderState, orderStep: 2, currentDrinkSelection: { drink: null, iceLevel: 2, sugarLevel: 1, toppings: [] } });
+        changeOrderState({
+            ...orderState, orderStep: 2, currentDrinkSelection: {
+                drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
+            }, tipSelection: 0, customTipChoice: 0, tipError: false, customTipChoice_raw: "", paymentType: 0, checkoutError: false
+        });
     }
 
     const interactionCancelDrink = () => {
-        changeOrderState({ ...orderState, orderStep: 0, currentDrinkSelection: { drink: null, iceLevel: 2, sugarLevel: 1, toppings: [] } });
+        changeOrderState({
+            ...orderState, orderStep: 0, currentDrinkSelection: {
+                drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
+            }
+        });
     }
 
     const interactionAddToOrder = () => {
 
-        //if ()
+        if (orderState.drinkAddLoading || orderState.currentDrinkSelection.drink == null)
+            return;
 
-            changeOrderState({ ...orderState, orderStep: 0, drinkSelections: [...orderState.drinkSelections, orderState.currentDrinkSelection], currentDrinkSelection: { drink: null, iceLevel: 2, sugarLevel: 1, toppings: [] } });
+        changeOrderState({ ...orderState, drinkAddLoading: true });
+
+        fetch("http://localhost:3000/order/add", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                drinkID: orderState.currentDrinkSelection.drink.id,
+                sugarLvl: orderState.currentDrinkSelection.sugarLevel,
+                iceLvl: orderState.currentDrinkSelection.iceLevel,
+                toppings: orderState.currentDrinkSelection.toppings
+            })
+        })
+            .then((response) => response.json())
+            .then((r) => {
+
+                console.log(r)
+
+                const priceUpdater = orderState.currentDrinkSelection;
+                priceUpdater.price_raw = r["subtotal_raw"] - orderState.subtotal_raw;
+
+                changeOrderState({
+                    ...orderState, orderStep: 0, drinkSelections: [...orderState.drinkSelections, priceUpdater],
+                    currentDrinkSelection: {
+                        drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
+                    }, drinkAddLoading: false, oldsubtotal_raw: orderState.subtotal_raw, subtotal: r["subtotal"], subtotal_raw: r["subtotal_raw"]
+                });
+            })
+            .catch((e) => {
+                console.error(e);
+            });
     }
 
     const interactionChangeDrink = (drink) => {
@@ -85,6 +189,49 @@ export default function OrderKiosk() {
         }
     }
 
+    const interactionChangeTip = (option, other) => {
+        if (orderState.checkoutLoading) return;
+        if (orderState.tipSelection != option) {
+            changeOrderState({ ...orderState, tipSelection: option })
+            return;
+        }
+        if (option == 4 && other != null) {
+            const input = other.target.value.trim();
+
+            if (input == "") {
+                changeOrderState({ ...orderState, tipError: false, customTipChoice: 0, customTipChoice_raw: "" })
+                return;
+            }
+
+            const tipAmt = parseFloat(input);
+
+            if (isNaN(tipAmt) || tipAmt == null || tipAmt < 0 || tipAmt > 100) {
+                // give error msg
+                changeOrderState({ ...orderState, tipError: true, customTipChoice_raw: input })
+                return;
+            } else {
+                changeOrderState({ ...orderState, tipError: false, tipSelection: 4, customTipChoice: tipAmt, customTipChoice_raw: input })
+                //, customTipChoice_raw: currencyFormatter.format(tipAmt).replace("$", "") }
+            }
+        }
+    }
+
+    const interactionFinalizeTip = () => {
+        if (orderState.checkoutLoading) return;
+        if (orderState.tipError || orderState.tipSelection != 4) return;
+
+        if (orderState.customTipChoice == 0) {
+            changeOrderState({ ...orderState, tipError: false, tipSelection: 0, customTipChoice: 0, customTipChoice_raw: "" })
+            return;
+        }
+
+        changeOrderState({ ...orderState, tipSelection: 4, customTipChoice_raw: currencyFormatter.format(orderState.customTipChoice).replace("$", "") })
+    }
+
+    const interactionSelectPaymentType = (type) => {
+        if (orderState.checkoutLoading) return;
+        changeOrderState({ ...orderState, paymentType: type })
+    }
 
     let orderStepHTML;
 
@@ -96,7 +243,12 @@ export default function OrderKiosk() {
         }
         orderStepHTML =
             <>
-                <h2>Select Category</h2>
+                <div className='headerbar one'>
+                    <h1>Select Category</h1>
+                    <div></div>
+                    <Link to="/"><button className='darkgray'>Start Over</button></Link>
+                    {/* <button className='blue' onClick={() => interactionAddToOrder()}>Add To Order +</button> */}
+                </div>
                 {orderState.menuLoading ?
                     <p className='centeralign'>Loading...</p> :
                     <div className='catbuttons'>{categoryButtons}</div>
@@ -134,13 +286,17 @@ export default function OrderKiosk() {
             else if (orderState.currentDrinkSelection.toppings.includes(topping["name"])) color = "darkgray";
             toppingArray.push(<button disabled={topping["in_stock"] ? false : true} className={'drinkbuttonitem ' + color} onClick={() => interactionChangeTopping(topping["name"])}>{topping["name"]}</button>)
         }
+
+        const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !orderState.drinkAddLoading;
+        const addButtonText = orderState.drinkAddLoading ? "Loading..." : "Add to Order +";
+
         orderStepHTML =
             <>
                 <div className='headerbar two'>
                     <h1>Select Drink</h1>
                     <div></div>
-                    <button className='darkgray' onClick={() => interactionCancelDrink()}>Cancel</button>
-                    <button className='blue' onClick={() => interactionAddToOrder()}>Add To Order +</button>
+                    <button className='darkgray' onClick={() => interactionCancelDrink()}>Back</button>
+                    <button disabled={!addButtonEnabled} className={"totalButton " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button>
                 </div>
                 <div className='drinkgrid'>
                     <div>
@@ -158,35 +314,119 @@ export default function OrderKiosk() {
                             {sugarArray}
                         </div>
                     </div>
-                    <div>
-                        <h2>Toppings</h2>
+                    <div >
+                        <h2>Toppings <span className='subtext'>(Select All)</span></h2>
                         {orderState.toppingsLoading ?
                             <p>Loading...</p> :
-                            <div className='drinkbuttons'>{toppingArray}</div>
+                            <div className='spacer drinkbuttons'>{toppingArray}</div>
                         }
                     </div>
                 </div>
             </>;
+    } else if (orderState.orderStep == 2) {
+
+
+        const tax = orderState.subtotal_raw * 0.0825 / 100000;
+        let tip = 0;
+
+        if (orderState.tipSelection == 4) {
+            tip = orderState.customTipChoice;
+        } else if (orderState.tipSelection == 3) {
+            tip = 0.25 * orderState.subtotal_raw / 100000;
+        }
+        else if (orderState.tipSelection == 2) {
+            tip = 0.2 * orderState.subtotal_raw / 100000;
+        } else if (orderState.tipSelection == 1) {
+            tip = 0.15 * orderState.subtotal_raw / 100000;
+        }
+        else {
+            tip = 0;
+        }
+
+        const total = (orderState.subtotal_raw / 100000) + tip + tax;
+        const checkoutFinalText = orderState.checkoutLoading ? "Processing Transaction..." : orderState.checkoutError ? "Server error occurred. Please try again." : "Pay & Complete Order";
+
+        orderStepHTML = <>
+            <div className='headerbar one'>
+                <h1>Checkout</h1>
+                <div></div>
+                <button disabled={orderState.checkoutLoading} className='darkgray' onClick={() => interactionCancelDrink()}>Back</button>
+            </div>
+            <div className='drinkgrid'>
+                <div>
+                    <h2 className='h3'>Would you like to leave a Tip?</h2>
+                    <div className='drinkbuttons tips'>
+                        <button onClick={() => interactionChangeTip(0)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 0 ? 'darkgray' : 'gray')}><h2>0%</h2><h2 className='h3'>$0.00</h2></button>
+                        <button onClick={() => interactionChangeTip(1)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 1 ? 'darkgray' : 'gray')}><h2>15%</h2><h2 className='h3'>{currencyFormatter.format(0.15 * orderState.subtotal_raw / 100000)}</h2></button>
+                        <button onClick={() => interactionChangeTip(2)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 2 ? 'darkgray' : 'gray')}><h2>20%</h2><h2 className='h3'>{currencyFormatter.format(0.2 * orderState.subtotal_raw / 100000)}</h2></button>
+                        <button onClick={() => interactionChangeTip(3)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 3 ? 'darkgray' : 'gray')}><h2>25%</h2><h2 className='h3'>{currencyFormatter.format(0.25 * orderState.subtotal_raw / 100000)}</h2></button>
+                        {/* <button onClick={() => interactionChangeTip(4)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray')}><h2>Other</h2></button> */}
+                    </div>
+                    <div className={'drinkbuttonitem tips input-button ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray')} onClick={() => interactionChangeTip(4)}>
+                        <span>{orderState.tipSelection == 4 ? "$" : "Other"}</span>
+                        <input onChange={(event) => interactionChangeTip(4, event)} onBlur={() => interactionFinalizeTip()} value={orderState.tipSelection == 4 ? orderState.customTipChoice_raw : ''} maxLength={5} placeholder='0.00' className={orderState.tipSelection == 4 ? "visible" : "invisible"} type="text" />
+                    </div>
+                    {orderState.tipError ? <h2 className='tips error'>Invalid tip choice.</h2> : <></>}
+                </div>
+                <div>
+                    <h2 className='h3'>Select your payment type.</h2>
+                    <div className='drinkbuttons'>
+                        <button onClick={() => interactionSelectPaymentType(0)} className={'drinkbuttonitem ' + (orderState.paymentType == 0 ? 'darkgray' : 'gray')}>Credit Card</button>
+                        <button onClick={() => interactionSelectPaymentType(1)} className={'drinkbuttonitem ' + (orderState.paymentType == 1 ? 'darkgray' : 'gray')}>Cash</button>
+                    </div>
+                </div>
+                <hr />
+                <div>
+                    <h2 className='subtext'>Subtotal: {orderState.subtotal}</h2>
+                    <h2 className='subtext'>Tax: {currencyFormatter.format(tax)}</h2>
+                    <h2 className='subtext'>Tip: {currencyFormatter.format(tip)}</h2>
+                    <h2 className=''>Total: {currencyFormatter.format(total)}</h2>
+                    <button onClick={() => interactionCompleteCheckout()} className={'finalcheckout ' + (orderState.checkoutLoading ? 'black' : orderState.checkoutError ? 'red' : 'blue')}>{checkoutFinalText}</button>
+                </div>
+            </div>
+        </>;
+    } else if (orderState.orderStep == 3) {
+        orderStepHTML = (
+            <div>
+                <h1>Order Complete!</h1>
+                <p>Thank you for your order!</p>
+                <Link to="/"><button className='blue'>Start Over</button></Link>
+            </div>
+        )
+    }
+
+    const enableCheckout = orderState.drinkSelections.length > 0 && orderState.orderStep != 2 && !orderState.menuLoading && !orderState.toppingsLoading && !orderState.drinkAddLoading;
+    const checkoutText = orderState.orderStep == 2 ? "Pending..." : (orderState.menuLoading || orderState.toppingsLoading || orderState.drinkAddLoading) ? "Loading..." : ("Checkout: " + orderState.subtotal)
+
+    const itemList = [];
+
+    for (let item in orderState.drinkSelections) {
+        const price_formatted = currencyFormatter.format(orderState.drinkSelections[item].price_raw / 100000);
+        itemList.push(<li>{parseInt(item) + 1}. ({price_formatted}) {orderState.drinkSelections[item].drink.name}</li>);
     }
 
     return (
-        <div className="layout">
+        <div className={orderState.orderStep == 3 ? "layout complete" : "layout"}>
             <div className="mainBody">
 
                 {orderStepHTML}
 
             </div>
-            <div className="subtotal">
-                <div className='itemlist'>
-                    <h3 className='centeralign'>Current Order</h3>
-                    <hr />
-                    <ol>
-                        <li>Test</li>
-                        <li>Test 2</li>
-                    </ol>
-                </div>
-                <button className='totalButton blue' onClick={interactionOrderComplete}>Total: $0.00</button>
-            </div>
+            {orderState.orderStep != 3 ?
+                <div className="subtotal">
+                    <div className='itemlist'>
+                        <h3 className='centeralign'>Current Order</h3>
+                        <hr />
+                        <ol>
+                            {itemList}
+                        </ol>
+                    </div>
+                    {orderState.orderStep == 2 ? <></> :
+                        <button disabled={!enableCheckout} className={'totalButton' + (enableCheckout ? ' blue' : ' black')} onClick={interactionOrderComplete}>{checkoutText}</button>
+                    }
+
+                </div> : <></>
+            }
         </div>
     )
 }

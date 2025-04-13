@@ -49,6 +49,10 @@
   width: 100%;
 }
 
+.layout.complete {
+  grid-template-columns: 6fr;
+}
+
 .sidebar {
   background-color: #f87c7c;
   max-height: 100vh;
@@ -78,7 +82,7 @@
   background-color: white;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  /* overflow: scroll; */
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -108,6 +112,10 @@
 .buttonContainer a button {
   height: 100%;
   width: 100%;
+}
+
+.spacer {
+  margin-bottom: 50px;
 }
 
 /*This is for the accessibility options*/
@@ -178,8 +186,6 @@
   grid-auto-flow: column;
   gap: 10px;
   max-height: 80%;
-  margin-right: auto;
-  margin-top: 50px;
   margin-left: 20px;
   margin-right: 20px;
 }
@@ -194,10 +200,22 @@
   margin-right: 20px;
 }
 
+.drinkbuttons.tips {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  margin-bottom: 15px;
+}
+
 .drinkbuttonitem {
   margin: 10px;
   height: 100%;
   width: 100%;
+}
+
+.drinkbuttonitem.tips {
+  margin: 5px;
+  height: 100%;
+  width: 100%;
+  padding: 0;
 }
 
 .catbuttonitem {
@@ -217,22 +235,28 @@ button.white {
 }
 
 button.blue {
-  background-color: cornflowerblue;
+  background-color: rgb(66, 124, 233);
   color: white;
 }
 
-button.gray {
+.gray {
   background-color: lightgray;
   color: black;
 }
 
-button.darkgray {
+.darkgray {
   background-color: gray;
   color: white;
 }
 
 button.black {
   background-color: black;
+  color: white;
+  cursor: not-allowed;
+}
+
+button.red {
+  background-color: rgb(237, 53, 53);
   color: white;
 }
 
@@ -248,15 +272,35 @@ button.black {
   margin-right: 20px;
 }
 
+.headerbar.one {
+  display: grid;
+  grid-template-columns: 2.9fr 2.1fr 2fr;
+  gap: 10px;
+  margin-right: 20px;
+}
+
 .headerbar.two button {
   min-height: 50px;
   margin-top: auto;
   margin-bottom: auto;
 }
 
+.headerbar button,
+.headerbar a {
+  min-height: 50px;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 100%;
+}
+
 .drinkgrid div h2 {
   margin: 10px;
   padding: 0;
+}
+
+.totalButton {
+  transition: all;
+  transition-duration: 250ms;
 }
 
 /*For high-contrast theme*/
@@ -289,4 +333,83 @@ body.high-contrast .mainBody {
 body.high-contrast .subtotal {
   background-color: yellow;
   color: white;
+}
+
+.subtext {
+  /* font-weight: normal; */
+  font-size: medium;
+}
+
+.h3 {
+  font-weight: normal;
+}
+
+.tips h2:not(.h3) {
+  font-size: xx-large;
+}
+
+.tips h2.h3 {
+  font-size: large;
+}
+
+.input-button {
+  border: none;
+  border-radius: 8px;
+  font-size: xx-large;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  max-width: 500px;
+  width: 50vw;
+  max-height: 75px;
+  display: flex;
+  padding: 10px;
+  align-content: center;
+}
+
+.input-button.tips span {
+  padding: 10px;
+  margin-left: 10px;
+  padding-right: 0;
+  white-space: nowrap;
+}
+
+.input-button.tips {
+  height: 100%;
+  width: 100%;
+}
+
+.input-button input {
+  border: none;
+  font-size: xx-large;
+  font-weight: bold;
+  background-color: transparent;
+  color: white;
+  outline: none;
+}
+
+.input-button input::placeholder {
+  color: lightgray;
+}
+
+.input-button input.visible {
+  opacity: 100;
+  cursor: pointer;
+}
+
+.input-button input.invisible {
+  opacity: 0;
+  cursor: pointer;
+}
+
+.tips.error {
+  color: rgb(237, 53, 53);
+  font-size: large;
+  margin-top: -5px;
+}
+
+.finalcheckout {
+  max-width: 1000px;
+  width: 100%;
+  margin-bottom: 20px;
 }

@@ -5,11 +5,14 @@ const dotenv = require('dotenv').config();
 const cors = require('cors');
 const crypto = require('crypto');
 const { error } = require('console');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3000;
 
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const pool = new Pool({
     user: process.env.PSQL_USER,
@@ -219,6 +222,7 @@ app.get('/menu', (req, res) => {
                 let price = currencyFormatter.format(row["price"] / 100000);
 
                 menu[cat_name_capital].push({
+                    id: row["id"],
                     name: row["name"],
                     price: price,
                     in_stock: row["in_stock"]
@@ -253,28 +257,28 @@ app.get('/menu', (req, res) => {
  * }
  *
  */
-app.get('/menu/edit', (req, res) => {
+app.post('/menu/edit', (req, res) => {
     // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
 
-    let {name, price } = req.query;
+    let { name, price } = req.body;
     price = parseFloat(price);
 
-    if( typeof name != "string" || typeof price != "number"){
-        res.status(500).send({ error: "Unable to add, please check properties", name: name, price: price});
+    if (typeof name != "string" || typeof price != "number") {
+        res.status(500).send({ error: "Unable to add, please check properties", name: name, price: price });
         return;
     }
 
     pool.query("UPDATE menu SET price = $1 WHERE name = $2", [price * 100_000, name])
         .then((result) => {
-            if(result.rowCount < 1){
+            if (result.rowCount < 1) {
                 res.status(500).send({ error: "Menu item not found", name: name, price: price });
                 return;
             }
-            res.status(200).send({name: name, price: price});
+            res.status(200).send({ name: name, price: price });
         })
-        .catch( (error) => {
+        .catch((error) => {
             console.log(error);
-            res.status(200).send({error: "Server Error, check console", name: name, price: price});
+            res.status(200).send({ error: "Server Error, check console", name: name, price: price });
         })
 })
 
@@ -298,36 +302,36 @@ app.get('/menu/edit', (req, res) => {
  *      in_stock: bool
  * }
  */
-app.get('/menu/add', (req, res) => {
+app.post('/menu/add', (req, res) => {
     // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
 
-    let {name, category, price, option_hot } = req.query;
+    let { name, category, price, option_hot } = req.body;
     price = parseFloat(price);
     option_hot = (option_hot === "true")
 
-    if( typeof name != "string" || typeof category != "string" || typeof price != "number" || typeof option_hot != "boolean"){
+    if (typeof name != "string" || typeof category != "string" || typeof price != "number" || typeof option_hot != "boolean") {
         res.status(500).send({ error: "Unable to add, please check properties", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
         return;
     }
 
-    pool.query("INSERT INTO menu(name, category, price, in_stock, option_hot, ingredients) VALUES ($1, $2, $3, $4, $5, $6)", [name, category, price * 100_000, true, option_hot, [] ])
+    pool.query("INSERT INTO menu(name, category, price, in_stock, option_hot, ingredients) VALUES ($1, $2, $3, $4, $5, $6)", [name, category, price * 100_000, true, option_hot, []])
         .then((result) => {
-            if(result.rowCount < 1){
-                res.status(500).send({ error: "Unable to add item", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: []  });
+            if (result.rowCount < 1) {
+                res.status(500).send({ error: "Unable to add item", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
                 return;
             }
-            res.status(200).send({name: name, category: category, price: price, in_stock: true, option_hot: option_hot, ingredients: [] });
+            res.status(200).send({ name: name, category: category, price: price, in_stock: true, option_hot: option_hot, ingredients: [] });
         })
-        .catch( (error) => {
+        .catch((error) => {
             console.log(error);
-            res.status(200).send({error: "Server Error, check console", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
+            res.status(200).send({ error: "Server Error, check console", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
         })
 })
 
 app.get('/menu/get', (req, res) => {
     pool.query("SELECT * FROM menu ORDER BY id ASC")
         .then((result) => {
-            res.status(500).send({result: result.rows});
+            res.status(500).send({ result: result.rows });
         })
 })
 
@@ -348,27 +352,27 @@ app.get('/menu/get', (req, res) => {
  * }
  *
  */
-app.get('/menu/delete', (req, res) => {
+app.post('/menu/delete', (req, res) => {
     // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
 
-    let {name} = req.query;
+    let { name } = req.body;
 
-    if( typeof name != "string"){
-        res.status(500).send({ error: "Unable to delete, please check properties", name: name});
+    if (typeof name != "string") {
+        res.status(500).send({ error: "Unable to delete, please check properties", name: name });
         return;
     }
 
     pool.query("DELETE FROM menu WHERE name = $1", [name])
         .then((result) => {
-            if(result.rowCount < 1){
-                res.status(500).send({ error: "Menu item not found", name: name});
+            if (result.rowCount < 1) {
+                res.status(500).send({ error: "Menu item not found", name: name });
                 return;
             }
-            res.status(200).send({name: name});
+            res.status(200).send({ name: name });
         })
-        .catch( (error) => {
+        .catch((error) => {
             console.log(error);
-            res.status(200).send({error: "Server Error, check console", name: name });
+            res.status(200).send({ error: "Server Error, check console", name: name });
         })
 })
 
@@ -465,28 +469,28 @@ app.get('/inventory', (req, res) => {
  * }
  *
  */
-app.get('/inventory/edit', (req, res) => {
+app.post('/inventory/edit', (req, res) => {
     // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
 
-    let {name, quantity } = req.query;
+    let { name, quantity } = req.body;
     quantity = parseInt(quantity);
 
-    if( typeof name != "string" || typeof quantity != "number"){
-        res.status(500).send({ error: "Unable to add, please check properties", name: name, quantity: quantity});
+    if (typeof name != "string" || typeof quantity != "number") {
+        res.status(500).send({ error: "Unable to add, please check properties", name: name, quantity: quantity });
         return;
     }
 
     pool.query("UPDATE inventory SET quantity = $1 WHERE name = $2", [quantity, name])
         .then((result) => {
-            if(result.rowCount < 1){
+            if (result.rowCount < 1) {
                 res.status(500).send({ error: "Inventory item not found", name: name, quantity: quantity });
                 return;
             }
-            res.status(200).send({name: name, quantity: quantity});
+            res.status(200).send({ name: name, quantity: quantity });
         })
-        .catch( (error) => {
+        .catch((error) => {
             console.log(error);
-            res.status(200).send({error: "Server Error, check console", name: name, quantity: quantity});
+            res.status(200).send({ error: "Server Error, check console", name: name, quantity: quantity });
         })
 })
 
@@ -512,32 +516,32 @@ app.get('/inventory/edit', (req, res) => {
  *      is_topping: bool
  * }
  */
-app.get('/inventory/add', (req, res) => {
+app.post('/inventory/add', (req, res) => {
     // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
 
-    let {name, quantity } = req.query;
+    let { name, quantity } = req.body;
     quantity = parseInt(quantity);
-    let is_topping = (req.query.is_topping === "true") 
+    let is_topping = (req.query.is_topping === "true")
 
-    if( typeof name != "string" || typeof quantity != "number" || typeof is_topping != "boolean"){
+    if (typeof name != "string" || typeof quantity != "number" || typeof is_topping != "boolean") {
         res.status(500).send({ error: "Unable to add, please check properties", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
         return;
     }
 
     pool.query("INSERT INTO Inventory(name, quantity, unit_base_consumption, req_fill_rate, is_topping) VALUES ($1, $2, $3, $4, $5)", [name, quantity, 1, 0, is_topping])
         .then((result) => {
-            if(result.rowCount < 1){
+            if (result.rowCount < 1) {
                 res.status(500).send({ error: "Unable to add item", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
                 return;
             }
-            res.status(200).send({name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping});
+            res.status(200).send({ name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
         })
-        .catch( (error) => {
+        .catch((error) => {
             console.log(error);
-            res.status(200).send({error: "Server Error, check console", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
+            res.status(200).send({ error: "Server Error, check console", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
         })
 
-    
+
 })
 
 /**
@@ -557,32 +561,32 @@ app.get('/inventory/add', (req, res) => {
  * }
  *
  */
-app.get('/inventory/delete', (req, res) => {
+app.post('/inventory/delete', (req, res) => {
     // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
 
-    let {name} = req.query;
+    let { name } = req.body;
 
-    if(typeof name != "string"){
+    if (typeof name != "string") {
         res.status(500).send({ error: "Unable to delete please check properties", name: name });
         return;
     }
 
     pool.query("DELETE FROM inventory WHERE name = $1", [name])
         .then((result) => {
-            if(result.rowCount < 1){
+            if (result.rowCount < 1) {
                 console.log(result);
                 res.status(500).send({ error: "Inventory item not found", name: name });
                 return;
             }
-            res.status(200).send({name: name});
-            
+            res.status(200).send({ name: name });
+
         })
-        .catch( (error) => {
+        .catch((error) => {
             console.log(error);
-            res.status(200).send({error: "Server Error, check console", name: name});
+            res.status(200).send({ error: "Server Error, check console", name: name });
         })
 
-    
+
 })
 
 /**
@@ -628,6 +632,96 @@ app.get('/toppings', (req, res) => {
         .catch((err) => {
             console.error(err)
             res.status(500).send({ error: "Server error.", toppings: [] })
+        })
+})
+
+/**
+ * Add To Order
+ * *******************
+ * Type: POST
+ * URI: /order/add
+ * 
+ * NEEDS AUTH: no
+ * PARAMETERS: {
+ *      orderID: int,
+ *      drinkID: int,
+ *      sugarLvl: double,
+ *      iceLvl: string ('Regular', 'Less', 'No')
+ *      toppings: [string, ...]
+ * }
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      success: boolean,
+ *      subtotal: string,
+ *      subtotal_raw: int
+ * }
+ */
+app.post('/order/add', (req, res) => {
+    let { drinkID, sugarLvl, iceLvl, toppings } = req.body;
+    if (drinkID == null || sugarLvl == null || iceLvl == null) {
+        res.status(400).send({ success: false, error: "Invalid parameters." })
+        return
+    }
+
+    const iceLvlString = iceLvl == '2' ? 'Regular' : iceLvl == '1' ? 'Less' : 'No';
+    const drinkIDInt = parseInt(drinkID);
+    const sugarLvlFloat = parseFloat(sugarLvl);
+
+    if (drinkIDInt == null || sugarLvlFloat == null || (sugarLvl != 1 && sugarLvl != 0.8 && sugarLvl != 0.5 && sugarLvl != 0.3 && sugarLvl != 0)) {
+        res.status(400).send({ success: false, error: "Invalid parameters." })
+        return
+    }
+
+    pool.query("SELECT add_to_order($1, CAST($2 AS numeric), $3, $4);", [drinkIDInt, sugarLvl, iceLvlString, toppings])
+        .then((response) => {
+            if (response.rowCount != 1) {
+                res.status(500).send({ success: false, error: "Server Error. No response." })
+                return
+            }
+
+            const subtotal_big = parseInt(response.rows[0]["add_to_order"]);
+            if (subtotal_big == null) {
+                res.status(500).send({ success: false, error: "Server Error. Incorrect response." })
+                return
+            }
+
+            let price = currencyFormatter.format(subtotal_big / 100000);
+
+            res.status(200).send({ success: true, subtotal: price, subtotal_raw: subtotal_big });
+        }).catch((err) => {
+            res.status(500).send({ success: false, error: "Server Error." })
+            console.log(err)
+            return
+        })
+})
+
+/**
+ * Checkout
+ * *******************
+ * URI: /order/checkout
+ * Type: POST
+ * 
+ * NEEDS AUTH: no
+ * PARAMETERS: {
+ *      orderID: int,
+ * }
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      success: boolean
+ * }
+ */
+app.post('/order/checkout', (req, res) => {
+    // let { } = req.query;
+    pool.query('SELECT checkout($1);', [-1])
+        .then((response) => {
+            res.status(200).send({ success: true });
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send({ error: "Server Error", success: false });
         })
 })
 
