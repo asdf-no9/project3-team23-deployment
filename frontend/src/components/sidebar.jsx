@@ -12,9 +12,9 @@ export default function Sidebar() {
         <div>
             <div className="sidebarContent">
                 <div className="sidebarlogocontainer">
-                    {/* <Link to="/"> */}
-                    <img src={logo} alt="ShareTea Logo" className="logo" />
-                    {/* </Link> */}
+                    <Link to="/" >
+                        <img src={logo} alt="ShareTea Logo" className="logo" />
+                    </Link>
                 </div>
                 <div
                     className="buttonContainer"
@@ -31,7 +31,8 @@ export default function Sidebar() {
                     <button className="highContrast" onClick={toggleTheme}>
                         {isHighContrast ? "Disable High Contrast" : "Enable High Contrast"}
                     </button>
-                    <button className="highContrast">Login</button>
+                    <Link to='/login'><button className="highContrast">Login</button></Link>
+
                 </div>
             </div>
         </div>
