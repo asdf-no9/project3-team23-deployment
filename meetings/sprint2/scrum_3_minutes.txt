@@ -1,0 +1,31 @@
+SCRUM Meeting 3 Sprint 2 for Project 3
+Meeting Date: 4/12/25
+
+Meeting Attendees
+ - Brayden Bailey
+ - Elliot Michlin
+ - Antony Quach
+ - Luke Zhang
+ 
+Meeting Agenda Items
+- Discuss progress
+- Future Work
+- Any issues or help needed
+
+Status Update Since Last Meeting
+Accomplishments:
+- High Contrast Mode added
+- Added UI enhancements
+- API decisions
+- Checkout completed
+
+Befere The Next Meeting
+Plans:
+- Continue learning about chosen APIs
+- Login page
+
+Task Assignments:
+- Continue working on ManagerInventory and Menu Pages
+- Continue working on gemini for language API
+- Start working on tip support
+- Start working on concurrent ordering in React
