@@ -270,6 +270,11 @@ button.blue {
   color: white;
 }
 
+button.backButton {
+  background-color: lightgray;
+  color: black;
+}
+
 button.black {
   background-color: black;
   color: white;

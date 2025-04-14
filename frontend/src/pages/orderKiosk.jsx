@@ -305,7 +305,7 @@ export default function OrderKiosk() {
                 <div className='headerbar one'>
                     <h1>{orderState.selectedCategory}</h1>
                     <div></div>
-                    <button className='darkgray' onClick={() => interactionCancelDrink()}>Back</button>
+                    <button className='backButton' onClick={() => interactionCancelDrink()}>Back</button>
                     {/* <button disabled={!addButtonEnabled} className={"totalButton " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button> */}
                 </div>
                 <div className='drinkgrid'>
@@ -367,7 +367,7 @@ export default function OrderKiosk() {
             <div className='headerbar one'>
                 <h1>Checkout</h1>
                 <div></div>
-                <button disabled={orderState.checkoutLoading} className='darkgray' onClick={() => interactionCancelDrink()}>Back</button>
+                <button disabled={orderState.checkoutLoading} className='backButton' onClick={() => interactionCancelDrink()}>Back</button>
             </div>
             <div className='drinkgrid'>
                 <div>
