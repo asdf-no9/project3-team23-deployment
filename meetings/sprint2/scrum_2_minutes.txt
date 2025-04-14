@@ -1,0 +1,31 @@
+SCRUM Meeting 2 Sprint 2 for Project 3
+Meeting Date: 4/9/25
+
+Meeting Attendees
+ - Brayden Bailey
+ - Elliot Michlin
+ - Antony Quach
+ - Luke Zhang
+ 
+Meeting Agenda Items
+- Discuss progress
+- Future Work
+- Any issues or help needed
+
+Status Update Since Last Meeting
+Accomplishments:
+- Manager Inventory API Finished
+- Manager Menu API Finished
+- Ordering Workflow complete
+
+Befere The Next Meeting
+Plans:
+- Discuss category support
+- Disucss icons
+- Fill in burn down chart
+
+Task Assignments:
+- Start ManagerInventory and Menu Pages
+- Research language translation API
+- High contrast theme
+- Concurrent order support
