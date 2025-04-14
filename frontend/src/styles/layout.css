@@ -324,7 +324,6 @@ body.high-contrast button:hover {
   color: black;
 }
 
-/* Example for other components */
 body.high-contrast .mainBody {
   background-color: #333;
   color: white;
@@ -334,6 +333,13 @@ body.high-contrast .subtotal {
   background-color: yellow;
   color: white;
 }
+
+body.high-contrast .darkgray {
+  background-color: white;
+  color: black;
+}
+
+
 
 .subtext {
   /* font-weight: normal; */
