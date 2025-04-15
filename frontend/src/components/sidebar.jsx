@@ -9,31 +9,18 @@ export default function Sidebar() {
     const selectedCategory = path.length > 2 ? path[2] : "";
 
     return (
-        <div>
-            <div className="sidebarContent">
-                <div className="sidebarlogocontainer">
-                    <Link to="/" >
-                        <img src={logo} alt="ShareTea Logo" className="logo" />
-                    </Link>
-                </div>
-                <div
-                    className="buttonContainer"
-                    style={{ visibility: path[1] === "" ? 'hidden' : 'visible' }}
-                >
-                    {/* <CatButton category="drinks" displayName="Drinks" selectedCategory={selectedCategory} />
-          <CatButton category="ice-cream" displayName="Ice Cream" selectedCategory={selectedCategory} />
-          <CatButton category="food" displayName="Food" selectedCategory={selectedCategory} />
-          <CatButton category="specialty" displayName="Special Items" selectedCategory={selectedCategory} /> */}
-                </div>
-                <div className="accessibleFeatures">
-                    <div></div>
-                    <button className="language">Language</button>
-                    <button className="highContrast" onClick={toggleTheme}>
-                        {isHighContrast ? "Disable High Contrast" : "Enable High Contrast"}
-                    </button>
-                    <Link to='/login'><button className="highContrast">Login</button></Link>
-
-                </div>
+        <div className="sidebarContent">
+            <div className="sidebarlogocontainer">
+                <Link to="/" >
+                    <img src={logo} alt="ShareTea Logo" className="logo" />
+                </Link>
+            </div>
+            <div className="accessibleFeatures">
+                <button className="language">Language</button>
+                <button className="highContrast" onClick={toggleTheme}>
+                    {isHighContrast ? "Disable High Contrast" : "Enable High Contrast"}
+                </button>
+                <Link to='/login'><button className="highContrast">Login</button></Link>
             </div>
         </div>
     );

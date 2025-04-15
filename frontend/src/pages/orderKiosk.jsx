@@ -1,6 +1,6 @@
 
 import '../styles/layout.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useParams, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
 import Confetti from 'react-confetti'
@@ -11,13 +11,16 @@ const options = ["drinks", "ice-cream", "food", "specialty"]
 export default function OrderKiosk() {
     const { category } = useParams();
 
+    const runBefore = useRef(false);
+    const inputRef = useRef(null);
+
+    const [menuState, setMenuState] = useState({ menuLoading: true, categories: {} });
+    const [toppingsState, setToppingsState] = useState({ toppingsLoading: true, toppings: [] });
+    const [orderIDState, setOrderIDState] = useState({ orderIDLoading: true, orderID: -1 });
+
     const [orderState, changeOrderState] = useState({
-        menuLoading: true,
-        toppingsLoading: true,
         drinkAddLoading: false,
         checkoutLoading: false,
-        categories: {},
-        toppings: {},
         orderStep: 0,
         selectedCategory: null,
         currentDrinkSelection: { drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0 },
@@ -33,28 +36,48 @@ export default function OrderKiosk() {
         checkoutError: false,
     });
 
+    /**
+     * @returns true if any of the loading states are true, false otherwise
+     */
+    function loading() {
+        return orderIDState.orderIDLoading || menuState.menuLoading || toppingsState.toppingsLoading ||
+            orderState.drinkAddLoading || orderState.checkoutLoading || orderIDState.orderID == -1;
+    }
+
     useEffect(() => {
-        if (orderState.menuLoading) {
-            fetch("http://localhost:3000/menu")
-                .then((response) => response.json())
-                .then((r) => {
-                    changeOrderState({ ...orderState, menuLoading: false, categories: r["categories"] });
-                })
-                .catch((e) => {
-                    console.error(e);
-                });
-        }
-        if (orderState.toppingsLoading) {
-            fetch("http://localhost:3000/toppings")
-                .then((response) => response.json())
-                .then((r) => {
-                    changeOrderState({ ...orderState, toppingsLoading: false, toppings: r["toppings"] });
-                })
-                .catch((e) => {
-                    console.error(e);
-                });
-        }
-    }, [orderState]);
+        if (runBefore.current) return;
+        runBefore.current = true;
+
+        fetch("http://localhost:3000/order/start", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then((response) => response.json())
+            .then((r) => {
+                setOrderIDState(({ ...orderIDState, orderIDLoading: false, orderID: r["orderID"] }));
+            })
+            .catch((e) => {
+                console.error(e);
+            });
+        fetch("http://localhost:3000/menu")
+            .then((response) => response.json())
+            .then((r) => {
+                setMenuState({ ...menuState, menuLoading: false, categories: r["categories"] });
+            })
+            .catch((e) => {
+                console.error(e);
+            });
+        fetch("http://localhost:3000/toppings")
+            .then((response) => response.json())
+            .then((r) => {
+                setToppingsState({ ...toppingsState, toppingsLoading: false, toppings: r["toppings"] });
+            })
+            .catch((e) => {
+                console.error(e);
+            });
+    }, []);
 
     if (!options.includes(category))
         return (<Navigate to="/order-kiosk/drinks" />)
@@ -68,7 +91,7 @@ export default function OrderKiosk() {
     }
 
     const interactionCompleteCheckout = () => {
-        if (orderState.checkoutLoading || orderState.tipError)
+        if (loading() || orderState.tipError)
             return;
 
         changeOrderState({ ...orderState, checkoutLoading: true, checkoutError: false });
@@ -89,6 +112,8 @@ export default function OrderKiosk() {
             tip = 0;
         }
 
+        tip = parseInt(tip * 100000);
+
         fetch("http://localhost:3000/order/checkout", {
             method: 'POST',
             headers: {
@@ -96,7 +121,9 @@ export default function OrderKiosk() {
             },
             body: JSON.stringify({
                 paymentType: orderState.paymentType,
-                tip: tip
+                tip: tip,
+                orderID: orderIDState.orderID,
+                cashierID: -1,
             })
         })
             .then((response) => response.json())
@@ -133,7 +160,7 @@ export default function OrderKiosk() {
 
     const interactionAddToOrder = () => {
 
-        if (orderState.drinkAddLoading || orderState.currentDrinkSelection.drink == null)
+        if (loading() || orderState.currentDrinkSelection.drink == null)
             return;
 
         changeOrderState({ ...orderState, drinkAddLoading: true });
@@ -147,13 +174,14 @@ export default function OrderKiosk() {
                 drinkID: orderState.currentDrinkSelection.drink.id,
                 sugarLvl: orderState.currentDrinkSelection.sugarLevel,
                 iceLvl: orderState.currentDrinkSelection.iceLevel,
-                toppings: orderState.currentDrinkSelection.toppings
+                toppings: orderState.currentDrinkSelection.toppings,
+                orderID: orderIDState.orderID
             })
         })
             .then((response) => response.json())
             .then((r) => {
 
-                console.log(r)
+                // console.log(r)
 
                 const priceUpdater = orderState.currentDrinkSelection;
                 priceUpdater.price_raw = r["subtotal_raw"] - orderState.subtotal_raw;
@@ -192,10 +220,14 @@ export default function OrderKiosk() {
     }
 
     const interactionChangeTip = (option, other) => {
-        if (orderState.checkoutLoading) return;
+        if (loading()) return;
 
         if (orderState.tipSelection != option) {
-            changeOrderState({ ...orderState, tipSelection: option })
+            changeOrderState({ ...orderState, tipSelection: option }), () => {
+                if (option == 4) {
+                    inputRef.current.focus();
+                }
+            }
             return;
         }
         if (option == 4 && other != null) {
@@ -220,7 +252,7 @@ export default function OrderKiosk() {
     }
 
     const interactionFinalizeTip = () => {
-        if (orderState.checkoutLoading) return;
+        if (loading()) return;
         if (orderState.tipError || orderState.tipSelection != 4) return;
 
         if (orderState.customTipChoice == 0) {
@@ -232,45 +264,66 @@ export default function OrderKiosk() {
     }
 
     const interactionSelectPaymentType = (type) => {
-        if (orderState.checkoutLoading) return;
+        if (loading()) return;
         changeOrderState({ ...orderState, paymentType: type })
+    }
+
+    const itemList = [];
+
+    for (let item in orderState.drinkSelections) {
+        const price_formatted = currencyFormatter.format(orderState.drinkSelections[item].price_raw / 100000);
+        itemList.push(<li>{parseInt(item) + 1}. ({price_formatted}) {orderState.drinkSelections[item].drink.name}</li>);
     }
 
     let orderStepHTML;
 
     if (orderState.orderStep == 0) {
 
-        const enableCheckout = orderState.drinkSelections.length > 0 && orderState.orderStep != 2 && !orderState.menuLoading && !orderState.toppingsLoading && !orderState.drinkAddLoading;
-        const checkoutText = orderState.orderStep == 2 ? "Pending..." : (orderState.menuLoading || orderState.toppingsLoading || orderState.drinkAddLoading) ? "Loading..." : ("Checkout: " + orderState.subtotal)
+        const enableCheckout = orderState.drinkSelections.length > 0 && orderState.orderStep != 2 && !loading();
+        const checkoutText = orderState.orderStep == 2 ? "Pending..." : (loading()) ? "Loading..." : ("Checkout: " + orderState.subtotal)
 
         const categoryButtons = [];
-        for (let i in orderState.categories) {
-            console.log(orderState.categories[i]);
+        for (let i in menuState.categories) {
+            // console.log(menuState.categories[i]);
             categoryButtons.push(<button className='catbuttonitem' onClick={() => interactionCategorySelection(i)}>{i}</button>)
         }
-        orderStepHTML =
+
+        orderStepHTML = (
             <>
                 <div className='headerbar one'>
                     <h1>Select Category</h1>
                     <div></div>
+                    <hr className='phone' />
                     <Link to="/"><button className='darkgray'>Start Over</button></Link>
-                    {/* <button className='blue' onClick={() => interactionAddToOrder()}>Add To Order +</button> */}
                 </div>
-                {orderState.menuLoading ?
-                    <p className='centeralign'>Loading...</p> :
-                    <div className='catbuttons'>{categoryButtons}</div>
-                }
-                <div className='checkoutbutton'>
-                    <button disabled={!enableCheckout} className={'totalButton' + (enableCheckout ? ' blue' : ' invisible')} onClick={interactionOrderComplete}>{checkoutText}</button>
-                </div>
-            </>;
+                <div className='drinkgrid catgrid'>
+                    {loading() ?
+                        <p className='centeralign'>Loading...</p> :
+                        <div className='catbuttons'>{categoryButtons}</div>
+                    }
+                    <div>
+                        <div className='itemlist hideitemlist'>
+                            <hr className='full' />
+                            <h3 className='centeralign'>Current Order</h3>
+                            <hr className='full' />
+                            {itemList.length == 0 ? <p className='centeralign'>Empty order.</p> :
+                                <ol>
+                                    {itemList}
+                                </ol>}
+                        </div>
+                    </div>
+                    <div className='addbutton'>
+                        <button disabled={!enableCheckout} className={'finalcheckout ' + (enableCheckout ? ' blue' : ' invisible')} onClick={interactionOrderComplete}>{checkoutText}</button>
+                    </div>
+                </div></>
+        );
     } else if (orderState.orderStep == 1) {
         const drinkArray = [];
         const iceArray = [];
         const sugarArray = [];
         const toppingArray = [];
-        for (let i in orderState.categories[orderState.selectedCategory]) {
-            const drink = orderState.categories[orderState.selectedCategory][i];
+        for (let i in menuState.categories[orderState.selectedCategory]) {
+            const drink = menuState.categories[orderState.selectedCategory][i];
             const selected = orderState.currentDrinkSelection.drink && (orderState.currentDrinkSelection.drink.name == drink.name);
             drinkArray.push(<button disabled={selected} onClick={() => interactionChangeDrink(drink)} className={'drinkbuttonitem ' + (selected ? 'darkgray' : 'gray')}>{drink.name + ' (' + drink.price + ')'}</button>)
         }
@@ -289,28 +342,29 @@ export default function OrderKiosk() {
             const selected = orderState.currentDrinkSelection.sugarLevel == amount;
             sugarArray.push(<button disabled={selected} onClick={() => interactionChangeSugarLevel(amount)} className={'drinkbuttonitem ' + (selected ? 'darkgray' : 'gray')}>{amount * 100}%</button>)
         }
-        for (let i in orderState.toppings) {
-            const topping = orderState.toppings[i];
+        for (let i in toppingsState.toppings) {
+            const topping = toppingsState.toppings[i];
             let color = "gray";
             if (!topping["in_stock"]) color = "black";
             else if (orderState.currentDrinkSelection.toppings.includes(topping["name"])) color = "darkgray";
             toppingArray.push(<button disabled={topping["in_stock"] ? false : true} className={'drinkbuttonitem ' + color} onClick={() => interactionChangeTopping(topping["name"])}>{topping["name"]}</button>)
         }
 
-        const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !orderState.drinkAddLoading;
-        const addButtonText = orderState.drinkAddLoading ? "Loading..." : "Add to Order +";
+        const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !loading();
+        const addButtonText = loading() ? "Loading..." : "Add to Order +";
 
         orderStepHTML =
             <>
                 <div className='headerbar one'>
                     <h1>{orderState.selectedCategory}</h1>
-                    <div></div>
-                    <button className='backButton' onClick={() => interactionCancelDrink()}>Back</button>
+                    <hr className='phone' />
+                    <button className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
+                    {/* <hr className='phone' /> */}
                     {/* <button disabled={!addButtonEnabled} className={"totalButton " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button> */}
-                </div>
+                </div >
                 <div className='drinkgrid'>
                     <div>
-                        <h2>Select Drink</h2>
+                        <h2>Select Drink <span className='subtext'>(Required)</span></h2>
                         <div className='drinkbuttons'>{drinkArray}</div>
                     </div>
                     <div>
@@ -327,8 +381,8 @@ export default function OrderKiosk() {
                     </div>
                     <div >
                         <h2>Toppings <span className='subtext'>(Select All)</span></h2>
-                        {orderState.toppingsLoading ?
-                            <p>Loading...</p> :
+                        {toppingsState.toppingsLoading ?
+                            <p className='centeralign'>Loading...</p> :
                             <div className='spacer drinkbuttons'>{toppingArray}</div>
                         }
                     </div>
@@ -367,7 +421,8 @@ export default function OrderKiosk() {
             <div className='headerbar one'>
                 <h1>Checkout</h1>
                 <div></div>
-                <button disabled={orderState.checkoutLoading} className='backButton' onClick={() => interactionCancelDrink()}>Back</button>
+                <hr className='phone' />
+                <button disabled={loading()} className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
             </div>
             <div className='drinkgrid'>
                 <div>
@@ -379,9 +434,9 @@ export default function OrderKiosk() {
                         <button onClick={() => interactionChangeTip(3)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 3 ? 'darkgray' : 'gray')}><h2>25%</h2><h2 className='h3'>{currencyFormatter.format(0.25 * orderState.subtotal_raw / 100000)}</h2></button>
                         {/* <button onClick={() => interactionChangeTip(4)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray')}><h2>Other</h2></button> */}
                     </div>
-                    <div className={'drinkbuttonitem tips input-button ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray')} onClick={() => interactionChangeTip(4)}>
+                    <div className={'tips input-button ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray') + ' ' + (orderState.tipSelection == 4 ? "visible" : "invisible")} onClick={() => interactionChangeTip(4)}>
                         <span>{orderState.tipSelection == 4 ? "$" : "Other"}</span>
-                        <input onChange={(event) => interactionChangeTip(4, event)} onBlur={() => interactionFinalizeTip()} value={orderState.tipSelection == 4 ? orderState.customTipChoice_raw : ''} maxLength={5} placeholder='0.00' className={orderState.tipSelection == 4 ? "visible" : "invisible"} type="text" />
+                        <input id="customtipfield" ref={inputRef} onChange={(event) => interactionChangeTip(4, event)} onBlur={() => interactionFinalizeTip()} value={orderState.tipSelection == 4 ? orderState.customTipChoice_raw : ''} maxLength={5} placeholder='0.00' type="text" />
                     </div>
                     {orderState.tipError ? <h2 className='tips error'>Invalid tip choice.</h2> : <></>}
                 </div>
@@ -397,26 +452,15 @@ export default function OrderKiosk() {
                     <h2 className='subtext'>Tax: {currencyFormatter.format(tax)}</h2>
                     <h2 className='subtext'>Tip: {currencyFormatter.format(tip)}</h2>
                     <h2 className=''>Total: {currencyFormatter.format(total)}</h2>
-                    <button onClick={() => interactionCompleteCheckout()} className={'finalcheckout ' + (orderState.checkoutLoading ? 'black' : orderState.checkoutError ? 'red' : 'blue')}>{checkoutFinalText}</button>
+                    <div><button onClick={() => interactionCompleteCheckout()} className={'finalcheckout ' + (loading() ? 'black' : orderState.checkoutError ? 'red' : 'blue')}>{checkoutFinalText}</button></div>
                 </div>
             </div>
         </>;
     } else if (orderState.orderStep == 3) {
-
-        let width, x;
-        const main = document.getElementById("mainBody");
-        if (main && main.offsetWidth) {
-            x = main.offsetLeft;
-            width = window.innerWidth - x;
-        } else {
-            width = window.innerWidth;
-            x = 0;
-        }
-
         orderStepHTML = (
             <>
-                <Confetti confettiSource={{ x: x, w: width }} numberOfPieces={300} recycle={false} initialVelocityY={10} gravity={0.2} initialVelocityX={5} tweenDuration={2000} run={true} onConfettiComplete={(confetti) => confetti.reset()} />
-                <div className='completedscreen'>
+                <Confetti style={{ maxHeight: '100%', maxWidth: '100%' }} width={window.innerWidth} height={window.innerHeight} numberOfPieces={300} recycle={false} initialVelocityY={10} gravity={0.2} initialVelocityX={5} tweenDuration={2000} run={true} onConfettiComplete={(confetti) => confetti.reset()} />
+                <div className='completedscreen '>
                     <h1>Thank You!</h1>
                     <p>Your order is complete.</p>
                     <Link to="/"><button className='blue'>Start Another Order</button></Link>
@@ -425,31 +469,26 @@ export default function OrderKiosk() {
         )
     }
 
-    const itemList = [];
-
-    for (let item in orderState.drinkSelections) {
-        const price_formatted = currencyFormatter.format(orderState.drinkSelections[item].price_raw / 100000);
-        itemList.push(<li>{parseInt(item) + 1}. ({price_formatted}) {orderState.drinkSelections[item].drink.name}</li>);
-    }
-
     // const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !orderState.drinkAddLoading;
     // const addButtonText = orderState.drinkAddLoading ? "Loading..." : "Add to Order +";
     // <button disabled={!enableCheckout} className={'totalButton' + (enableCheckout ? ' blue' : ' black')} onClick={interactionOrderComplete}>{checkoutText}</button>
     return (
         <div className={orderState.orderStep == 3 ? "layout complete" : "layout"}>
             <div className="mainBody" id="mainBody">
+                <div id='scaler'>
 
-                {orderStepHTML}
-
+                    {orderStepHTML}
+                </div>
             </div>
             {orderState.orderStep != 3 ?
                 <div className="subtotal">
                     <div className='itemlist'>
                         <h3 className='centeralign'>Current Order</h3>
                         <hr />
-                        <ol>
-                            {itemList}
-                        </ol>
+                        {itemList.length == 0 ? <p className='centeralign'>Empty order.</p> :
+                            <ol>
+                                {itemList}
+                            </ol>}
                     </div>
 
                 </div> : <></>

@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client'; // Correct import
 import './styles/main.css';
+import './styles/layout.css';
 import {
   BrowserRouter as Router, Routes, Route, Navigate
 } from 'react-router-dom'; // Ensure correct import
@@ -22,8 +23,7 @@ createRoot(document.getElementById('root')).render(
           <div className='sidebar'>
             <Sidebar />
           </div>
-          <div>
-
+          <div className='router'>
             <Routes>
               <Route path="/" element={<StartOrder />} />
               <Route path="/login" element={<Login />} />
