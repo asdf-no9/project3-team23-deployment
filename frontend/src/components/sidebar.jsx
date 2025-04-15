@@ -58,6 +58,18 @@ export default function Sidebar() {
                     <Link to='/login'><button className="highContrast">Login</button></Link>
 
                 </div>
+        <div className="sidebarContent">
+            <div className="sidebarlogocontainer">
+                <Link to="/" >
+                    <img src={logo} alt="ShareTea Logo" className="logo" />
+                </Link>
+            </div>
+            <div className="accessibleFeatures">
+                <button className="language">Language</button>
+                <button className="highContrast" onClick={toggleTheme}>
+                    {isHighContrast ? "Disable High Contrast" : "Enable High Contrast"}
+                </button>
+                <Link to='/login'><button className="highContrast">Login</button></Link>
             </div>
         </div>
     );

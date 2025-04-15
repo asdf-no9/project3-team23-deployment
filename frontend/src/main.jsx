@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client'; // Correct import
 import './styles/main.css';
+import './styles/layout.css';
 import {
   BrowserRouter as Router, Routes, Route, Navigate
 } from 'react-router-dom'; // Ensure correct import
@@ -18,27 +19,22 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <I18nextProvider i18n={i18n}>
-      <HighContrastProvider> { }
-        <Router>
-          <div id="bodysplit">
-            <div className='sidebar'>
-              <Sidebar />
-            </div>
-            <div>
-
-              <Routes>
-                <Route path="/" element={<StartOrder />} />
-                <Route path="/login" element={<Login />} />
-                <Route path='/order-kiosk/' element={<Navigate to="/order-kiosk/drinks" />} />
-                <Route path="/order-kiosk/:category" element={<OrderKiosk />} />
-                <Route path="/order-kiosk/:category/:subcat" element={<OrderKiosk />} />
-              </Routes>
-            </div>
+    <HighContrastProvider> { }
+      <Router>
+        <div id="bodysplit">
+          <div className='sidebar'>
+            <Sidebar />
           </div>
-        </Router>
-      </HighContrastProvider>
-    </I18nextProvider>
+          <div className='router'>
+            <Routes>
+              <Route path="/" element={<StartOrder />} />
+              <Route path="/login" element={<Login />} />
+              <Route path='/order-kiosk/' element={<OrderKiosk />} />
+            </Routes>
+          </div>
+        </div>
+      </Router>
+    </HighContrastProvider>
   </StrictMode>
 );
 

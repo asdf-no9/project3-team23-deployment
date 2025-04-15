@@ -636,6 +636,46 @@ app.get('/toppings', (req, res) => {
 })
 
 /**
+ * Order Start
+ * *******************
+ * URI: /order/start
+ * Type: POST
+ * 
+ * NEEDS AUTH: no
+ * PARAMETERS: {}
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      orderID: UUID
+ * }
+ */
+app.post('/order/start', (req, res) => {
+
+    const ORDERID = crypto.randomUUID();
+
+    pool.query("SELECT new_order($1);", [ORDERID])
+        .then((response) => {
+            if (response.rowCount != 1) {
+                res.status(500).send({ success: false, error: "Server Error. No response." })
+                return
+            }
+
+            const orderID = response.rows[0]["new_order"];
+            if (orderID == null) {
+                res.status(500).send({ success: false, error: "Server Error." })
+                return
+            }
+
+            res.status(200).send({ success: true, orderID: orderID });
+        }).catch((err) => {
+            res.status(500).send({ success: false, error: "Server Error." })
+            console.log(err)
+            return
+        })
+})
+
+/**
  * Add To Order
  * *******************
  * Type: POST
@@ -643,7 +683,7 @@ app.get('/toppings', (req, res) => {
  * 
  * NEEDS AUTH: no
  * PARAMETERS: {
- *      orderID: int,
+ *      orderID: UUID,
  *      drinkID: int,
  *      sugarLvl: double,
  *      iceLvl: string ('Regular', 'Less', 'No')
@@ -659,8 +699,8 @@ app.get('/toppings', (req, res) => {
  * }
  */
 app.post('/order/add', (req, res) => {
-    let { drinkID, sugarLvl, iceLvl, toppings } = req.body;
-    if (drinkID == null || sugarLvl == null || iceLvl == null) {
+    let { orderID, drinkID, sugarLvl, iceLvl, toppings } = req.body;
+    if (orderID == null || drinkID == null || sugarLvl == null || iceLvl == null) {
         res.status(400).send({ success: false, error: "Invalid parameters." })
         return
     }
@@ -674,7 +714,7 @@ app.post('/order/add', (req, res) => {
         return
     }
 
-    pool.query("SELECT add_to_order($1, CAST($2 AS numeric), $3, $4);", [drinkIDInt, sugarLvl, iceLvlString, toppings])
+    pool.query("SELECT add_to_order($1, $2, CAST($3 AS numeric), $4, $5);", [orderID, drinkIDInt, sugarLvl, iceLvlString, toppings])
         .then((response) => {
             if (response.rowCount != 1) {
                 res.status(500).send({ success: false, error: "Server Error. No response." })
@@ -705,7 +745,9 @@ app.post('/order/add', (req, res) => {
  * 
  * NEEDS AUTH: no
  * PARAMETERS: {
- *      orderID: int,
+ *      orderID: UUID,
+ *      paymentType: int,
+ *      tip: int
  * }
  * 
  * RESPONSE: 
@@ -715,8 +757,22 @@ app.post('/order/add', (req, res) => {
  * }
  */
 app.post('/order/checkout', (req, res) => {
-    // let { } = req.query;
-    pool.query('SELECT checkout($1);', [-1])
+    let { tip, paymentType, orderID, cashierID } = req.body;
+    if (orderID == null || paymentType == null) {
+        res.status(400).send({ success: false, error: "Invalid parameters." })
+        return
+    }
+    if (tip == null)
+        tip = 0;
+    if (cashierID == null)
+        cashierID = -1;
+
+    if (typeof tip == 'float') {
+        res.status(400).send({ success: false, error: "Invalid parameters." })
+        return
+    }
+
+    pool.query('SELECT checkout($1, $2, $3, $4);', [orderID, cashierID, paymentType, tip])
         .then((response) => {
             res.status(200).send({ success: true });
         }).catch((err) => {
