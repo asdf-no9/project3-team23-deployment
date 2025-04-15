@@ -257,7 +257,7 @@ body {
   display: grid;
   grid-template-columns: repeat(
     auto-fill,
-    minmax(max(220px, calc((100% - 40px) / 5)), 1fr)
+    minmax(max(150px, calc((100% - 40px) / 5)), 1fr)
   );
   align-items: start;
   gap: 10px;
@@ -285,14 +285,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-.catbuttonitem {
-  /* margin: 10px; */
-  height: 150px;
-  width: 150px;
-  background-color: lightgray;
-  color: black;
 }
 
 /* .mainBody h2 {
@@ -395,7 +387,7 @@ body.high-contrast {
   color: white;
 }
 
-body.high-contrast .sidebar {
+body.high-contrast .rr {
   background-color: yellow;
 }
 
@@ -424,8 +416,6 @@ body.high-contrast .darkgray {
   background-color: white;
   color: black;
 }
-
-
 
 .subtext {
   /* font-weight: normal; */
@@ -641,7 +631,20 @@ hr {
   border-radius: 8px;
 }
 
+.catbuttonitem {
+  /* width: 100%; */
+  height: 150px;
+  margin: 0;
+}
+
 @media (max-width: 750px) {
+  .catbuttonitem {
+    /* width: 100%; */
+    height: 100%;
+    min-height: 70px;
+    margin: 0;
+  }
+
   .headerbar.one {
     flex-direction: column-reverse;
     margin-left: 10px;
@@ -713,11 +716,21 @@ hr {
 
   .accessibleFeatures {
     gap: 5px;
+    height: 150px;
+    display: flex;
+    margin-top: 10px;
+    margin-right: 5px;
+    /* justify-content: space-between; */
+
+    /* display: grid;
+    grid-template-columns: 1fr 1fr 1fr; */
     /* margin-left: auto; */
   }
   .accessibleFeatures button {
     background-color: white;
     color: black;
+    /* width: 75%; */
+    font-size: small;
     /* height: 35px; */
   }
   /* .h3 {
@@ -781,18 +794,14 @@ hr.full {
   margin-right: 50px;
 }
 
-.drinkgrid > div.catbuttons > .catbuttonitem {
-  margin: 0;
-}
-
 .catgrid div.catbuttons {
   display: grid;
   grid-template-columns: repeat(
     auto-fill,
     minmax(max(170px, calc((100% - 20px) / 5)), 1fr)
   );
-  gap: 30px 10px;
-  margin-top: 60px;
+  gap: 10px;
+  margin-top: 40px;
   margin-bottom: 20px;
   justify-items: center;
   margin-left: 20px;

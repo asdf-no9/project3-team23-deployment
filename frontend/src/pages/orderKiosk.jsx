@@ -5,11 +5,10 @@ import { Link, useParams, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
 import Confetti from 'react-confetti'
 
-
-const options = ["drinks", "ice-cream", "food", "specialty"]
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function OrderKiosk() {
-    const { category } = useParams();
+    // const { category } = useParams();
 
     const runBefore = useRef(false);
     const inputRef = useRef(null);
@@ -48,7 +47,7 @@ export default function OrderKiosk() {
         if (runBefore.current) return;
         runBefore.current = true;
 
-        fetch("http://localhost:3000/order/start", {
+        fetch(API_URL + "order/start", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -61,7 +60,7 @@ export default function OrderKiosk() {
             .catch((e) => {
                 console.error(e);
             });
-        fetch("http://localhost:3000/menu")
+        fetch(API_URL + "menu")
             .then((response) => response.json())
             .then((r) => {
                 setMenuState({ ...menuState, menuLoading: false, categories: r["categories"] });
@@ -69,7 +68,7 @@ export default function OrderKiosk() {
             .catch((e) => {
                 console.error(e);
             });
-        fetch("http://localhost:3000/toppings")
+        fetch(API_URL + "toppings")
             .then((response) => response.json())
             .then((r) => {
                 setToppingsState({ ...toppingsState, toppingsLoading: false, toppings: r["toppings"] });
@@ -79,8 +78,8 @@ export default function OrderKiosk() {
             });
     }, []);
 
-    if (!options.includes(category))
-        return (<Navigate to="/order-kiosk/drinks" />)
+    // if (!options.includes(category))
+    //     return (<Navigate to="/order-kiosk/drinks" />)
 
     const interactionCategorySelection = (name) => {
         changeOrderState({
@@ -114,7 +113,7 @@ export default function OrderKiosk() {
 
         tip = parseInt(tip * 100000);
 
-        fetch("http://localhost:3000/order/checkout", {
+        fetch(API_URL + "order/checkout", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -165,7 +164,7 @@ export default function OrderKiosk() {
 
         changeOrderState({ ...orderState, drinkAddLoading: true });
 
-        fetch("http://localhost:3000/order/add", {
+        fetch(API_URL + "order/add", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -285,7 +284,7 @@ export default function OrderKiosk() {
         const categoryButtons = [];
         for (let i in menuState.categories) {
             // console.log(menuState.categories[i]);
-            categoryButtons.push(<button className='catbuttonitem' onClick={() => interactionCategorySelection(i)}>{i}</button>)
+            categoryButtons.push(<button className='drinkbuttonitem catbuttonitem gray' onClick={() => interactionCategorySelection(i)}>{i}</button>)
         }
 
         orderStepHTML = (
