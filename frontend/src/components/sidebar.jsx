@@ -1,12 +1,23 @@
 import '../styles/layout.css';
 import logo from '../assets/ShareTeaLogo.png';
 import { useLocation, Link } from 'react-router-dom';
-import { useHighContrast } from '../context/highContrast.jsx'; // Correct import
+import { useHighContrast } from '../context/highContrast.jsx'; //Correct import
+import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
+import LanguageSwitcher from './languageSwitch';
 
 export default function Sidebar() {
-    const { isHighContrast, toggleTheme } = useHighContrast(); // Correct hook usage
+    const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
+    const { t, i18n } = useTranslation();
     const path = useLocation().pathname.split('/');
     const selectedCategory = path.length > 2 ? path[2] : "";
+
+    const [isDropdownVisible, setDropdownVisible] = useState(false); //State for dropdown visibility
+
+    const changeLanguage = (lng) => {
+        i18n.changeLanguage(lng); // Change the language dynamically
+        setDropdownVisible(false); // Close dropdown after language selection
+    };
 
     return (
         <div>
@@ -27,7 +38,20 @@ export default function Sidebar() {
                 </div>
                 <div className="accessibleFeatures">
                     <div></div>
-                    <button className="language">Language</button>
+                    <div></div>
+                    {/* Language Button */}
+                    <button
+                        className="language"
+                        onClick={() => setDropdownVisible(!isDropdownVisible)} // Toggle dropdown visibility
+                    >
+                        {t('Language')}
+                    </button>
+                        {isDropdownVisible && (
+                        <div className="languageDropdown">
+                        <button onClick={() => changeLanguage('en')}>English</button>
+                        <button onClick={() => changeLanguage('es')}>Español</button>
+                        </div>
+                    )}
                     <button className="highContrast" onClick={toggleTheme}>
                         {isHighContrast ? "Disable High Contrast" : "Enable High Contrast"}
                     </button>
