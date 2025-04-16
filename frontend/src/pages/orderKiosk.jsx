@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useParams, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
 import Confetti from 'react-confetti'
+import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -51,7 +52,8 @@ export default function OrderKiosk() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            }
+                'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
+            },
         })
             .then((response) => response.json())
             .then((r) => {
@@ -117,6 +119,7 @@ export default function OrderKiosk() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
             },
             body: JSON.stringify({
                 paymentType: orderState.paymentType,
@@ -168,6 +171,7 @@ export default function OrderKiosk() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
             },
             body: JSON.stringify({
                 drinkID: orderState.currentDrinkSelection.drink.id,

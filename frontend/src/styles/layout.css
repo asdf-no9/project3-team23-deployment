@@ -109,10 +109,18 @@ body {
   flex-direction: column;
 }
 
+#scaler.left {
+  margin-left: 0;
+}
+
 @media (min-width: 3000px) {
   #scaler {
     transform: scale(1.2);
     transform-origin: top center;
+  }
+
+  #scaler.left {
+    transform-origin: top left;
   }
 }
 
@@ -120,6 +128,10 @@ body {
   #scaler {
     transform: scale(1.5);
     transform-origin: top center;
+  }
+
+  #scaler.left {
+    transform-origin: top left;
   }
 }
 
@@ -862,4 +874,8 @@ hr.full {
 
 .languageDropdown button:hover {
   background-color: #f0f0f0;
+}
+
+.mainContent {
+  margin-left: 30px;
 }

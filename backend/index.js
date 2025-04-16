@@ -83,8 +83,7 @@ app.get('/', (req, res) => {
  * 
  * NEEDS AUTH: no
  * PARAMETERS:
- *      firstname: the user's first name
- *      lastname: the user's last name
+ *      username: the user's username
  *      password: the user's attempted password
  * 
  * RESPONSE
@@ -95,15 +94,18 @@ app.get('/', (req, res) => {
  *      "is_manager": boolean
  * }
  */
-app.get('/login', (req, res) => {
-    first_name = req.query.firstname
-    last_name = req.query.lastname
-    password = req.query.password
+app.post('/login', (req, res) => {
 
-    if (first_name == null || last_name == null || password == null) {
+    let { username, password } = req.body; // Use body-parser to get the body of the request
+
+    if (username == null || password == null || String(username).split(" ").length != 2) {
         res.status(401).send({ success: false, error: "Incorrect or missing credentials." })
         return
     }
+
+    username = String(username).split(" ");
+    let first_name = username[0];
+    let last_name = username[1];
 
     pool.query('SELECT login($1, $2, $3);', [first_name, last_name, password])
         .then(result => {
@@ -129,14 +131,14 @@ app.get('/login', (req, res) => {
                                 res.status(200).send({ success: true, token: new_token, manager: is_manager })
                                 return
                             } else {
-                                res.status(500).send({ success: false, error: "Server error 1." })
+                                res.status(500).send({ success: false, error: "Server error." })
                                 return
                             }
                         }
                     )
                     .catch(err => {
                         console.error(err)
-                        res.status(500).send({ success: false, error: "Server error 2." })
+                        res.status(500).send({ success: false, error: "Server error." })
                         return
                     })
             } else {
@@ -146,7 +148,7 @@ app.get('/login', (req, res) => {
             }
         }).catch(err => {
             console.error(err)
-            res.status(500).send({ success: false, error: "Server error 3." })
+            res.status(500).send({ success: false, error: "Server error." })
             return
         });
 });
@@ -654,6 +656,9 @@ app.post('/order/start', (req, res) => {
 
     const ORDERID = crypto.randomUUID();
 
+    // if (req.headers.authorization.length > 7)
+    //     console.log(req.headers.authorization.substring(7));
+
     pool.query("SELECT new_order($1);", [ORDERID])
         .then((response) => {
             if (response.rowCount != 1) {
@@ -700,6 +705,11 @@ app.post('/order/start', (req, res) => {
  */
 app.post('/order/add', (req, res) => {
     let { orderID, drinkID, sugarLvl, iceLvl, toppings } = req.body;
+
+    // const auth = null;
+    // if (req.headers.authorization.length > 7)
+    //     auth = req.headers.authorization.substring(7);
+
     if (orderID == null || drinkID == null || sugarLvl == null || iceLvl == null) {
         res.status(400).send({ success: false, error: "Invalid parameters." })
         return
@@ -764,7 +774,14 @@ app.post('/order/checkout', (req, res) => {
     }
     if (tip == null)
         tip = 0;
-    if (cashierID == null)
+
+    let auth = null;
+    if (req.headers.authorization.length > 7)
+        auth = req.headers.authorization.substring(7);
+
+    if (auth != null && token_cache[auth])
+        cashierID = token_cache[auth].id;
+    else
         cashierID = -1;
 
     if (typeof tip == 'float') {

@@ -5,6 +5,7 @@ import { useHighContrast } from '../context/highContrast.jsx'; //Correct import
 import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import LanguageSwitcher from './languageSwitch';
+import Cookies from 'js-cookie';
 
 export default function Sidebar() {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
