@@ -1,17 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const LanguageSwitcher = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [isDropdownVisible, setDropdownVisible] = useState(false); 
 
   const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng); // Dynamically change language
+    i18n.changeLanguage(lng); 
+    setDropdownVisible(false); //Hide dropdown after selection
   };
 
   return (
-    <div className="language-switcher">
-      <button onClick={() => changeLanguage('en')}>English</button>
-      <button onClick={() => changeLanguage('es')}>Español</button>
+    <div className="languageDropdownContainer">
+      <button
+        className="language"
+        onClick={() => setDropdownVisible(!isDropdownVisible)} //Toggle dropdown visibility
+      >
+        Language
+      </button>
+      {isDropdownVisible && (
+        <div className="languageDropdown">
+          <button onClick={() => changeLanguage('en')}>English</button>
+          <button onClick={() => changeLanguage('es')}>Español</button>
+        </div>
+      )}
     </div>
   );
 };

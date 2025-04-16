@@ -1,9 +1,12 @@
 {
-    "Language": "Idioma",
-    "sidebar": {
-      "language": "Idioma",
-      "enable_high_contrast": "Activar alto contraste",
-      "disable_high_contrast": "Desactivar alto contraste",
-      "login": "Iniciar sesión"
-    }
+  "sidebar": {
+    "language": "Idioma",
+    "disable_high_contrast": "Desactivar alto contraste",
+    "enable_high_contrast": "Activar alto contraste",
+    "login": "Iniciar sesión"
+  },
+  "language": {
+    "english": "Inglés",
+    "spanish": "Español"
   }
+}

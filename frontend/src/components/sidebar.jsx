@@ -15,8 +15,8 @@ export default function Sidebar() {
     const [isDropdownVisible, setDropdownVisible] = useState(false); //State for dropdown visibility
 
     const changeLanguage = (lng) => {
-        i18n.changeLanguage(lng); // Change the language dynamically
-        setDropdownVisible(false); // Close dropdown after language selection
+        i18n.changeLanguage(lng); //Change the language dynamically
+        setDropdownVisible(false); //Close dropdown after language selection
     };
 
     return (
@@ -39,22 +39,15 @@ export default function Sidebar() {
                 <div className="accessibleFeatures">
                     <div></div>
                     <div></div>
-                    {/* Language Button */}
-                    <button
-                        className="language"
-                        onClick={() => setDropdownVisible(!isDropdownVisible)} // Toggle dropdown visibility
-                    >
-                        {t('Language')}
-                    </button>
-                        {isDropdownVisible && (
-                        <div className="languageDropdown">
-                        <button onClick={() => changeLanguage('en')}>English</button>
-                        <button onClick={() => changeLanguage('es')}>Español</button>
-                        </div>
-                    )}
+
+                    {/*Language Drop-down*/}
+                    <LanguageSwitcher />
+
+                    {/*High-Contrast Toggle*/}
                     <button className="highContrast" onClick={toggleTheme}>
                         {isHighContrast ? "Disable High Contrast" : "Enable High Contrast"}
                     </button>
+                    {/*Login Button*/}
                     <Link to='/login'><button className="highContrast">Login</button></Link>
 
                 </div>

@@ -19,6 +19,7 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <I18nextProvider i18n={i18n}>
     <HighContrastProvider> { }
       <Router>
         <div id="bodysplit">
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')).render(
         </div>
       </Router>
     </HighContrastProvider>
+    </I18nextProvider>
   </StrictMode>
 );
 
