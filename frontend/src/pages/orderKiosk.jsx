@@ -383,7 +383,7 @@ export default function OrderKiosk() {
                         </div>
                     </div>
                     <div >
-                        <h2>Toppings <span className='subtext'>(Select All)</span></h2>
+                        <h2>Toppings <span className='subtext'>($0.75 each, creama $1.00)</span></h2>
                         {toppingsState.toppingsLoading ?
                             <p className='centeralign'>Loading...</p> :
                             <div className='spacer drinkbuttons'>{toppingArray}</div>
