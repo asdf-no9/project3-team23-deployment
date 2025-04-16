@@ -1,0 +1,14 @@
+- Communication in team was good
+- Large merge conflicts
+- More consistent scrum meetings
+- Burn down chart was maintained more regularly
+- Ordering workflow is now completed
+- Manager Inventory and Menu is completed
+- UUID for orders is implemented
+- High contrast theme completed
+- Translation for sidebar works
+- Inventory Page is still being worked on so it will be pushed to sprint 3
+- Translation for all pages is also being carried to sprint 3
+- Weather API is in progress and continued in sprint 3
+- For the next sprint we need to continue having consistent scrum meetings
+- Continue communicating progress and ensure we meet all deadlines
