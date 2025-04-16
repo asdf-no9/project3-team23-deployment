@@ -3,10 +3,11 @@
     "language": "Idioma",
     "disable_high_contrast": "Desactivar alto contraste",
     "enable_high_contrast": "Activar alto contraste",
-    "login": "Iniciar sesión"
+    "login": "Iniciar sesión",
+    "logo_alt": "Logotipo de Sharetea"
   },
   "language": {
-    "english": "Inglés",
+    "english": "English",
     "spanish": "Español"
   }
 }

@@ -8,33 +8,15 @@ import LanguageSwitcher from './languageSwitch';
 
 export default function Sidebar() {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
-    const { t, i18n } = useTranslation();
-    const path = useLocation().pathname.split('/');
-    const selectedCategory = path.length > 2 ? path[2] : "";
-
-    const [isDropdownVisible, setDropdownVisible] = useState(false); //State for dropdown visibility
-
-    const changeLanguage = (lng) => {
-        i18n.changeLanguage(lng); //Change the language dynamically
-        setDropdownVisible(false); //Close dropdown after language selection
-    };
+    const { t, i18n } = useTranslation('common');
 
     return (
 
         <div className="sidebarContent">
             <div className="sidebarlogocontainer">
                 <Link to="/" >
-                    <img src={logo} alt="ShareTea Logo" className="logo" />
+                    <img src={logo} alt={t('sidebar.logo_alt')} className="logo" />
                 </Link>
-            </div>
-            <div
-                className="buttonContainer"
-                style={{ visibility: path[1] === "" ? 'hidden' : 'visible' }}
-            >
-                {/* <CatButton category="drinks" displayName="Drinks" selectedCategory={selectedCategory} />
-          <CatButton category="ice-cream" displayName="Ice Cream" selectedCategory={selectedCategory} />
-          <CatButton category="food" displayName="Food" selectedCategory={selectedCategory} />
-          <CatButton category="specialty" displayName="Special Items" selectedCategory={selectedCategory} /> */}
             </div>
             <div className="accessibleFeatures">
 
@@ -43,25 +25,12 @@ export default function Sidebar() {
 
                 {/*High-Contrast Toggle*/}
                 <button className="highContrast" onClick={toggleTheme}>
-                    {isHighContrast ? "Disable High Contrast" : "Enable High Contrast"}
+                    {isHighContrast ? t('sidebar.disable_high_contrast') : t('sidebar.enable_high_contrast')}
                 </button>
                 {/*Login Button*/}
-                <Link to='/login'><button className="highContrast">Login</button></Link>
+                <Link to='/login'><button className="highContrast">{t('sidebar.login')}</button></Link>
 
             </div>
         </div>
-    );
-}
-
-//Category button component
-function CatButton(props) {
-    return (
-        <Link to={'/order-kiosk/' + props.category}>
-            <button
-                className={props.selectedCategory === props.category ? "darkgray" : "white"}
-            >
-                {props.displayName}
-            </button>
-        </Link>
     );
 }
