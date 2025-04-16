@@ -398,7 +398,7 @@ body.high-contrast .logoContainer {
   border-radius: 10px;
 }
 
-body.high-contrast .sidebar{
+body.high-contrast .sidebar {
   background-color: yellow;
   color: white;
 }
@@ -746,7 +746,6 @@ hr {
     display: flex;
     margin-top: 10px;
     margin-right: 5px;
-    /* justify-content: space-between; */
 
     /* display: grid;
     grid-template-columns: 1fr 1fr 1fr; */

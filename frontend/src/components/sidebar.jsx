@@ -20,42 +20,38 @@ export default function Sidebar() {
     };
 
     return (
-        <div>
-            <div className="sidebarContent">
-                <div className="sidebarlogocontainer">
-                    <Link to="/" >
-                        <img src={logo} alt="ShareTea Logo" className="logo" />
-                    </Link>
-                </div>
-                <div
-                    className="buttonContainer"
-                    style={{ visibility: path[1] === "" ? 'hidden' : 'visible' }}
-                >
-                    {/* <CatButton category="drinks" displayName="Drinks" selectedCategory={selectedCategory} />
+
+        <div className="sidebarContent">
+            <div className="sidebarlogocontainer">
+                <Link to="/" >
+                    <img src={logo} alt="ShareTea Logo" className="logo" />
+                </Link>
+            </div>
+            <div
+                className="buttonContainer"
+                style={{ visibility: path[1] === "" ? 'hidden' : 'visible' }}
+            >
+                {/* <CatButton category="drinks" displayName="Drinks" selectedCategory={selectedCategory} />
           <CatButton category="ice-cream" displayName="Ice Cream" selectedCategory={selectedCategory} />
           <CatButton category="food" displayName="Food" selectedCategory={selectedCategory} />
           <CatButton category="specialty" displayName="Special Items" selectedCategory={selectedCategory} /> */}
-                </div>
-                <div className="accessibleFeatures">
-                    <div></div>
-                    <div></div>
+            </div>
+            <div className="accessibleFeatures">
 
-                    {/*Language Drop-down*/}
-                    <LanguageSwitcher />
+                {/*Language Drop-down*/}
+                <LanguageSwitcher />
 
-                    {/*High-Contrast Toggle*/}
-                    <button className="highContrast" onClick={toggleTheme}>
-                        {isHighContrast ? "Disable High Contrast" : "Enable High Contrast"}
-                    </button>
-                    {/*Login Button*/}
-                    <Link to='/login'><button className="highContrast">Login</button></Link>
+                {/*High-Contrast Toggle*/}
+                <button className="highContrast" onClick={toggleTheme}>
+                    {isHighContrast ? "Disable High Contrast" : "Enable High Contrast"}
+                </button>
+                {/*Login Button*/}
+                <Link to='/login'><button className="highContrast">Login</button></Link>
 
-                </div>
+            </div>
         </div>
-    </div>
-
     );
-} 
+}
 
 //Category button component
 function CatButton(props) {
