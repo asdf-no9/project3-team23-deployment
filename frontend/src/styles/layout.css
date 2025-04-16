@@ -36,6 +36,7 @@ body {
   justify-content: center;
   background-color: #f87c7c;
   padding: 20px;
+  border-radius: 10px;
 }
 
 .logo {
@@ -382,6 +383,26 @@ button.red {
 }
 
 /*For high-contrast theme*/
+body.high-contrast .startBody {
+  background-color: black;
+  color: white;
+}
+body.high-contrast .startTitle {
+  color: white;
+  background-color: black;
+}
+
+body.high-contrast .logoContainer {
+  background-color: yellow;
+  color: white;
+  border-radius: 10px;
+}
+
+body.high-contrast .sidebar{
+  background-color: yellow;
+  color: white;
+}
+
 body.high-contrast {
   background-color: black;
   color: white;
@@ -416,6 +437,13 @@ body.high-contrast .darkgray {
   background-color: white;
   color: black;
 }
+
+body.high-contrast .backButton {
+  background-color: black;
+  color: white;
+}
+
+
 
 .subtext {
   /* font-weight: normal; */
