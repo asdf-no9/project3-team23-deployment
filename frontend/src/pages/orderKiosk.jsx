@@ -8,7 +8,7 @@ import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function OrderKiosk() {
+export default function OrderKiosk({ loginInfo }) {
     // const { category } = useParams();
 
     const runBefore = useRef(false);
@@ -125,7 +125,7 @@ export default function OrderKiosk() {
                 paymentType: orderState.paymentType,
                 tip: tip,
                 orderID: orderIDState.orderID,
-                cashierID: -1,
+                cashierID: loginInfo.isLoggedIn ? loginInfo.id : -1,
             })
         })
             .then((response) => response.json())

@@ -23,15 +23,17 @@ function Main() {
     isLoggedIn: false,
     username: '',
     token: Cookies.get('token') || null,
-    manager: false
+    manager: false,
+    id: -1,
   });
 
-  const logIn = (username, manager, token) => {
+  const logIn = (username, manager, id, token) => {
     setLoggedInState({
       isLoggedIn: true,
       username: username,
       token: token,
-      manager: manager
+      manager: manager,
+      id: id
     });
     Cookies.remove('token')
     Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'Strict' });
@@ -42,7 +44,8 @@ function Main() {
       isLoggedIn: false,
       username: '',
       token: null,
-      manager: false
+      manager: false,
+      id: -1,
     })
     Cookies.remove('token');
   }
@@ -56,7 +59,7 @@ function Main() {
           if (response.auth == 0)
             logOut();
           else
-            logIn(response.username, response.auth == 2, token);
+            logIn(response.username, response.auth == 2, response.id, token);
         })
         .catch(() => logOut());
     }
@@ -75,7 +78,7 @@ function Main() {
                 <Routes>
                   <Route path="/" element={<StartOrder />} />
                   <Route path="/login" element={<Login loginInfo={loggedInState} logIn={(username, manager, token) => logIn(username, manager, token)} logOut={() => logOut()} />} />
-                  <Route path='/order-kiosk/' element={<OrderKiosk />} />
+                  <Route path='/order-kiosk/' element={<OrderKiosk loginInfo={loggedInState} />} />
                 </Routes>
               </div>
             </div>

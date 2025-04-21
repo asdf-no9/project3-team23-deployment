@@ -66,17 +66,20 @@ const LOGGED_IN_MANAGER = 2;
  * RESPONSE
  * {
  *     "message": "Welcome!",
- *     "username: string
- *     "auth": boolean
+ *     "username: string,
+ *     "auth": boolean,
+ *     "id": int,
  * }
  */
 app.get('/', (req, res) => {
 
     let authCode = 0;
     let username = 'Self-Serve Kiosk'
+    let id = -1;
 
     if (req.query.token && token_cache[req.query.token]) {
         username = token_cache[req.query.token].username;
+        id = token_cache[req.query.token].id;
         if (token_cache[req.query.token].manager)
             authCode = 2;
         else
@@ -86,7 +89,8 @@ app.get('/', (req, res) => {
     const data = {
         message: "Welcome!",
         username: username.join(' '),
-        auth: authCode
+        auth: authCode,
+        id: id
     }
     res.status(200).send(data);
 });
@@ -106,7 +110,8 @@ app.get('/', (req, res) => {
  *      "error": SQL Error, (optional)
  *      "success": boolean, 
  *      "token": UUID,
- *      "is_manager": boolean
+ *      "is_manager": boolean,
+ *      "id": the employee ID
  * }
  */
 app.post('/login', (req, res) => {
@@ -144,7 +149,7 @@ app.post('/login', (req, res) => {
                                     manager: is_manager,
                                     username: username
                                 }
-                                res.status(200).send({ success: true, token: new_token, manager: is_manager })
+                                res.status(200).send({ success: true, token: new_token, id: user_id, manager: is_manager })
                                 return
                             } else {
                                 res.status(500).send({ success: false, error: "Server error." })

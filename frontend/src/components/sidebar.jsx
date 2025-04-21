@@ -23,11 +23,10 @@ export default function Sidebar({ loginInfo }) {
             <div className="accessibleFeatures">
 
                 {loginInfo.manager ? <>
-                    <button className='highContrast'>Edit Menu</button>
-                    <button className='highContrast'>Inventory</button>
-                    <button className='highContrast'>Manage Staff</button>
-                    <button className='highContrast'>Reports</button>
-
+                    <Link to="/"><button className='highContrast'>Edit Menu</button></Link>
+                    <Link to="/"><button className='highContrast'>Inventory</button></Link>
+                    <Link to="/"><button className='highContrast'>Manage Staff</button></Link>
+                    <Link to="/"><button className='highContrast'>Reports</button></Link>
                     <hr />
                 </> : <></>}
 

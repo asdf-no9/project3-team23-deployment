@@ -35,7 +35,7 @@ export default function Login({ loginInfo, logIn, logOut }) {
                         return;
                     } else {
                         setLoginStatus("");
-                        logIn(username, response.manager, response.token);
+                        logIn(username, response.manager, response.id, response.token);
                         navigate('/');
                         return;
                     }
