@@ -41,6 +41,7 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
  * {
  *      UUID: {
  *          "creation_date": UTC Timestamp,
+ *          "username": username,
  *          "id": User ID,
  *          "manager": boolean, if they are or are not a manager
  *      },
@@ -65,13 +66,27 @@ const LOGGED_IN_MANAGER = 2;
  * RESPONSE
  * {
  *     "message": "Welcome!",
+ *     "username: string
  *     "auth": boolean
  * }
  */
 app.get('/', (req, res) => {
+
+    let authCode = 0;
+    let username = 'Self-Serve Kiosk'
+
+    if (req.query.token && token_cache[req.query.token]) {
+        username = token_cache[req.query.token].username;
+        if (token_cache[req.query.token].manager)
+            authCode = 2;
+        else
+            authCode = 1;
+    }
+
     const data = {
         message: "Welcome!",
-        auth: req.query.token && token_cache[req.query.token] ? true : false
+        username: username.join(' '),
+        auth: authCode
     }
     res.status(200).send(data);
 });
@@ -126,7 +141,8 @@ app.post('/login', (req, res) => {
                                 {
                                     creation_date: new Date().getTime(),
                                     id: user_id,
-                                    manager: is_manager
+                                    manager: is_manager,
+                                    username: username
                                 }
                                 res.status(200).send({ success: true, token: new_token, manager: is_manager })
                                 return
@@ -799,7 +815,9 @@ app.post('/order/checkout', (req, res) => {
 })
 
 function auth(req, res, level = LOGGED_IN_EMPLOYEE) {
-    token = req.query.token
+    let token = null;
+    if (req.headers.authorization.length > 7)
+        token = req.headers.authorization.substring(7);
 
     if (token && token_cache[token])
         if (level == LOGGED_IN_EMPLOYEE || (level == LOGGED_IN_MANAGER && token_cache[token].manager))

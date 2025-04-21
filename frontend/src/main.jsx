@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client'; // Correct import
 import './styles/main.css';
 import './styles/layout.css';
@@ -12,33 +12,81 @@ import StartOrder from './pages/startOrder.jsx';
 import OrderKiosk from './pages/orderKiosk.jsx';
 import Sidebar from './components/sidebar.jsx';
 import Login from './pages/login.jsx';
+import Cookies from 'js-cookie';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD',
 });
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <I18nextProvider i18n={i18n}>
-    <HighContrastProvider> { }
-      <Router>
-        <div id="bodysplit">
-          <div className='sidebar'>
-            <Sidebar />
-          </div>
-          <div className='router'>
-            <Routes>
-              <Route path="/" element={<StartOrder />} />
-              <Route path="/login" element={<Login />} />
-              <Route path='/order-kiosk/' element={<OrderKiosk />} />
-            </Routes>
-          </div>
-        </div>
-      </Router>
-    </HighContrastProvider>
-    </I18nextProvider>
-  </StrictMode>
-);
+function Main() {
+  const [loggedInState, setLoggedInState] = useState({
+    isLoggedIn: false,
+    username: '',
+    token: Cookies.get('token') || null,
+    manager: false
+  });
+
+  const logIn = (username, manager, token) => {
+    setLoggedInState({
+      isLoggedIn: true,
+      username: username,
+      token: token,
+      manager: manager
+    });
+    Cookies.remove('token')
+    Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'Strict' });
+  }
+
+  const logOut = () => {
+    setLoggedInState({
+      isLoggedIn: false,
+      username: '',
+      token: null,
+      manager: false
+    })
+    Cookies.remove('token');
+  }
+
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (token) {
+      fetch(import.meta.env.VITE_API_URL + '?token=' + token)
+        .then(response => response.json())
+        .then((response) => {
+          if (response.auth == 0)
+            logOut();
+          else
+            logIn(response.username, response.auth == 2, token);
+        })
+        .catch(() => logOut());
+    }
+  }, []);
+
+  return (
+    <StrictMode>
+      <I18nextProvider i18n={i18n}>
+        <HighContrastProvider> { }
+          <Router>
+            <div id="bodysplit">
+              <div className='sidebar'>
+                <Sidebar loginInfo={loggedInState} />
+              </div>
+              <div className='router'>
+                <Routes>
+                  <Route path="/" element={<StartOrder />} />
+                  <Route path="/login" element={<Login loginInfo={loggedInState} logIn={(username, manager, token) => logIn(username, manager, token)} logOut={() => logOut()} />} />
+                  <Route path='/order-kiosk/' element={<OrderKiosk />} />
+                </Routes>
+              </div>
+            </div>
+          </Router>
+        </HighContrastProvider>
+      </I18nextProvider>
+    </StrictMode>
+  );
+}
+
+createRoot(document.getElementById('root')).render(<Main />);
 
 
 export { currencyFormatter };

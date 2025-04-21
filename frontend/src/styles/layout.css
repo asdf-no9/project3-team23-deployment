@@ -15,6 +15,7 @@ body {
   margin: 0;
   overflow-y: hidden;
   overflow-x: hidden;
+  /* min-height: 800px; */
 }
 
 .startTitle {
@@ -68,20 +69,30 @@ body {
   display: flex;
   min-width: 300px;
   justify-content: center;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .sidebarlogocontainer {
-  margin-left: auto;
+  margin-left: 0;
   margin-right: auto;
+  padding-bottom: 20px;
+}
+
+.sidebarlogocontainer img {
+  height: 150px;
+  width: auto;
 }
 
 .sidebarContent {
   padding: 20px;
   display: flex;
-  margin-left: auto;
+  margin-left: 20px;
   margin-right: auto;
   flex-direction: column;
   justify-content: space-between;
+
+  /* overflow-y: auto; */
 }
 
 .mainBody {
@@ -93,6 +104,7 @@ body {
   /* overflow: scroll; */
   overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: thin;
   width: 100%;
   /* margin-left: auto;
   margin-right: auto; */
@@ -171,6 +183,7 @@ body {
 
 /*This is for the accessibility options*/
 .accessibleFeatures {
+  padding-bottom: 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -675,6 +688,22 @@ hr {
   margin: 0;
 }
 
+.sidebarusername {
+  margin-top: auto;
+  text-align: left;
+}
+
+/* @media (max-height: 800px) {
+  .sidebarlogocontainer {
+    margin-left: 0;
+  }
+
+  .sidebarlogocontainer img {
+    height: 150px;
+    width: auto;
+  }
+} */
+
 @media (max-width: 750px) {
   .catbuttonitem {
     /* width: 100%; */
@@ -694,7 +723,7 @@ hr {
     max-width: 80%;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 30px;
+    /* margin-top: 30px; */
   }
 
   .headerbar > a > button {
@@ -704,7 +733,7 @@ hr {
   .headerbar h1 {
     text-align: center;
     margin-left: 0;
-    margin-top: 0px;
+    /* margin-top: 0px; */
     margin-bottom: 10px;
   }
 
@@ -725,13 +754,19 @@ hr {
   .sidebar {
     height: 150px;
     margin: 0;
+    overflow-y: hidden;
   }
 
   .sidebarlogocontainer {
     margin-left: 0;
-    margin-right: auto;
+    margin-right: 0;
     padding: 0;
     /* padding-bottom: 20px; */
+  }
+
+  .sidebarlogocontainer img {
+    height: 100px;
+    width: auto;
   }
 
   .logo {
@@ -752,13 +787,25 @@ hr {
     gap: 0;
   }
 
-  .accessibleFeatures {
-    gap: 5px;
-    height: 150px;
-    display: flex;
-    margin-top: 10px;
-    margin-right: 5px;
+  .sidebarusername {
+    margin-top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-size: medium;
+  }
 
+  .accessibleFeatures {
+    /* gap: 5px; */
+    height: 100px;
+    display: flex;
+    /* margin-top: 10px; */
+    margin-right: 5px;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-auto-flow: column;
+    justify-content: center;
+    align-items: center;
     /* display: grid;
     grid-template-columns: 1fr 1fr 1fr; */
     /* margin-left: auto; */
@@ -769,6 +816,13 @@ hr {
     /* width: 75%; */
     font-size: small;
     /* height: 35px; */
+    padding: 0px;
+    height: 25px;
+    padding: 2px;
+  }
+
+  .accessibleFeatures hr {
+    display: none;
   }
   /* .h3 {
     text-align: center;
@@ -781,6 +835,12 @@ hr {
 
   .router {
     overflow-y: auto;
+  }
+}
+
+@media (max-width: 475px) {
+  .sidebarusername {
+    display: none;
   }
 }
 

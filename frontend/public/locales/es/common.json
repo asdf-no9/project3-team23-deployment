@@ -1,8 +1,8 @@
 {
   "sidebar": {
     "language": "Idioma",
-    "disable_high_contrast": "Desactivar alto contraste",
-    "enable_high_contrast": "Activar alto contraste",
+    "disable_high_contrast": "Alto contraste",
+    "enable_high_contrast": "Alto contraste",
     "login": "Iniciar sesión",
     "logo_alt": "Logotipo de Sharetea"
   },
