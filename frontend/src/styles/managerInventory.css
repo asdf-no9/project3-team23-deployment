@@ -1,0 +1,44 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.manager-inventory-page {
+    padding: 16px;
+    min-height: 100vh;
+    background-color: white;
+    color: black;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+table {
+    width: 100vh;
+    text-align: left;
+}
+
+.add-button {
+    background-color: #0096FC;
+}
+
+.delete-button {
+    background-color: #FF353D;
+}
+
+.edit-button {
+    background-color: #f87c7c;
+}

@@ -13,6 +13,7 @@ import OrderKiosk from './pages/orderKiosk.jsx';
 import Sidebar from './components/sidebar.jsx';
 import Login from './pages/login.jsx';
 import Cookies from 'js-cookie';
+import ManagerInventory from './pages/managerInventory.jsx';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD',
@@ -79,6 +80,7 @@ function Main() {
                   <Route path="/" element={<StartOrder />} />
                   <Route path="/login" element={<Login loginInfo={loggedInState} logIn={(username, manager, token) => logIn(username, manager, token)} logOut={() => logOut()} />} />
                   <Route path='/order-kiosk/' element={<OrderKiosk loginInfo={loggedInState} />} />
+                  <Route path='/manager-inventory' element={<ManagerInventory/>} />
                 </Routes>
               </div>
             </div>
