@@ -412,14 +412,12 @@ app.post('/menu/delete', (req, res) => {
  * {
  *      error: error message, (optional)
  *      inventory: [
- *          inventory_item: [
- *              {
- *                  "name": text,
- *                  "quantity": int,
- *                  "fill_rate": int,
- *                  "unit": text
- *              },
- *          ],
+ *          {
+ *              "name": text,
+ *              "quantity": int,
+ *              "fill_rate": int,
+ *              "unit": text
+ *          },
  *      ]
  * }
  */
