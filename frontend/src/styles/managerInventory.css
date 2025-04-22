@@ -9,6 +9,7 @@
     min-height: 100vh;
     background-color: white;
     color: black;
+    overflow-y: auto;
 }
 
 .action-buttons {
@@ -24,6 +25,11 @@ button {
     color: white;
     cursor: pointer;
     font-size: 14px;
+}
+
+.table-container {
+    overflow-y: auto;
+    max-height: 80vh;
 }
 
 table {

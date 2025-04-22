@@ -12,6 +12,10 @@ export default function ManagerInventory() {
     const [loading, setLoading] = useState(true);
 
     useEffect( () => {
+        loadInventory();
+    }, [])
+
+    const loadInventory = () => {
         setLoading(true);
         fetch(API_URL + 'inventory')
             .then((response) => response.json())
@@ -20,7 +24,7 @@ export default function ManagerInventory() {
                 console.log(e);
             })
             .finally(() => setLoading(false))
-    }, [])
+    }
 
     const addItem = () => {
         setDisableButton(true);
@@ -36,7 +40,7 @@ export default function ManagerInventory() {
          * api call needed ex. inventory/add
          * information to collect for api call (maybe pass as array then call array.map() ?)
          */
-        
+
         setDisableButton(false);
     }
 
@@ -69,27 +73,29 @@ export default function ManagerInventory() {
                     <button onClick={runFillRate} disabled={disableButton} className="refresh-button">Refresh</button>
                 </div>
             </div>
-            {loading ? <p>Loading Inventory...</p> : <div className='table-container'>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Item Name</th>
-                            <th>Quantity</th>
-                            <th>Rec. Fill Rate</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {inventory.map((item,idx) => 
-                            <tr key={idx}>
-                                <td>{item.name}</td>
-                                <td>{item.quantity} {item.unit}</td>
-                                <td>{item.fill_rate} {item.unit}/wk</td>
-                            </tr>    
-                        )}
-                    </tbody>
-                </table>
-            </div>
-}
+            {loading ? 
+                <p>Loading Inventory...</p> : 
+                <div className='table-container'>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Rec. Fill Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {inventory.map((item,idx) => 
+                                <tr key={idx}>
+                                    <td>{item.name}</td>
+                                    <td>{item.quantity} {item.unit}</td>
+                                    <td>{item.fill_rate} {item.unit}/wk</td>
+                                </tr>    
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     )
 }
