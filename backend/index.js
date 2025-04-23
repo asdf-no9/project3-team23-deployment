@@ -424,7 +424,7 @@ app.post('/menu/delete', (req, res) => {
 app.get('/inventory', (req, res) => {
     // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
-    let fillUpdate = req.query.fillUpdate || false;
+    let fillUpdate = (req.query.fillUpdate === 'false') ? false : true;
 
     const getInventory = () => {
         pool.query('SELECT * FROM Inventory ORDER BY name;')
@@ -462,6 +462,10 @@ app.get('/inventory', (req, res) => {
             .then(() => {
                 getInventory();
                 fillUpdate = true;
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).send({ error: "Server error.", inventory: [] });
             });
     }
     else {

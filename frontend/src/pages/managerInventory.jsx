@@ -120,15 +120,20 @@ export default function ManagerInventory() {
 
     const runFillRate = () => {
         setDisableButton(true);
-        
-        console.log("Rerun Fill Rate");
 
-        /**
-         * TODO:
-         * Write api call for rerunning fill rate
-         * call api
-         */
+        fetch(API_URL + 'inventory?fillUpdate=false')
+            .then(response => {
+                if(!response.ok){
+                    return response.text().then(text=> {
+                        console.error("server error: ", text);
+                        throw new Error(`Server returned ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .catch(e => console.log(e));
 
+        loadInventory();
         setDisableButton(false);
     }
 
