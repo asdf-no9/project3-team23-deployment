@@ -540,9 +540,9 @@ app.post('/inventory/edit', (req, res) => {
 app.post('/inventory/add', (req, res) => {
     // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
 
-    let { name, quantity } = req.body;
+    let { name, quantity, is_topping } = req.body;
     quantity = parseInt(quantity);
-    let is_topping = (req.query.is_topping === "true")
+    is_topping = Boolean(is_topping);
 
     if (typeof name != "string" || typeof quantity != "number" || typeof is_topping != "boolean") {
         res.status(500).send({ error: "Unable to add, please check properties", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });

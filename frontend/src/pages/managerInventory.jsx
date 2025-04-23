@@ -1,7 +1,8 @@
 import { Link } from 'react-router';
 import {useState, useEffect } from 'react';
 import '../styles/managerInventory.css';
-import '../styles/layout.css'
+import '../styles/layout.css';
+import Modal from '../components/modal';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -10,6 +11,11 @@ export default function ManagerInventory() {
     const [inventory, setInventory] = useState([]);
     const [disableButton, setDisableButton] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    const [modalMode, setModalMode] = useState('');
+    const [itemName, setItemName] = useState('');
+    const [itemQuantity, setItemQuantity] = useState('');
+    const [isTopping, setIsTopping] = useState(false);
 
     useEffect( () => {
         loadInventory();
@@ -26,51 +32,115 @@ export default function ManagerInventory() {
             .finally(() => setLoading(false))
     }
 
+    const closeModal = () => {
+        setModalMode('');
+        setItemName('');
+        setItemQuantity('');
+        setIsTopping(false);
+    }
+
+    // Function used for taking data from the form and then calling the specified api
+    // Uses the modalMode to determine which api to call
+    // Uses other state values to pass data to backend
+    const handleSubmit = e => {
+        e.preventDefault();
+
+        setDisableButton(true);
+
+        let url =  API_URL + 'inventory/';
+        let data = {};
+
+        if(modalMode === 'add'){
+            url += 'add';
+            data = {
+                name: itemName,
+                quantity: parseInt(itemQuantity),
+                is_topping: isTopping
+            }
+        }
+        else if(modalMode === 'delete'){
+            url += 'delete'
+            data = {
+                name: itemName
+            }
+        }
+        else if(modalMode === 'edit'){
+            url += 'edit'
+            data = {
+                name: itemName,
+                quantity: parseInt(itemQuantity)
+            }
+        }
+        
+        try {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if(!response.ok){
+                        return response.text().then(text=> {
+                            console.error("server error: ", text);
+                            throw new Error(`Server returned ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then((r) => console.log(r))
+        }
+        catch (e) {
+            console.error(err);
+        }
+        finally {
+            setDisableButton(false);
+            loadInventory();
+        }
+    }
+
     const addItem = () => {
         setDisableButton(true);
-        console.log('Add Item');
-
-        /**
-         * TODO:
-         * Create Modal / Popup Component to collect data
-         * Create state value for showing modal
-         * Call inventory/add with the data collected
-         * 
-         * Modal can take props such as
-         * api call needed ex. inventory/add
-         * information to collect for api call (maybe pass as array then call array.map() ?)
-         */
-
+        setModalMode("add");
         setDisableButton(false);
     }
 
     const deleteItem = () => {
         setDisableButton(true);
-        console.log('Delete Item');
+        setModalMode("delete");
         setDisableButton(false);
     }
 
     const editItem = () => {
         setDisableButton(true);
-        console.log('Edit Item');
+        setModalMode("edit");
         setDisableButton(false);
     }
 
     const runFillRate = () => {
         setDisableButton(true);
-        console.log('Refresh fill Rate');
+        
+        console.log("Rerun Fill Rate");
+
+        /**
+         * TODO:
+         * Write api call for rerunning fill rate
+         * call api
+         */
+
         setDisableButton(false);
     }
 
     return (
         <div className="manager-inventory-page">
             <div className="header">
-                <h1>Inventory</h1>
+                <h1>Inventory Levels</h1>
                 <div className='action-buttons'>
                     <button onClick={addItem} disabled={disableButton} className="add-button">Add</button>
                     <button onClick={deleteItem} disabled={disableButton} className="delete-button">Delete</button>
                     <button onClick={editItem} disabled={disableButton} className="edit-button">Edit</button>
-                    <button onClick={runFillRate} disabled={disableButton} className="refresh-button">Refresh</button>
+                    <button onClick={runFillRate} disabled={disableButton} className="refresh-button">&#8634;</button>
                 </div>
             </div>
             {loading ? 
@@ -96,6 +166,69 @@ export default function ManagerInventory() {
                     </table>
                 </div>
             }
+
+            <Modal
+                isOpen={modalMode !== ''}
+                title={modalMode.charAt(0).toUpperCase() + modalMode.slice(1) + " Inventory Item"}
+                onClose={closeModal}
+            >
+                <form onSubmit={handleSubmit} className='modal-form'>
+                    <div>
+                        <label htmlFor="item-name">Name:</label>
+                        {modalMode === 'add' ? (
+                            <input 
+                                type="text" 
+                                id="item-name" 
+                                placeholder='Item Name'
+                                value={itemName}
+                                onChange={e => setItemName(e.target.value)}
+                                required
+                            />
+                        ) : (   
+                            <select 
+                                id="item-name"
+                                value={itemName}
+                                onChange={e => setItemName(e.target.value)}
+                            >
+                                <option value="">Select item</option>
+                                {inventory.map(item =>( 
+                                    <option key={item.name} value={item.name}>{item.name}</option>
+                                ))}
+                            </select>
+                        )}
+
+                        {(modalMode === 'add' || modalMode === 'edit') && (
+                            <>
+                                <label htmlFor="item-quantity">Quantity:</label>
+                                <input
+                                    type="number" 
+                                    id="item-quantity"
+                                    placeholder='Enter quantity'
+                                    value={itemQuantity}
+                                    onChange={e => setItemQuantity(e.target.value)}
+                                    required    
+                                />
+                            </>
+                        )}
+
+                        {modalMode === 'add' && (
+                            <>
+                                <label htmlFor="item-topping">Topping:</label>
+                                <input 
+                                    type="checkbox" 
+                                    id="item-topping"
+                                    value={isTopping}
+                                    onChange={e => setIsTopping(e.target.value)}
+                                />
+                            </>
+                        ) }
+                        
+                        <button type='submit' disabled={disableButton}>
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     )
 }
