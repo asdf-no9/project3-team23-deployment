@@ -78,9 +78,10 @@ function Main() {
               <div className='router'>
                 <Routes>
                   <Route path="/" element={<StartOrder />} />
-                  <Route path="/login" element={<Login loginInfo={loggedInState} logIn={(username, manager, token) => logIn(username, manager, token)} logOut={() => logOut()} />} />
+                  <Route path="/login" element={<Login loginInfo={loggedInState} logIn={(username, manager, id, token) => logIn(username, manager, id, token)} logOut={() => logOut()} />} />
                   <Route path='/order-kiosk/' element={<OrderKiosk loginInfo={loggedInState} />} />
-                  <Route path='/manager-inventory' element={<ManagerInventory/>} />
+                  <Route path='/manager-inventory' element={<ManagerInventory />} />
+                  <Route path='*' element={<Navigate to="/" replace />} />
                 </Routes>
               </div>
             </div>

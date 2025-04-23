@@ -1,7 +1,7 @@
 
 import '../styles/layout.css'
 import { useState, useEffect, useRef } from 'react'
-import { Link, useParams, Navigate } from 'react-router';
+import { Link, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
 import Confetti from 'react-confetti'
 import Cookies from 'js-cookie';

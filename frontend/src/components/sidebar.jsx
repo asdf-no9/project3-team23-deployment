@@ -1,15 +1,15 @@
 import '../styles/layout.css';
 import logo from '../assets/ShareTeaLogo.png';
-import { useLocation, Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useHighContrast } from '../context/highContrast.jsx'; //Correct import
 import { useTranslation } from 'react-i18next';
-import React, { useState } from 'react';
+import React from 'react';
 import LanguageSwitcher from './languageSwitch';
 
 
 export default function Sidebar({ loginInfo }) {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
-    const { t, i18n } = useTranslation('common');
+    const { t } = useTranslation('common');
 
     return (
 
@@ -24,7 +24,7 @@ export default function Sidebar({ loginInfo }) {
 
                 {loginInfo.manager ? <>
                     <Link to="/"><button className='highContrast'>Edit Menu</button></Link>
-                    <Link to="/"><button className='highContrast'>Inventory</button></Link>
+                    <Link to="/manager-inventory"><button className='highContrast'>Inventory</button></Link>
                     <Link to="/"><button className='highContrast'>Manage Staff</button></Link>
                     <Link to="/"><button className='highContrast'>Reports</button></Link>
                     <hr />

@@ -78,7 +78,7 @@ app.get('/', (req, res) => {
     let id = -1;
 
     if (req.query.token && token_cache[req.query.token]) {
-        username = token_cache[req.query.token].username;
+        username = token_cache[req.query.token].username.join(" ");
         id = token_cache[req.query.token].id;
         if (token_cache[req.query.token].manager)
             authCode = 2;
@@ -88,7 +88,7 @@ app.get('/', (req, res) => {
 
     const data = {
         message: "Welcome!",
-        username: username.join(' '),
+        username: username,
         auth: authCode,
         id: id
     }
@@ -422,7 +422,7 @@ app.post('/menu/delete', (req, res) => {
  * }
  */
 app.get('/inventory', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let fillUpdate = (req.query.fillUpdate === 'false') ? false : true;
 
@@ -495,7 +495,7 @@ app.get('/inventory', (req, res) => {
  *
  */
 app.post('/inventory/edit', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name, quantity } = req.body;
     quantity = parseInt(quantity);
@@ -542,7 +542,7 @@ app.post('/inventory/edit', (req, res) => {
  * }
  */
 app.post('/inventory/add', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name, quantity, is_topping } = req.body;
     quantity = parseInt(quantity);
@@ -587,7 +587,7 @@ app.post('/inventory/add', (req, res) => {
  *
  */
 app.post('/inventory/delete', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name } = req.body;
 

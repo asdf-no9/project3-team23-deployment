@@ -1,8 +1,9 @@
 import { Link } from 'react-router';
-import {useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/managerInventory.css';
 import '../styles/layout.css';
 import Modal from '../components/modal';
+import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -17,15 +18,19 @@ export default function ManagerInventory() {
     const [itemQuantity, setItemQuantity] = useState('');
     const [isTopping, setIsTopping] = useState(false);
 
-    useEffect( () => {
+    useEffect(() => {
         loadInventory();
     }, [])
 
     const loadInventory = () => {
         setLoading(true);
-        fetch(API_URL + 'inventory')
+        fetch(API_URL + 'inventory', {
+            headers: {
+                'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
+            },
+        })
             .then((response) => response.json())
-            .then((r) => setInventory(r.inventory))
+            .then((r) => setInventory(r ? r.inventory ? r.inventory : [] : []))
             .catch((e) => {
                 console.log(e);
             })
@@ -47,10 +52,10 @@ export default function ManagerInventory() {
 
         setDisableButton(true);
 
-        let url =  API_URL + 'inventory/';
+        let url = API_URL + 'inventory/';
         let data = {};
 
-        if(modalMode === 'add'){
+        if (modalMode === 'add') {
             url += 'add';
             data = {
                 name: itemName,
@@ -58,31 +63,32 @@ export default function ManagerInventory() {
                 is_topping: isTopping
             }
         }
-        else if(modalMode === 'delete'){
+        else if (modalMode === 'delete') {
             url += 'delete'
             data = {
                 name: itemName
             }
         }
-        else if(modalMode === 'edit'){
+        else if (modalMode === 'edit') {
             url += 'edit'
             data = {
                 name: itemName,
                 quantity: parseInt(itemQuantity)
             }
         }
-        
+
         try {
             fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
                 },
                 body: JSON.stringify(data)
             })
                 .then(response => {
-                    if(!response.ok){
-                        return response.text().then(text=> {
+                    if (!response.ok) {
+                        return response.text().then(text => {
                             console.error("server error: ", text);
                             throw new Error(`Server returned ${response.status}`);
                         });
@@ -91,7 +97,7 @@ export default function ManagerInventory() {
                 })
                 .then((r) => console.log(r))
         }
-        catch (e) {
+        catch (err) {
             console.error(err);
         }
         finally {
@@ -121,10 +127,14 @@ export default function ManagerInventory() {
     const runFillRate = () => {
         setDisableButton(true);
 
-        fetch(API_URL + 'inventory?fillUpdate=false')
+        fetch(API_URL + 'inventory?fillUpdate=false', {
+            headers: {
+                'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
+            }
+        })
             .then(response => {
-                if(!response.ok){
-                    return response.text().then(text=> {
+                if (!response.ok) {
+                    return response.text().then(text => {
                         console.error("server error: ", text);
                         throw new Error(`Server returned ${response.status}`);
                     });
@@ -148,8 +158,8 @@ export default function ManagerInventory() {
                     <button onClick={runFillRate} disabled={disableButton} className="refresh-button">&#8634;</button>
                 </div>
             </div>
-            {loading ? 
-                <p>Loading Inventory...</p> : 
+            {loading ?
+                <p>Loading Inventory...</p> :
                 <div className='table-container'>
                     <table>
                         <thead>
@@ -160,12 +170,12 @@ export default function ManagerInventory() {
                             </tr>
                         </thead>
                         <tbody>
-                            {inventory.map((item,idx) => 
+                            {inventory.map((item, idx) =>
                                 <tr key={idx}>
                                     <td>{item.name}</td>
                                     <td>{item.quantity} {item.unit}</td>
                                     <td>{item.fill_rate} {item.unit}/wk</td>
-                                </tr>    
+                                </tr>
                             )}
                         </tbody>
                     </table>
@@ -181,22 +191,22 @@ export default function ManagerInventory() {
                     <div>
                         <label htmlFor="item-name">Name:</label>
                         {modalMode === 'add' ? (
-                            <input 
-                                type="text" 
-                                id="item-name" 
+                            <input
+                                type="text"
+                                id="item-name"
                                 placeholder='Item Name'
                                 value={itemName}
                                 onChange={e => setItemName(e.target.value)}
                                 required
                             />
-                        ) : (   
-                            <select 
+                        ) : (
+                            <select
                                 id="item-name"
                                 value={itemName}
                                 onChange={e => setItemName(e.target.value)}
                             >
                                 <option value="">Select item</option>
-                                {inventory.map(item =>( 
+                                {inventory.map(item => (
                                     <option key={item.name} value={item.name}>{item.name}</option>
                                 ))}
                             </select>
@@ -206,12 +216,12 @@ export default function ManagerInventory() {
                             <>
                                 <label htmlFor="item-quantity">Quantity:</label>
                                 <input
-                                    type="number" 
+                                    type="number"
                                     id="item-quantity"
                                     placeholder='Enter quantity'
                                     value={itemQuantity}
                                     onChange={e => setItemQuantity(e.target.value)}
-                                    required    
+                                    required
                                 />
                             </>
                         )}
@@ -219,15 +229,15 @@ export default function ManagerInventory() {
                         {modalMode === 'add' && (
                             <>
                                 <label htmlFor="item-topping">Topping:</label>
-                                <input 
-                                    type="checkbox" 
+                                <input
+                                    type="checkbox"
                                     id="item-topping"
                                     value={isTopping}
                                     onChange={e => setIsTopping(e.target.value)}
                                 />
                             </>
-                        ) }
-                        
+                        )}
+
                         <button type='submit' disabled={disableButton}>
                             Submit
                         </button>

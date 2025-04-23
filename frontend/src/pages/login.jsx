@@ -35,6 +35,7 @@ export default function Login({ loginInfo, logIn, logOut }) {
                         return;
                     } else {
                         setLoginStatus("");
+                        // console.log(response)
                         logIn(username, response.manager, response.id, response.token);
                         navigate('/');
                         return;
