@@ -1,15 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
-import styles from '../styles/managerInventory.module.css';
+import { useState, useEffect } from 'react';
+import '../styles/managerInventory.css';
+import '../styles/layout.css';
 import Modal from '../components/modal';
 import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function ManagerInventory() {
+export default function ManagerMenu() {
 
-    const mainRef = useRef(null);
-
-    const [inventory, setInventory] = useState([]);
+    const [menu, setMenu] = useState([]);
     const [disableButton, setDisableButton] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -18,22 +17,19 @@ export default function ManagerInventory() {
     const [itemQuantity, setItemQuantity] = useState('');
     const [isTopping, setIsTopping] = useState(false);
 
-    const [selectedRow, setSelectedRow] = useState(null);
-
     useEffect(() => {
-        mainRef.current.scrollTo(0, 0);
         loadInventory();
     }, [])
 
     const loadInventory = () => {
         setLoading(true);
-        fetch(API_URL + 'inventory', {
+        fetch(API_URL + 'menu/get', {
             headers: {
                 'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
             },
         })
             .then((response) => response.json())
-            .then((r) => setInventory(r ? r.inventory ? r.inventory : [] : []))
+            .then((r) => setInventory(r ? r.result ? r.result : [] : []))
             .catch((e) => {
                 console.log(e);
             })
@@ -119,14 +115,12 @@ export default function ManagerInventory() {
     }
 
     const deleteItem = () => {
-
         setDisableButton(true);
         setModalMode("delete");
         setDisableButton(false);
     }
 
     const editItem = () => {
-
         setDisableButton(true);
         setModalMode("edit");
         setDisableButton(false);
@@ -156,45 +150,40 @@ export default function ManagerInventory() {
     }
 
     return (
-        <div className="mainBody" ref={mainRef} id="mainBody">
-            <div id='scaler'>
-                <div className={styles.page}>
-                    <div className="headerbar phoneflip header">
-                        <h1>Inventory Levels</h1>
-                        <hr className='phone' />
-                        <div></div>
-                        <div className={styles.actionbuttons}>
-                            <button onClick={addItem} disabled={disableButton} className="blue">Add</button>
-                            <button onClick={deleteItem} disabled={disableButton} className={/*selectedRow === null ? "black" : */"red"}>Delete</button>
-                            <button onClick={editItem} disabled={disableButton} className={/*selectedRow === null ? "black" : */"third"}>Edit</button>
-                            <button onClick={runFillRate} disabled={disableButton} className="gray">&#8634; Refresh</button>
-                        </div>
-                    </div>
-                    {loading ?
-                        <p>Loading Inventory...</p> :
-                        <div className={styles.tablecontainer}>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Item Name</th>
-                                        <th>Quantity</th>
-                                        <th>Rec. Fill Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {inventory.map((item, idx) =>
-                                        <tr key={idx} onClick={() => setSelectedRow(idx)} className={selectedRow === idx ? styles.selected : ''}>
-                                            <td>{item.name}</td>
-                                            <td>{item.quantity} {item.unit}</td>
-                                            <td>{item.fill_rate} {item.unit}/wk</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    }
+        <div className="manager-inventory-page">
+            <div className="header">
+                <h1>Inventory Levels</h1>
+                <div className='action-buttons'>
+                    <button onClick={addItem} disabled={disableButton} className="add-button">Add</button>
+                    <button onClick={deleteItem} disabled={disableButton} className="delete-button">Delete</button>
+                    <button onClick={editItem} disabled={disableButton} className="edit-button">Edit</button>
+                    <button onClick={runFillRate} disabled={disableButton} className="refresh-button">&#8634;</button>
                 </div>
             </div>
+            {loading ?
+                <p>Loading Inventory...</p> :
+                <div className='table-container'>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Rec. Fill Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {inventory.map((item, idx) =>
+                                <tr key={idx}>
+                                    <td>{item.name}</td>
+                                    <td>{item.quantity} {item.unit}</td>
+                                    <td>{item.fill_rate} {item.unit}/wk</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            }
+
             <Modal
                 isOpen={modalMode !== ''}
                 title={modalMode.charAt(0).toUpperCase() + modalMode.slice(1) + " Inventory Item"}
