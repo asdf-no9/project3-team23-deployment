@@ -1,4 +1,4 @@
-import '../styles/layout.css';
+import styles from '../styles/sidebar.module.css';
 import logo from '../assets/ShareTeaLogo.png';
 import { Link } from 'react-router-dom';
 import { useHighContrast } from '../context/highContrast.jsx'; //Correct import
@@ -13,14 +13,14 @@ export default function Sidebar({ loginInfo }) {
 
     return (
 
-        <div className="sidebarContent">
-            <div className="sidebarlogocontainer">
+        <div className={styles.sidebarcontent}>
+            <div className={styles.sidebarlogocontainer}>
                 <Link to="/" >
                     <img src={logo} alt={t('sidebar.logo_alt')} className="logo" />
                 </Link>
             </div>
-            <h2 className='h3 sidebarusername'>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : "Self-Serve Kiosk"}</h2>
-            <div className="accessibleFeatures">
+            <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : "Self-Serve Kiosk"}</h2>
+            <div className={styles.accessibleFeatures}>
 
                 {loginInfo.manager ? <>
                     <Link to="/"><button className='highContrast'>Edit Menu</button></Link>

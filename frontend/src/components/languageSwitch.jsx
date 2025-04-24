@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import styles from '../styles/languageSwitch.module.css';
 
 const LanguageSwitcher = () => {
   const { t, i18n } = useTranslation('common');
@@ -11,15 +12,15 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <div className="languageDropdownContainer">
+    <div className={styles.languageDropdownContainer}>
       <button
-        className="language"
+        className={styles.language}
         onClick={() => setDropdownVisible(!isDropdownVisible)} //Toggle dropdown visibility
       >
         {t('sidebar.language')}
       </button>
       {isDropdownVisible && (
-        <div className="languageDropdown">
+        <div className={styles.languageDropdown}>
           <button onClick={() => changeLanguage('en')}>{t('language.english')}</button>
           <button onClick={() => changeLanguage('es')}>{t('language.spanish')}</button>
         </div>

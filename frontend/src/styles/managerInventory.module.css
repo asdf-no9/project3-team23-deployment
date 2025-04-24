@@ -1,0 +1,62 @@
+.page {
+  padding: 16px;
+  height: 100vh;
+  background-color: white;
+  color: black;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.actionbuttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.tablecontainer {
+  margin-top: 10px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  /* margin-bottom: 20px; */
+  height: 100%;
+  min-height: 300px;
+  /* background-color: whitesmoke; */
+}
+
+.page table {
+  padding-left: 30px;
+  padding-right: 30px;
+  width: 100%;
+  max-width: 100vh;
+  text-align: left;
+  border-spacing: 0px;
+}
+
+@media (max-width: 750px) {
+  .headerbar:not(.one) {
+    margin-bottom: 10px;
+  }
+
+  .page table {
+    padding: 0;
+  }
+
+  .tablecontainer {
+    margin-top: 0;
+  }
+}
+
+.page th {
+  font-size: large;
+}
+
+.page tr {
+  gap: 2px;
+  border-spacing: 2px;
+  cursor: pointer;
+}
+
+.page tbody tr:hover {
+  background-color: lightgray;
+}

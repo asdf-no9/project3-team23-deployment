@@ -1,7 +1,6 @@
 import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client'; // Correct import
 import './styles/main.css';
-import './styles/layout.css';
 import {
   BrowserRouter as Router, Routes, Route, Navigate
 } from 'react-router-dom'; // Ensure correct import

@@ -1,0 +1,96 @@
+.modalcontainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.modalheader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.modalheader h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.modalclose {
+  color: black;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modalbody {
+  padding: 16px;
+}
+
+.modalbody label {
+  display: block;
+}
+
+/* .modalbody select {
+  margin-top: 5px;
+  width: 80%;
+  max-width: 400px;
+  padding: 10px;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: lightgray;
+  color: black;
+} */
+
+.modalbody input[type="checkbox"] {
+  transform: scale(2);
+  width: 30px;
+  margin-top: 15px;
+  margin-left: 0;
+  /* margin-bottom: 40px; */
+}
+
+.modalbody button {
+  margin-top: 20px;
+  display: block;
+  width: 100%;
+}
+
+.modalbody input,
+.modalbody select {
+  padding: 10px;
+  background-color: lightgray;
+  color: black;
+  font-size: large;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  /* padding: 0; */
+}
+
+.modalbody input::placeholder {
+  color: black;
+  font-size: large;
+}

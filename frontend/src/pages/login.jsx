@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
-import '../styles/layout.css';
-import '../styles/login.css'
+import loginStyles from '../styles/login.module.css'
 import { Link, useNavigate } from 'react-router';
 import Cookies from 'js-cookie';
 
@@ -57,24 +56,24 @@ export default function Login({ loginInfo, logIn, logOut }) {
     return (
         <div className="mainBody" id="mainBody">
             <div id='scaler' className='left'>
-                <div className='headerbar'>
+                <div className="headerbar">
                     <h1>{!loginInfo.isLoggedIn ? "Login" : "Logout"}</h1>
                 </div>
                 <div className='mainContent'>
-                    <form onSubmit={(event) => interactionLoginSubmit(event)}>
+                    <form className={loginStyles.login} onSubmit={(event) => interactionLoginSubmit(event)}>
                         {!loginInfo.isLoggedIn ?
                             <>
                                 <div>
-                                    <h2 className='h3'>Username</h2>
+                                    <h2 className={loginStyles.h3}>Username</h2>
                                     <input type="text" id="username" name="username" minlength="2" required />
                                 </div>
                                 <div>
-                                    <h2 className='h3'>Password</h2>
+                                    <h2 className={loginStyles.h3}>Password</h2>
                                     <input type="password" id="password" name="password" minlength="2" required />
                                 </div>
                             </> : <></>
                         }
-                        <p className='error'>{loginStatus}</p>
+                        <p className={loginStyles.error}>{loginStatus}</p>
                         <button className='blue' id="submit" type="submit">{!loginInfo.isLoggedIn ? "Sign In" : "Sign Out"}</button>
                     </form>
                 </div>
