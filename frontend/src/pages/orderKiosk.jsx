@@ -94,7 +94,7 @@ export default function OrderKiosk({ loginInfo }) {
     }
 
     const interactionCompleteCheckout = () => {
-        if (loading() || orderState.tipError)
+        if (loading() || (orderState.tipError && orderState.tipSelection == 4))
             return;
 
         changeOrderState({ ...orderState, checkoutLoading: true, checkoutError: false });
