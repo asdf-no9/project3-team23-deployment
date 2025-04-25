@@ -155,6 +155,7 @@ export default function ManagerMenu() {
                                 <thead>
                                     <tr>
                                         <th>Item Name</th>
+                                        <th>Item Category</th>
                                         <th>Price</th>
                                     </tr>
                                 </thead>
@@ -162,6 +163,7 @@ export default function ManagerMenu() {
                                     {menu.map((item, idx) =>
                                         <tr key={idx} onClick={() => setSelectedRow(idx)} className={selectedRow === idx ? styles.selected : ''}>
                                             <td>{item.name}</td>
+                                            <td>{item.category}</td>
                                             <td>{currencyFormatter.format(item.price / 100_000)}</td>
                                         </tr>
                                     )}
