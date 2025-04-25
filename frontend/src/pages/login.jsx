@@ -65,11 +65,11 @@ export default function Login({ loginInfo, logIn, logOut }) {
                             <>
                                 <div>
                                     <h2 className={loginStyles.h3}>Username</h2>
-                                    <input type="text" id="username" name="username" minlength="2" required />
+                                    <input type="text" id="username" name="username" minLength="2" required />
                                 </div>
                                 <div>
                                     <h2 className={loginStyles.h3}>Password</h2>
-                                    <input type="password" id="password" name="password" minlength="2" required />
+                                    <input type="password" id="password" name="password" minLength="2" required />
                                 </div>
                             </> : <></>
                         }

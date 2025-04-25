@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
-import '../styles/managerInventory.css';
-import '../styles/layout.css';
+import { useState, useEffect, useRef } from 'react';
+import styles from '../styles/managerInventory.module.css';
 import Modal from '../components/modal';
 import Cookies from 'js-cookie';
+import { currencyFormatter } from '../main';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function ManagerMenu() {
+
+     const mainRef = useRef(null);
 
     const [menu, setMenu] = useState([]);
     const [disableButton, setDisableButton] = useState(false);
@@ -14,14 +16,18 @@ export default function ManagerMenu() {
 
     const [modalMode, setModalMode] = useState('');
     const [itemName, setItemName] = useState('');
-    const [itemQuantity, setItemQuantity] = useState('');
-    const [isTopping, setIsTopping] = useState(false);
+    const [itemPrice, setItemPrice] = useState('');
+    const [isHotItem, setIsHotItem] = useState(false);
+    const [itemCategory, setItemCategory] = useState('');
+
+    const [selectedRow, setSelectedRow] = useState(null);
 
     useEffect(() => {
-        loadInventory();
+        mainRef.current.scrollTo(0, 0);
+        loadMenu();
     }, [])
 
-    const loadInventory = () => {
+    const loadMenu = () => {
         setLoading(true);
         fetch(API_URL + 'menu/get', {
             headers: {
@@ -29,7 +35,7 @@ export default function ManagerMenu() {
             },
         })
             .then((response) => response.json())
-            .then((r) => setInventory(r ? r.result ? r.result : [] : []))
+            .then((r) => setMenu(r ? r.result ? r.result : [] : []))
             .catch((e) => {
                 console.log(e);
             })
@@ -39,8 +45,9 @@ export default function ManagerMenu() {
     const closeModal = () => {
         setModalMode('');
         setItemName('');
-        setItemQuantity('');
-        setIsTopping(false);
+        setItemPrice('');
+        setIsHotItem(false);
+        setItemCategory('');
     }
 
     // Function used for taking data from the form and then calling the specified api
@@ -51,15 +58,16 @@ export default function ManagerMenu() {
 
         setDisableButton(true);
 
-        let url = API_URL + 'inventory/';
+        let url = API_URL + 'menu/';
         let data = {};
 
         if (modalMode === 'add') {
             url += 'add';
             data = {
                 name: itemName,
-                quantity: parseInt(itemQuantity),
-                is_topping: isTopping
+                category: itemCategory,
+                price: parseFloat(itemPrice),
+                option_hot: isHotItem
             }
         }
         else if (modalMode === 'delete') {
@@ -72,7 +80,7 @@ export default function ManagerMenu() {
             url += 'edit'
             data = {
                 name: itemName,
-                quantity: parseInt(itemQuantity)
+                price: parseFloat(itemPrice)
             }
         }
 
@@ -97,7 +105,7 @@ export default function ManagerMenu() {
                 .then((r) => console.log(r))
                 .finally( () => {
                     closeModal();
-                    loadInventory();
+                    loadMenu();
                 })
         }
         catch (err) {
@@ -126,126 +134,116 @@ export default function ManagerMenu() {
         setDisableButton(false);
     }
 
-    const runFillRate = () => {
-        setDisableButton(true);
-
-        fetch(API_URL + 'inventory?fillUpdate=false', {
-            headers: {
-                'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
-            }
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        console.error("server error: ", text);
-                        throw new Error(`Server returned ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .catch(e => console.log(e));
-
-        loadInventory();
-        setDisableButton(false);
-    }
-
     return (
-        <div className="manager-inventory-page">
-            <div className="header">
-                <h1>Inventory Levels</h1>
-                <div className='action-buttons'>
-                    <button onClick={addItem} disabled={disableButton} className="add-button">Add</button>
-                    <button onClick={deleteItem} disabled={disableButton} className="delete-button">Delete</button>
-                    <button onClick={editItem} disabled={disableButton} className="edit-button">Edit</button>
-                    <button onClick={runFillRate} disabled={disableButton} className="refresh-button">&#8634;</button>
+        <div className="mainBody" ref={mainRef} id="mainBody">
+            <div id='scaler'>
+                <div className={styles.page}>
+                    <div className="headerbar phoneflip header">
+                        <h1>Menu Levels</h1>
+                        <hr className='phone' />
+                        <div></div>
+                        <div className={styles.actionbuttons}>
+                            <button onClick={addItem} disabled={disableButton} className="blue">Add</button>
+                            <button onClick={deleteItem} disabled={disableButton} className={/*selectedRow === null ? "black" : */"red"}>Delete</button>
+                            <button onClick={editItem} disabled={disableButton} className={/*selectedRow === null ? "black" : */"third"}>Edit</button>
+                        </div>
+                    </div>
+                    {loading ?
+                        <p>Loading Menu...</p> :
+                        <div className={styles.tablecontainer}>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {menu.map((item, idx) =>
+                                        <tr key={idx} onClick={() => setSelectedRow(idx)} className={selectedRow === idx ? styles.selected : ''}>
+                                            <td>{item.name}</td>
+                                            <td>{currencyFormatter.format(item.price / 100_000)}</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <Modal
+                        isOpen={modalMode !== ''}
+                        title={modalMode.charAt(0).toUpperCase() + modalMode.slice(1) + " Menu Item"}
+                        onClose={closeModal}
+                    >
+                        <form onSubmit={handleSubmit} className='modal-form'>
+                            <div>
+                                <label htmlFor="item-name">Name:</label>
+                                {modalMode === 'add' ? (
+                                    <input
+                                        type="text"
+                                        id="item-name"
+                                        placeholder='Item Name'
+                                        value={itemName}
+                                        onChange={e => setItemName(e.target.value)}
+                                        required
+                                    />
+                                ) : (
+                                    <select
+                                        id="item-name"
+                                        value={itemName}
+                                        onChange={e => setItemName(e.target.value)}
+                                    >
+                                        <option value="">Select item</option>
+                                        {menu.map(item => (
+                                            <option key={item.name} value={item.name}>{item.name}</option>
+                                        ))}
+                                    </select>
+                                )}
+
+                                {(modalMode === 'add' || modalMode === 'edit') && (
+                                    <>
+                                        <label htmlFor="item-price">Price:</label>
+                                        <input
+                                            type="number"
+                                            id="item-price"
+                                            placeholder='Enter price'
+                                            value={itemPrice}
+                                            step='0.01'
+                                            onChange={e => setItemPrice(e.target.value)}
+                                            required
+                                        />
+                                    </>
+                                )}
+
+                                {modalMode === 'add' && (
+                                    <>
+                                        <label htmlFor="item-category">Category</label>
+                                        <input
+                                            type="text"
+                                            id="item-category"
+                                            placeholder='Item Category'
+                                            value={itemCategory}
+                                            onChange={e => setItemCategory(e.target.value)}
+                                            required
+                                        />
+                                        <label htmlFor="item-topping">Hot Item:</label>
+                                        <input
+                                            type="checkbox"
+                                            id="item-hot-item"
+                                            value={isHotItem}
+                                            onChange={e => setIsHotItem(e.target.value)}
+                                        />
+                                    </>
+                                )}
+
+                                <button type='submit' disabled={disableButton}>
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </Modal>
                 </div>
             </div>
-            {loading ?
-                <p>Loading Inventory...</p> :
-                <div className='table-container'>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Item Name</th>
-                                <th>Quantity</th>
-                                <th>Rec. Fill Rate</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {inventory.map((item, idx) =>
-                                <tr key={idx}>
-                                    <td>{item.name}</td>
-                                    <td>{item.quantity} {item.unit}</td>
-                                    <td>{item.fill_rate} {item.unit}/wk</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            }
-
-            <Modal
-                isOpen={modalMode !== ''}
-                title={modalMode.charAt(0).toUpperCase() + modalMode.slice(1) + " Inventory Item"}
-                onClose={closeModal}
-            >
-                <form onSubmit={handleSubmit} className='modal-form'>
-                    <div>
-                        <label htmlFor="item-name">Name:</label>
-                        {modalMode === 'add' ? (
-                            <input
-                                type="text"
-                                id="item-name"
-                                placeholder='Item Name'
-                                value={itemName}
-                                onChange={e => setItemName(e.target.value)}
-                                required
-                            />
-                        ) : (
-                            <select
-                                id="item-name"
-                                value={itemName}
-                                onChange={e => setItemName(e.target.value)}
-                            >
-                                <option value="">Select item</option>
-                                {inventory.map(item => (
-                                    <option key={item.name} value={item.name}>{item.name}</option>
-                                ))}
-                            </select>
-                        )}
-
-                        {(modalMode === 'add' || modalMode === 'edit') && (
-                            <>
-                                <label htmlFor="item-quantity">Quantity:</label>
-                                <input
-                                    type="number"
-                                    id="item-quantity"
-                                    placeholder='Enter quantity'
-                                    value={itemQuantity}
-                                    onChange={e => setItemQuantity(e.target.value)}
-                                    required
-                                />
-                            </>
-                        )}
-
-                        {modalMode === 'add' && (
-                            <>
-                                <label htmlFor="item-topping">Topping:</label>
-                                <input
-                                    type="checkbox"
-                                    id="item-topping"
-                                    value={isTopping}
-                                    onChange={e => setIsTopping(e.target.value)}
-                                />
-                            </>
-                        )}
-
-                        <button type='submit' disabled={disableButton}>
-                            Submit
-                        </button>
-                    </div>
-                </form>
-            </Modal>
         </div>
     )
 }

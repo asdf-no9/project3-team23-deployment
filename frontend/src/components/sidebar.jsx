@@ -23,7 +23,7 @@ export default function Sidebar({ loginInfo }) {
             <div className={styles.accessibleFeatures}>
 
                 {loginInfo.manager ? <>
-                    <Link to="/"><button className='highContrast'>Edit Menu</button></Link>
+                    <Link to="/manager-menu"><button className='highContrast'>Edit Menu</button></Link>
                     <Link to="/manager-inventory"><button className='highContrast'>Inventory</button></Link>
                     <Link to="/"><button className='highContrast'>Manage Staff</button></Link>
                     <Link to="/"><button className='highContrast'>Reports</button></Link>

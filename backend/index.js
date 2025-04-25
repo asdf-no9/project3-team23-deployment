@@ -354,14 +354,15 @@ app.post('/menu/add', (req, res) => {
 app.get('/menu/get', (req, res) => {
     pool.query("SELECT * FROM menu ORDER BY id ASC")
         .then((result) => {
-            res.status(500).send({ result: result.rows });
+            res.status(200).send({ result: result.rows });
         })
+        .catch((error) => console.log(error));
 })
 
 /**
  * Delete Menu Item
  * *******************
- * URI: /menu/edit
+ * URI: /menu/delete
  * 
  * NEEDS AUTH: manager
  * 
