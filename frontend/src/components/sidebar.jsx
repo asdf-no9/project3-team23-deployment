@@ -2,14 +2,14 @@ import '../styles/layout.css';
 import logo from '../assets/ShareTeaLogo.png';
 import { useLocation, Link } from 'react-router-dom';
 import { useHighContrast } from '../context/highContrast.jsx'; //Correct import
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'; //Importing i18n for translation
 import React, { useState } from 'react';
-import LanguageSwitcher from './languageSwitch';
+import LanguageSwitcher from './languageSwitch'; //Importing language translation module
 import Cookies from 'js-cookie';
 
 export default function Sidebar() {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
-    const { t, i18n } = useTranslation('common');
+    const { t, i18n } = useTranslation('common'); //Used in i18n for translation
 
     return (
 

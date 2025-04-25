@@ -19,7 +19,9 @@ const LanguageSwitcher = () => {
         {t('sidebar.language')}
       </button>
       {isDropdownVisible && (
-        <div className="languageDropdown">
+
+        /*Dropdown for language selection*/
+        <div className="languageDropdown"> 
           <button onClick={() => changeLanguage('en')}>{t('language.english')}</button>
           <button onClick={() => changeLanguage('es')}>{t('language.spanish')}</button>
         </div>

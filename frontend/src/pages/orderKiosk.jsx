@@ -5,6 +5,7 @@ import { Link, useParams, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
 import Confetti from 'react-confetti'
 import Cookies from 'js-cookie';
+import { useTranslation } from 'react-i18next';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -13,6 +14,7 @@ export default function OrderKiosk() {
 
     const runBefore = useRef(false);
     const inputRef = useRef(null);
+    const { t, i18n } = useTranslation('common'); //For i18n translation
 
     const [menuState, setMenuState] = useState({ menuLoading: true, categories: {} });
     const [toppingsState, setToppingsState] = useState({ toppingsLoading: true, toppings: [] });
@@ -294,7 +296,7 @@ export default function OrderKiosk() {
         orderStepHTML = (
             <>
                 <div className='headerbar one'>
-                    <h1>Select Category</h1>
+                    <h1>{t('orderKiosk.selectCategory')}</h1>
                     <div></div>
                     <hr className='phone' />
                     <Link to="/"><button className='darkgray'>Start Over</button></Link>
@@ -307,9 +309,9 @@ export default function OrderKiosk() {
                     <div>
                         <div className='itemlist hideitemlist'>
                             <hr className='full' />
-                            <h3 className='centeralign'>Current Order</h3>
+                            <h3 className='centeralign'>{t('Current Order')}</h3>
                             <hr className='full' />
-                            {itemList.length == 0 ? <p className='centeralign'>Empty order.</p> :
+                            {itemList.length == 0 ? <p className='centeralign'>{t('Empty order.')}</p> :
                                 <ol>
                                     {itemList}
                                 </ol>}
@@ -359,7 +361,7 @@ export default function OrderKiosk() {
         orderStepHTML =
             <>
                 <div className='headerbar one'>
-                    <h1>{orderState.selectedCategory}</h1>
+                    <h1>orderState.selectedCategory</h1>
                     <hr className='phone' />
                     <button className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
                     {/* <hr className='phone' /> */}
@@ -367,23 +369,23 @@ export default function OrderKiosk() {
                 </div >
                 <div className='drinkgrid'>
                     <div>
-                        <h2>Select Drink <span className='subtext'>(Required)</span></h2>
+                        <h2>{t('orderKiosk.selectDrink')} <span className='subtext'>{t('orderKiosk.selectDrinkSubtext')}</span></h2>
                         <div className='drinkbuttons'>{drinkArray}</div>
                     </div>
                     <div>
-                        <h2>Ice Level</h2>
+                        <h2>{t('orderKiosk.iceLevel')}</h2>
                         <div className='drinkbuttons'>
                             {iceArray}
                         </div>
                     </div>
                     <div>
-                        <h2>Sugar Level</h2>
+                        <h2>{t('orderKiosk.sugarLevel')}</h2>
                         <div className='drinkbuttons'>
                             {sugarArray}
                         </div>
                     </div>
                     <div >
-                        <h2>Toppings <span className='subtext'>($0.75 each, creama $1.00)</span></h2>
+                        <h2>{t('orderKiosk.toppings')} <span className='subtext'>{t('orderKiosk.toppingsSubtext')}</span></h2>
                         {toppingsState.toppingsLoading ?
                             <p className='centeralign'>Loading...</p> :
                             <div className='spacer drinkbuttons'>{toppingArray}</div>
@@ -422,7 +424,7 @@ export default function OrderKiosk() {
 
         orderStepHTML = <>
             <div className='headerbar one'>
-                <h1>Checkout</h1>
+                <h1>{t('Checkout')}</h1>
                 <div></div>
                 <hr className='phone' />
                 <button disabled={loading()} className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
