@@ -94,7 +94,7 @@ export default function OrderKiosk({ loginInfo }) {
     }
 
     const interactionCompleteCheckout = () => {
-        if (loading() || orderState.tipError)
+        if (loading() || (orderState.tipError && orderState.tipSelection == 4))
             return;
 
         changeOrderState({ ...orderState, checkoutLoading: true, checkoutError: false });
@@ -397,7 +397,7 @@ export default function OrderKiosk({ loginInfo }) {
                         }
                     </div>
                     {/* <hr /> */}
-                    <div>
+                    <div className={kioskStyles.addbutton}>
                         <button disabled={!addButtonEnabled} className={kioskStyles.finalcheckout + " " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button>
                     </div>
                 </div>
@@ -448,7 +448,7 @@ export default function OrderKiosk({ loginInfo }) {
                         <span>{orderState.tipSelection == 4 ? "$" : "Other"}</span>
                         <input id={kioskStyles.customtipfield} ref={inputRef} onChange={(event) => interactionChangeTip(4, event)} onBlur={() => interactionFinalizeTip()} value={orderState.tipSelection == 4 ? orderState.customTipChoice_raw : ''} maxLength={5} placeholder='0.00' type="text" />
                     </div>
-                    {orderState.tipError ? <h2 className={kioskStyles.tips + ' error'}>Invalid tip choice.</h2> : <></>}
+                    {orderState.tipError && orderState.tipSelection == 4 ? <h2 className={kioskStyles.tips + ' ' + kioskStyles.error}>Invalid tip choice.</h2> : <></>}
                 </div>
                 <div>
                     <h2 className='h3'>Select your payment type.</h2>
@@ -462,7 +462,7 @@ export default function OrderKiosk({ loginInfo }) {
                     <h2 className='subtext'>Tax: {currencyFormatter.format(tax)}</h2>
                     <h2 className='subtext'>Tip: {currencyFormatter.format(tip)}</h2>
                     <h2 className=''>Total: {currencyFormatter.format(total)}</h2>
-                    <div><button onClick={() => interactionCompleteCheckout()} className={kioskStyles.finalcheckout + ' ' + (loading() ? 'black' : orderState.checkoutError ? 'red' : 'blue')}>{checkoutFinalText}</button></div>
+                    <div><button onClick={() => interactionCompleteCheckout()} className={kioskStyles.finalcheckout + ' ' + (loading() || (orderState.tipError && orderState.tipSelection == 4) ? 'black' : orderState.checkoutError ? 'red' : 'blue')}>{checkoutFinalText}</button></div>
                 </div>
             </div>
         </>;
