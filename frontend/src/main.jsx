@@ -14,6 +14,7 @@ import Login from './pages/login.jsx';
 import Cookies from 'js-cookie';
 import ManagerInventory from './pages/managerInventory.jsx';
 import ManagerMenu from './pages/managerMenu.jsx';
+import ManagerReports from './pages/managerReports.jsx';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD',
@@ -81,7 +82,8 @@ function Main() {
                   <Route path="/login" element={<Login loginInfo={loggedInState} logIn={(username, manager, id, token) => logIn(username, manager, id, token)} logOut={() => logOut()} />} />
                   <Route path='/order-kiosk/' element={<OrderKiosk loginInfo={loggedInState} />} />
                   <Route path='/manager-inventory' element={<ManagerInventory />} />
-                  <Route path='/manager-menu' element={<ManagerMenu/>} />
+                  <Route path='/manager-menu' element={<ManagerMenu />} />
+                  <Route path='/manager-reports' element={<ManagerReports />} />
                   <Route path='*' element={<Navigate to="/" replace />} />
                 </Routes>
               </div>

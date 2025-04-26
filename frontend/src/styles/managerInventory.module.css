@@ -17,14 +17,16 @@
 .tablecontainer {
   margin-top: 10px;
   overflow-y: auto;
+  overflow-x: auto;
   scrollbar-width: thin;
   /* margin-bottom: 20px; */
   height: 100%;
   min-height: 200px;
   /* background-color: whitesmoke; */
   /* box-shadow: inset 0px -20px 20px -2px black; */
-  box-shadow: inset 0px -10px 12px -5px lightgray;
+  box-shadow: inset -10px -10px 12px -5px lightgray;
   border-bottom: 5px double black;
+  border-right: 5px double black;
   background-color: whitesmoke;
 }
 
@@ -32,9 +34,12 @@
   padding-left: 30px;
   padding-right: 30px;
   width: 100%;
-  max-width: 100vh;
+  /* max-width: 100vw; */
+
+  /* max-width: 100vh; */
   text-align: left;
   border-spacing: 0px;
+  min-width: 600px;
 }
 
 @media (max-width: 750px) {
@@ -68,6 +73,8 @@
   border-spacing: 2px;
   cursor: pointer;
 }
+
+/*     */
 
 .page tbody tr:hover {
   background-color: lightgray;

@@ -869,13 +869,14 @@ app.post('/order/checkout', (req, res) => {
  * RESPONSE: 
  * {
  *      error: error msg (optional),
+ *      columns: ["Item Name", "Current Stock", "Units Consumed", "Usage Rate"],
  *      report: [
- *           {
- *              "item_name": text,
- *              "current_stock": "int unit",
- *              "units_consumed": "int unit",
- *              "usage_rate": "int unit",
- *           },
+ *           [
+ *              text,
+ *              "int unit",
+ *              "int unit",
+ *              "int unit",
+ *           ],
  *      ],  
  * }
  */
@@ -902,15 +903,18 @@ app.get('/reports/inventory', (req, res) => {
 
             for (let row in response.rows) {
                 let temp = String(response.rows[row]["get_usage"]).replace(/[\(\)\"]/g, "").split(",");
-                report.push({
-                    item_name: capitalizeEveryWord(temp[0]),
-                    current_stock: temp[1] + " " + temp[4],
-                    units_consumed: temp[2] + " " + temp[4],
-                    usage_rate: temp[3] + " " + temp[4],
-                })
+                report.push([
+                    capitalizeEveryWord(temp[0]),
+                    temp[1] + " " + temp[4],
+                    temp[2] + " " + temp[4],
+                    temp[3] + " " + temp[4],
+                ])
             }
 
-            res.status(200).send({ report: report });
+            res.status(200).send({
+                columns: ["Item Name", "Current Stock", "Units Consumed", "Usage Rate"],
+                report: report
+            });
         }).catch((err) => {
             console.log(err);
             res.status(500).send({ error: "Server Error." })
@@ -929,13 +933,14 @@ app.get('/reports/inventory', (req, res) => {
  * RESPONSE: 
  * {
  *      error: error msg (optional),
+ *      columns: ["Hour", "Total Orders", "Total Items", "Total Sales"],
  *      report: [
- *           {
- *              "hour": text,
- *              "total_orders": int,
- *              "total_items": int,
- *              "total_sales": text,
- *           },
+ *           [
+ *              text,
+ *              int,
+ *              int,
+ *              text,
+ *           ],
  *      ],  
  * }
  */
@@ -961,16 +966,15 @@ app.get('/reports/x', (req, res) => {
                     temp[0] = hr + ":00 - " + hr + ":59";
                 }
 
-                let currency = currencyFormatter.format(temp[3] / 100000);
-                report.push({
-                    hour: temp[0],
-                    total_orders: temp[1],
-                    total_items: temp[2],
-                    total_sales: currency,
-                })
+                report.push([
+                    temp[0],
+                    temp[1],
+                    temp[2],
+                    currencyFormatter.format(temp[3] / 100000),
+                ])
             }
 
-            res.status(200).send({ report: report });
+            res.status(200).send({ columns: ["Hour", "Total Orders", "Total Items", "Total Sales"], report: report });
         }).catch((err) => {
             console.log(err);
             res.status(500).send({ error: "Server Error." })
@@ -989,14 +993,15 @@ app.get('/reports/x', (req, res) => {
  * RESPONSE: 
  * {
  *      error: error msg (optional),
- *      report: {
- *           "date": date string in YYYY-MM-DD format,
- *           "total_orders": int, 
- *           "total_items_ordered": int, 
- *           "total_sales_gross": $text, 
- *           "total_tax_owed", $text, 
- *           "total_sales_next", $text
- *      },  
+ *      columns: ["Date", "Total Orders", "Total Items Ordered", "Total Sales Gross", "Total Tax Owed", "Total Sales Next"],
+ *      report: [
+ *           date string in YYYY-MM-DD format,
+ *           int, 
+ *           int, 
+ *           $text, 
+ *           $text, 
+ *           $text
+ *      ],  
  * }
  */
 app.get('/reports/z', (req, res) => {
@@ -1005,7 +1010,7 @@ app.get('/reports/z', (req, res) => {
     pool.query('SELECT z_report();')
         .then((response) => {
             if (response.rowCount == 0) {
-                res.status(500).send({ error: "Z-Report Empty", report: {} })
+                res.status(500).send({ error: "Z-Report Empty", report: [] })
                 return
             }
 
@@ -1013,14 +1018,16 @@ app.get('/reports/z', (req, res) => {
 
 
             res.status(200).send({
-                report: {
-                    date: new Date().toISOString().split('T')[0],
-                    total_orders: reportRow[0],
-                    total_items_ordered: reportRow[1],
-                    total_sales_gross: currencyFormatter.format(reportRow[2] / 100000),
-                    total_tax_owed: currencyFormatter.format(reportRow[3] / 100000),
-                    total_sales_next: currencyFormatter.format(reportRow[4] / 100000)
-                }
+                columns: ["Date", "Total Orders", "Total Items Ordered", "Total Sales Gross", "Total Tax Owed", "Total Sales Next"],
+                report: [[
+                    new Date().toISOString().split('T')[0],
+                    reportRow[0],
+                    reportRow[1],
+                    currencyFormatter.format(reportRow[2] / 100000),
+                    currencyFormatter.format(reportRow[3] / 100000),
+                    currencyFormatter.format(reportRow[4] / 100000)
+                ]
+                ]
             });
 
 
