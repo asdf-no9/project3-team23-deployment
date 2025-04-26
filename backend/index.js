@@ -881,7 +881,7 @@ app.post('/order/checkout', (req, res) => {
  * }
  */
 app.get('/reports/inventory', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { from, to } = req.query;
     if (from == null) {
@@ -945,7 +945,7 @@ app.get('/reports/inventory', (req, res) => {
  * }
  */
 app.get('/reports/x', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     pool.query('SELECT x_report();')
         .then((response) => {
@@ -1005,7 +1005,7 @@ app.get('/reports/x', (req, res) => {
  * }
  */
 app.get('/reports/z', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     pool.query('SELECT z_report();')
         .then((response) => {
