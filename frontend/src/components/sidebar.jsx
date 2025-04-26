@@ -7,6 +7,13 @@ import React, { useState } from 'react';
 import LanguageSwitcher from './languageSwitch'; //Importing language translation module
 import Cookies from 'js-cookie';
 
+/**
+ * Used to render the sidebar of the order kiosk interface, which includes logo and category buttons.
+ * The sidebar also includes the login and accessibility features.
+ * @returns Sidebar component of the order kiosk interface
+ * @author Antony Quach
+ */
+
 export default function Sidebar() {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
     const { t, i18n } = useTranslation('common'); //Used in i18n for translation

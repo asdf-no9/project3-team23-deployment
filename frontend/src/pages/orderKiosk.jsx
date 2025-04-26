@@ -7,6 +7,12 @@ import Confetti from 'react-confetti'
 import Cookies from 'js-cookie';
 import { useTranslation } from 'react-i18next';
 
+/**
+ * This component renders the main order kiosk screen for the user to select drinks and toppings.
+ * @returns Orderkiosk component
+ * @author Elliot Michlin
+ */
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function OrderKiosk() {

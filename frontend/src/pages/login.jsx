@@ -5,6 +5,12 @@ import '../styles/login.css'
 import { Link } from 'react-router';
 import Cookies from 'js-cookie';
 
+/**
+ *This component renders the login screen for the kiosk.
+ *@returns Login component
+ *@author Elliot Michlin
+ */
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Login() {
