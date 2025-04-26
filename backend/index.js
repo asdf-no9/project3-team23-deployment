@@ -116,9 +116,14 @@ app.get('/', (req, res) => {
  */
 app.post('/login', (req, res) => {
 
+    if (!req.body) {
+        res.status(401).send({ success: false, error: "Incorrect or missing credentials." })
+        return
+    }
+
     let { username, password } = req.body; // Use body-parser to get the body of the request
 
-    if (username == null || password == null || String(username).split(" ").length != 2) {
+    if (username == undefined || username == null || password == null || password == undefined || String(username).split(" ").length != 2) {
         res.status(401).send({ success: false, error: "Incorrect or missing credentials." })
         return
     }
@@ -281,7 +286,7 @@ app.get('/menu', (req, res) => {
  *
  */
 app.post('/menu/edit', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name, price } = req.body;
     price = parseFloat(price);
@@ -326,7 +331,7 @@ app.post('/menu/edit', (req, res) => {
  * }
  */
 app.post('/menu/add', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name, category, price, option_hot } = req.body;
     price = parseFloat(price);
@@ -351,12 +356,38 @@ app.post('/menu/add', (req, res) => {
         })
 })
 
+/**
+ * Get Menu
+ * *******************
+ * URI: /menu/get
+ * TYPE: Get
+ * 
+ * NEEDS AUTH: manager
+ * PARAMETERS: none
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error message, (optional)
+ *      menu: [
+ *          {
+ *              "name": text,
+ *              "category": text,
+ *              "price": int,
+ *          },
+ *      ]
+ * }
+ */
 app.get('/menu/get', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
     pool.query("SELECT * FROM menu ORDER BY id ASC")
         .then((result) => {
             res.status(200).send({ result: result.rows });
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+            res.status(500).send({ error: "Server Error." });
+            console.log(error);
+        });
 })
 
 /**
@@ -377,7 +408,7 @@ app.get('/menu/get', (req, res) => {
  *
  */
 app.post('/menu/delete', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name } = req.body;
 
@@ -822,7 +853,197 @@ app.post('/order/checkout', (req, res) => {
         })
 })
 
+
+/**
+ * Inventory Usage Report
+ * *******************
+ * URI: /reports/inventory
+ * Type: GET
+ * 
+ * NEEDS AUTH: yes
+ * PARAMETERS: {
+ *      from: date string in YYYY-MM-DD format,
+ *      to: date string in YYYY-MM-DD format (optional - defaults to today),
+ * }
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      report: [
+ *           {
+ *              "item_name": text,
+ *              "current_stock": "int unit",
+ *              "units_consumed": "int unit",
+ *              "usage_rate": "int unit",
+ *           },
+ *      ],  
+ * }
+ */
+app.get('/reports/inventory', (req, res) => {
+    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    let { from, to } = req.query;
+    if (from == null) {
+        res.status(400).send({ error: "Invalid parameters." })
+        return
+    }
+
+    if (to == null)
+        to = new Date().toISOString().split('T')[0];
+
+    pool.query('SELECT get_usage($1, $2);', [from, to])
+        .then((response) => {
+            if (response.rowCount == 0) {
+                res.status(500).send({ error: "No inventory information." })
+                return
+            }
+
+            const report = []
+
+            for (let row in response.rows) {
+                let temp = String(response.rows[row]["get_usage"]).replace(/[\(\)\"]/g, "").split(",");
+                report.push({
+                    item_name: capitalizeEveryWord(temp[0]),
+                    current_stock: temp[1] + " " + temp[4],
+                    units_consumed: temp[2] + " " + temp[4],
+                    usage_rate: temp[3] + " " + temp[4],
+                })
+            }
+
+            res.status(200).send({ report: report });
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send({ error: "Server Error." })
+        })
+});
+
+/**
+ * X Report
+ * *******************
+ * URI: /reports/x
+ * Type: GET
+ * 
+ * NEEDS AUTH: yes
+ * PARAMETERS: none
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      report: [
+ *           {
+ *              "hour": text,
+ *              "total_orders": int,
+ *              "total_items": int,
+ *              "total_sales": text,
+ *           },
+ *      ],  
+ * }
+ */
+app.get('/reports/x', (req, res) => {
+    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    pool.query('SELECT x_report();')
+        .then((response) => {
+            if (response.rowCount == 0) {
+                res.status(500).send({ error: "X-Report Empty", report: [] })
+                return
+            }
+
+            const report = []
+
+            for (let row in response.rows) {
+                // console.log(response.rows[row])
+                let temp = String(response.rows[row]["x_report"]).replace(/[\(\)\"]/g, "").split(",");
+                let hr = parseInt(temp[0]);
+                if (hr < 10) {
+                    temp[0] = "0" + hr + ":00 - 0" + hr + ":59";
+                } else {
+                    temp[0] = hr + ":00 - " + hr + ":59";
+                }
+
+                let currency = currencyFormatter.format(temp[3] / 100000);
+                report.push({
+                    hour: temp[0],
+                    total_orders: temp[1],
+                    total_items: temp[2],
+                    total_sales: currency,
+                })
+            }
+
+            res.status(200).send({ report: report });
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send({ error: "Server Error." })
+        })
+});
+
+/**
+ * Z Report
+ * *******************
+ * URI: /reports/z
+ * Type: GET
+ * 
+ * NEEDS AUTH: yes
+ * PARAMETERS: none
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      report: {
+ *           "date": date string in YYYY-MM-DD format,
+ *           "total_orders": int, 
+ *           "total_items_ordered": int, 
+ *           "total_sales_gross": $text, 
+ *           "total_tax_owed", $text, 
+ *           "total_sales_next", $text
+ *      },  
+ * }
+ */
+app.get('/reports/z', (req, res) => {
+    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    pool.query('SELECT z_report();')
+        .then((response) => {
+            if (response.rowCount == 0) {
+                res.status(500).send({ error: "Z-Report Empty", report: {} })
+                return
+            }
+
+            const reportRow = String(response.rows[0]["z_report"]).replace(/[\(\)\"]/g, "").split(",");
+
+
+            res.status(200).send({
+                report: {
+                    date: new Date().toISOString().split('T')[0],
+                    total_orders: reportRow[0],
+                    total_items_ordered: reportRow[1],
+                    total_sales_gross: currencyFormatter.format(reportRow[2] / 100000),
+                    total_tax_owed: currencyFormatter.format(reportRow[3] / 100000),
+                    total_sales_next: currencyFormatter.format(reportRow[4] / 100000)
+                }
+            });
+
+
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send({ error: "Server Error." })
+        })
+});
+
+/**
+ * Authorizes a connection for a certain user level.
+ * @param {*} req The request object
+ * @param {*} res The response object
+ * @param {*} level The desired level for authorization
+ * @returns If the user is authorized or not
+ */
 function auth(req, res, level = LOGGED_IN_EMPLOYEE) {
+    if (!req || !req.headers || !req.headers.authorization) {
+        res.status(401).send({ success: false, error: "Not authenticated." })
+        return false
+    }
+
+
     let token = null;
     if (req.headers.authorization.length > 7)
         token = req.headers.authorization.substring(7);
