@@ -1007,35 +1007,51 @@ app.get('/reports/x', (req, res) => {
 app.get('/reports/z', (req, res) => {
     if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
-    pool.query('SELECT z_report();')
-        .then((response) => {
-            if (response.rowCount == 0) {
-                res.status(500).send({ error: "Z-Report Empty", report: [] })
-                return
+    pool.query('SELECT z_run_date FROM xreport_helper LIMIT 1;')
+        .then((r1) => {
+            console.log(r1.rows)
+            if (r1.rowCount > 0) {
+                const date = r1.rows[0]["z_run_date"];
+                if (date != null && date.toISOString().split('T')[0] == new Date().toISOString().split('T')[0]) {
+                    res.status(500).send({ error: "Z-Report has already run today." })
+                    return
+                }
             }
 
-            const reportRow = String(response.rows[0]["z_report"]).replace(/[\(\)\"]/g, "").split(",");
+            pool.query('SELECT z_report();')
+                .then((response) => {
+                    if (response.rowCount == 0) {
+                        res.status(500).send({ error: "Z-Report Empty", report: [] })
+                        return
+                    }
+
+                    const reportRow = String(response.rows[0]["z_report"]).replace(/[\(\)\"]/g, "").split(",");
 
 
-            res.status(200).send({
-                columns: ["Date", "Total Orders", "Total Items Ordered", "Total Sales Gross", "Total Tax Owed", "Total Sales Next"],
-                report: [[
-                    new Date().toISOString().split('T')[0],
-                    reportRow[0],
-                    reportRow[1],
-                    currencyFormatter.format(reportRow[2] / 100000),
-                    currencyFormatter.format(reportRow[3] / 100000),
-                    currencyFormatter.format(reportRow[4] / 100000)
-                ]
-                ]
-            });
+                    res.status(200).send({
+                        columns: ["Date", "Total Orders", "Total Items Ordered", "Total Sales Gross", "Total Tax Owed", "Total Sales Next"],
+                        report: [[
+                            new Date().toISOString().split('T')[0],
+                            reportRow[0],
+                            reportRow[1],
+                            currencyFormatter.format(reportRow[2] / 100000),
+                            currencyFormatter.format(reportRow[3] / 100000),
+                            currencyFormatter.format(reportRow[4] / 100000)
+                        ]
+                        ]
+                    });
 
 
-        }).catch((err) => {
+                }).catch((err) => {
+                    console.log(err);
+                    res.status(500).send({ error: "Server Error." })
+                })
+        }
+        ).catch((err) => {
             console.log(err);
             res.status(500).send({ error: "Server Error." })
-        })
-});
+        });
+})
 
 /**
  * Authorizes a connection for a certain user level.

@@ -48,6 +48,16 @@ export default function ManagerReports() {
         })
             .then((response) => response.json())
             .then((r) => {
+
+                if (r && r.error) {
+                    setStatus(r.error);
+                    console.log(r.error);
+                    setColumns([]);
+                    setReport([]);
+                    setLoading(false);
+                    return;
+                }
+
                 setColumns(r ? r.columns ? r.columns : [] : []);
                 setReport(r ? r.report ? r.report : [] : []);
                 setStatus('');
@@ -71,6 +81,16 @@ export default function ManagerReports() {
         })
             .then((response) => response.json())
             .then((r) => {
+
+                if (r && r.error) {
+                    setStatus(r.error);
+                    console.log(r.error);
+                    setColumns([]);
+                    setReport([]);
+                    setLoading(false);
+                    return;
+                }
+
                 setColumns(r ? r.columns ? r.columns : [] : []);
                 setReport(r ? r.report ? r.report : [] : []);
                 setStatus('');
@@ -94,6 +114,16 @@ export default function ManagerReports() {
         })
             .then((response) => response.json())
             .then((r) => {
+
+                if (r && r.error) {
+                    setStatus(r.error);
+                    console.log(r.error);
+                    setColumns([]);
+                    setReport([]);
+                    setLoading(false);
+                    return;
+                }
+
                 setColumns(r ? r.columns ? r.columns : [] : []);
                 setReport(r ? r.report ? r.report : [] : []);
                 setStatus('');

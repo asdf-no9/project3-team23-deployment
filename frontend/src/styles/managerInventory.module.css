@@ -39,7 +39,7 @@
   /* max-width: 100vh; */
   text-align: left;
   border-spacing: 0px;
-  min-width: 600px;
+  min-width: 400px;
 }
 
 @media (max-width: 750px) {
