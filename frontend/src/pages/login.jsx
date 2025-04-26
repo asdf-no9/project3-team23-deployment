@@ -17,6 +17,10 @@ export default function Login() {
 
     const [loginStatus, setLoginStatus] = useState("");
 
+    /**
+     * Submits login information to the API and adds a token to cookies if successful
+     * @param {*} event The form event that triggers on submit
+     */
     const interactionLoginSubmit = (event) => {
         event.preventDefault();
         const username = document.getElementById("username").value;

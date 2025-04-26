@@ -1,19 +1,21 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 
+const HighContrastContext = createContext();
+
 /**
  * This component provides a context for managing the high-contrast theme toggle.
  * Primarily used for accessibility purposes: Visual impairement.
  * @returns HighContrastProvider component
  * @author Antony Quach
  */
-
-const HighContrastContext = createContext();
-
 export function HighContrastProvider({ children }) {
   const [isHighContrast, setIsHighContrast] = useState(false);
 
+  /**
+   * Toggles high contrast mode to switch back and forth
+   */
   const toggleTheme = () => {
-    setIsHighContrast((prev) => !prev); //Toggle high-contrast mode to switch back and forth
+    setIsHighContrast((prev) => !prev);
   };
 
   useEffect(() => {
@@ -31,6 +33,9 @@ export function HighContrastProvider({ children }) {
   );
 }
 
+/**
+ * @returns A wrapper around the high contrast context object
+ */
 export function useHighContrast() {
   return useContext(HighContrastContext);
 }

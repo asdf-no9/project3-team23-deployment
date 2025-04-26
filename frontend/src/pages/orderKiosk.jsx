@@ -9,6 +9,12 @@ import { useTranslation } from 'react-i18next';
 
 /**
  * This component renders the main order kiosk screen for the user to select drinks and toppings.
+ * It has 4 different screens:
+ * - Select Category: Prompts the user to select a drink category
+ * - Select Drink: Prompts the user to select a drink and customize it
+ * - Checkout: Prompts the user to select a tip and payment type
+ * - Order Complete: Displays a thank you message and prompts the user to start another order
+ * TODO: Split into 4 separate components
  * @returns Orderkiosk component
  * @author Elliot Michlin
  */
@@ -52,6 +58,9 @@ export default function OrderKiosk() {
             orderState.drinkAddLoading || orderState.checkoutLoading || orderIDState.orderID == -1;
     }
 
+    /**
+     * Handles one-time initial API calls including downloading the menu, downloading the toppings list, and creating a new order ID
+     */
     useEffect(() => {
         if (runBefore.current) return;
         runBefore.current = true;
@@ -88,9 +97,10 @@ export default function OrderKiosk() {
             });
     }, []);
 
-    // if (!options.includes(category))
-    //     return (<Navigate to="/order-kiosk/drinks" />)
-
+    /**
+     * Opens the drink selection screen for the selected category
+     * @param {*} name - the name of the selected category
+     */
     const interactionCategorySelection = (name) => {
         changeOrderState({
             ...orderState, selectedCategory: name, orderStep: 1, currentDrinkSelection: {
@@ -99,6 +109,9 @@ export default function OrderKiosk() {
         });
     }
 
+    /**
+     * Runs when the final checkout button is pressed. This handles all final payment logic and tipping.
+     */
     const interactionCompleteCheckout = () => {
         if (loading() || orderState.tipError)
             return;
@@ -152,6 +165,9 @@ export default function OrderKiosk() {
             });
     }
 
+    /**
+     * Runs when the user completes their order. Moves the screen to checkout
+     */
     const interactionOrderComplete = () => {
         changeOrderState({
             ...orderState, orderStep: 2, currentDrinkSelection: {
@@ -160,6 +176,9 @@ export default function OrderKiosk() {
         });
     }
 
+    /**
+     * Goes back to category selection when a user decides to cancel their drink selection
+     */
     const interactionCancelDrink = () => {
         changeOrderState({
             ...orderState, orderStep: 0, currentDrinkSelection: {
@@ -168,6 +187,9 @@ export default function OrderKiosk() {
         });
     }
 
+    /**
+     * Adds a drink selection to the order. This is run when the user presses the "Add to Order" button.
+     */
     const interactionAddToOrder = () => {
 
         if (loading() || orderState.currentDrinkSelection.drink == null)
@@ -209,14 +231,26 @@ export default function OrderKiosk() {
             });
     }
 
+    /**
+     * Updates the drink selection in the drink menu 
+     * @param {*} drink The object containing drink information
+     */
     const interactionChangeDrink = (drink) => {
         changeOrderState({ ...orderState, currentDrinkSelection: { ...orderState.currentDrinkSelection, drink: drink } });
     }
 
+    /**
+     * Updates the ice selection in the drink menu
+     * @param {*} level The level of ice selected: 0 = no ice, 1 = less ice, 2 = regular ice
+     */
     const interactionChangeIceLevel = (level) => {
         changeOrderState({ ...orderState, currentDrinkSelection: { ...orderState.currentDrinkSelection, iceLevel: level } });
     }
 
+    /**
+     * Updates the sugar selection in the drink menu
+     * @param {*} level The level of sugar selected: 0 = no sugar, 1 = 30% sugar, 2 = 50% sugar, 3 = 80% sugar, 4 = regular sugar
+     */
     const interactionChangeSugarLevel = (level) => {
         changeOrderState({ ...orderState, currentDrinkSelection: { ...orderState.currentDrinkSelection, sugarLevel: level } });
     }
@@ -230,6 +264,11 @@ export default function OrderKiosk() {
         }
     }
 
+    /**
+     * Updates the tip selection in the checkout screen
+     * @param {*} option The tip option selected: 0 = no tip, 1 = 15% tip, 2 = 20% tip, 3 = 25% tip, 4 = custom tip
+     * @param {*} other The textbox input containing the custom tip amount. Has built in error checking to ensure the input is valid.
+     */
     const interactionChangeTip = (option, other) => {
         if (loading()) return;
 
@@ -262,6 +301,9 @@ export default function OrderKiosk() {
         }
     }
 
+    /**
+     * Finalizes the custom tip selection. This is run when the user clicks outside of the textbox or presses enter.
+     */
     const interactionFinalizeTip = () => {
         if (loading()) return;
         if (orderState.tipError || orderState.tipSelection != 4) return;
@@ -274,6 +316,10 @@ export default function OrderKiosk() {
         changeOrderState({ ...orderState, tipSelection: 4, customTipChoice_raw: currencyFormatter.format(orderState.customTipChoice).replace("$", "") })
     }
 
+    /**
+     * Updates the payment type selection in the checkout screen
+     * @param {*} type 0 - Credit Card, 1 - Cash
+     */
     const interactionSelectPaymentType = (type) => {
         if (loading()) return;
         changeOrderState({ ...orderState, paymentType: type })
