@@ -15,6 +15,7 @@ export default function ManagerInventory() {
 
     const [modalMode, setModalMode] = useState('');
     const [itemName, setItemName] = useState('');
+    const [itemUnit, setItemUnit] = useState('');
     const [itemQuantity, setItemQuantity] = useState('');
     const [isTopping, setIsTopping] = useState(false);
 
@@ -63,7 +64,8 @@ export default function ManagerInventory() {
             data = {
                 name: itemName,
                 quantity: parseInt(itemQuantity),
-                is_topping: isTopping
+                is_topping: isTopping,
+                unit: itemUnit
             }
         }
         else if (modalMode === 'delete') {
@@ -177,6 +179,7 @@ export default function ManagerInventory() {
                                 <thead>
                                     <tr>
                                         <th>Item Name</th>
+                                        <th>Topping</th>
                                         <th>Quantity</th>
                                         <th>Rec. Fill Rate</th>
                                     </tr>
@@ -185,6 +188,7 @@ export default function ManagerInventory() {
                                     {inventory.map((item, idx) =>
                                         <tr key={idx} onClick={() => setSelectedRow(idx)} className={selectedRow === idx ? styles.selected : ''}>
                                             <td>{item.name}</td>
+                                            <td>{item.is_topping ? 'Yes' : 'No'}</td>
                                             <td>{item.quantity} {item.unit}</td>
                                             <td>{item.fill_rate} {item.unit}/wk</td>
                                         </tr>
@@ -241,12 +245,26 @@ export default function ManagerInventory() {
 
                         {modalMode === 'add' && (
                             <>
+                                <label htmlFor="item-units">Unit:</label>
+                                <select
+                                    id="item-units"
+                                    value={itemUnit}
+                                    placeholder='Select unit'
+                                    onChange={e => setItemUnit(e.target.value)}
+                                >
+                                    <option value="oz">oz</option>
+                                    <option value="lb">lb</option>
+                                    <option value="g">g</option>
+                                    <option value="mL">mL</option>
+                                    <option value="cup">cup</option>
+                                    <option value="unit">unit</option>
+                                </select>
                                 <label htmlFor="item-topping">Topping:</label>
                                 <input
                                     type="checkbox"
                                     id="item-topping"
-                                    value={isTopping}
-                                    onChange={e => setIsTopping(e.target.value)}
+                                    checked={isTopping}
+                                    onChange={e => setIsTopping(e.target.checked)}
                                 />
                             </>
                         )}

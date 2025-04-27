@@ -50,7 +50,7 @@ export default function ManagerStaff() {
     // Function used for taking data from the form and then calling the specified api
     // Uses the modalMode to determine which api to call
     // Uses other state values to pass data to backend
-    const handleSubmit = e => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         setDisableButton(true);
@@ -67,15 +67,41 @@ export default function ManagerStaff() {
             }
         }
         else if (modalMode === 'delete') {
+
+            if (fullName === null || fullName === "" || fullName == undefined || fullName.split(":").length < 2) {
+                console.error("Invalid staff ID: ", fullName);
+                return;
+            }
+
+            const staffID = parseInt(fullName.split(":")[0]);
+
+            if (staffID === null || staffID === undefined || staffID === NaN) {
+                console.error("Invalid staff ID: ", fullName);
+                return;
+            }
+
             url += 'delete'
             data = {
-                name: fullName
+                id: staffID
             }
         }
         else if (modalMode === 'edit') {
             url += 'edit'
+
+            if (fullName === null || fullName === "" || fullName.split(":").length < 2) {
+                console.error("Invalid staff ID: ", fullName);
+                return;
+            }
+
+            const staffID = parseInt(fullName.split(":")[0]);
+
+            if (staffID === null || staffID === undefined || staffID === NaN) {
+                console.error("Invalid staff ID: ", fullName);
+                return;
+            }
+
             data = {
-                name: fullName,
+                id: staffID,
                 is_manager: isManager
             }
         }
@@ -165,7 +191,7 @@ export default function ManagerStaff() {
                                             <td>{item.first_name + " " + item.last_name}</td>
                                             <td>{item.id}</td>
                                             <td>{item.is_manager ? "Manager" : "Employee"}</td>
-                                            <td>{item.last_login}</td>
+                                            <td>{String(item.last_login).startsWith("2020") ? "Never" : item.last_login}</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -192,6 +218,8 @@ export default function ManagerStaff() {
                                     value={firstName}
                                     onChange={e => setFirstName(e.target.value)}
                                     required
+                                    minLength={1}
+                                    maxLength={50}
                                 />
                                 <label htmlFor="last-name">Last Name:</label>
                                 <input
@@ -201,6 +229,8 @@ export default function ManagerStaff() {
                                     value={lastName}
                                     onChange={e => setLastName(e.target.value)}
                                     required
+                                    minLength={1}
+                                    maxLength={50}
                                 />
                             </>
                         ) : (
@@ -213,7 +243,7 @@ export default function ManagerStaff() {
                                 >
                                     <option value="">Select name</option>
                                     {staffList.map((item, idx) => (
-                                        <option key={idx} value={item.first_name + " " + item.last_name}>{item.first_name + " " + item.last_name}</option>
+                                        <option key={item.id} value={item.id + ": " + item.first_name + " " + item.last_name}>{item.id + ": " + item.first_name + " " + item.last_name}</option>
                                     ))}
                                 </select>
                             </>
@@ -225,8 +255,8 @@ export default function ManagerStaff() {
                                 <input
                                     type="checkbox"
                                     id="item-manager"
-                                    value={isManager}
-                                    onChange={e => setIsManager(e.target.value)}
+                                    checked={isManager}
+                                    onChange={e => setIsManager(e.target.checked)}
                                 />
                             </>
                         ) : <></>}

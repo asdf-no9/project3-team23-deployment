@@ -281,8 +281,8 @@ export default function ManagerMenu() {
                                         <input
                                             type="checkbox"
                                             id="item-hot-item"
-                                            value={isHotItem}
-                                            onChange={e => setIsHotItem(e.target.value)}
+                                            checked={isHotItem}
+                                            onChange={e => setIsHotItem(e.target.checked)}
                                         />
                                         <label htmlFor="ingredients">Ingredients (select all):</label>
                                         <select

@@ -326,7 +326,7 @@ app.post('/menu/edit', (req, res) => {
  * PARAMETERS: {
  *      name: string,
  *      price: float,
- *      option_hot,
+ *      option_hot: boolean,
  *      category: string,
  *      ingredients: [string, ...]
  * }
@@ -343,7 +343,6 @@ app.post('/menu/add', (req, res) => {
 
     let { name, category, price, option_hot, ingredients } = req.body;
     price = parseFloat(price);
-    option_hot = (option_hot === "true")
 
     if (typeof name != "string" || typeof category != "string" || typeof price != "number" || typeof option_hot != "boolean" || !Array.isArray(ingredients)) {
         res.status(500).send({ error: "Unable to add, please check properties", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
@@ -352,7 +351,7 @@ app.post('/menu/add', (req, res) => {
 
     ingredients = ingredients.map(ingredient => ingredient.toLowerCase());
 
-    pool.query("INSERT INTO menu(name, category, price, in_stock, option_hot, ingredients) VALUES ($1, $2, $3, $4, $5, $6)", [name, category, price * 100_000, true, option_hot, ingredients])
+    pool.query("INSERT INTO menu(name, category, price, in_stock, option_hot, ingredients) VALUES ($1, $2, $3, $4, $5, $6)", [name, category, price * 100_000, true, option_hot ? true : false, ingredients])
         .then((result) => {
             if (result.rowCount < 1) {
                 res.status(500).send({ error: "Unable to add item", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
@@ -470,6 +469,123 @@ app.get('/staff/get', (req, res) => {
 })
 
 /**
+ * Edit Staff Roles
+ * *******************
+ * URI: /staff/edit
+ * 
+ * NEEDS AUTH: manager
+ * 
+ * PARAMETERS: {
+ *      id: int,
+ *      is_manager: boolean,
+ * }
+ * 
+ * RESPONSE:
+ * {
+ *     error: error message, (optional)
+ *     success: boolean,
+ * }
+ *
+ */
+app.post('/staff/edit', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    let { id, is_manager } = req.body;
+
+    if (typeof id != "number" || !Number.isInteger(id) || typeof is_manager != "boolean" || id < 0) {
+        res.status(400).send({ error: "Invalid parameters", success: false });
+        return;
+    }
+
+    pool.query("UPDATE employees SET is_manager = $1 WHERE id = $2", [is_manager ? true : false, parseInt(id)])
+        .then(() => {
+            res.status(200).send({ success: true });
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send({ error: "Server Error", success: false });
+        })
+})
+
+/**
+ * Add Staff 
+ * *******************
+ * URI: /staff/add
+ * 
+ * NEEDS AUTH: manager
+ * 
+ * PARAMETERS: {
+ *      first_name: string,
+ *      last_name: string,
+ *      is_manager: boolean,
+ * }
+ * 
+ * RESPONSE:
+ * {
+ *     error: error message, (optional)
+ *     success: boolean,
+ * }
+ */
+app.post('/staff/add', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    let { first_name, last_name, is_manager } = req.body;
+
+    if (typeof first_name != "string" || typeof is_manager != "boolean" || typeof last_name != "string" || first_name.length < 1 || last_name.length < 1 || first_name.split(" ").length != 1 || last_name.split(" ").length != 1 || first_name.length > 50 || last_name.length > 50) {
+        res.status(400).send({ error: "Invalid parameters", success: false });
+        return;
+    }
+
+    pool.query("INSERT INTO employees(first_name, last_name, is_manager) VALUES ($1, $2, $3)", [first_name, last_name, is_manager ? true : false])
+        .then(() => {
+            res.status(200).send({ success: true });
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send({ error: "Server Error", success: false });
+        })
+})
+
+
+/**
+ * Delete Staff Member
+ * *******************
+ * URI: /staff/delete
+ * 
+ * NEEDS AUTH: manager
+ * 
+ * PARAMETERS: {
+ *      id: integer,
+ * }
+ * 
+ * RESPONSE:
+ * {
+ *     error: error message, (optional)
+ *     success: boolean,
+ * }
+ *
+ */
+app.post('/staff/delete', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    let { id } = req.body;
+
+    if (typeof id != "number" || !Number.isInteger(id) || id < 0) {
+        res.status(400).send({ error: "Invalid parameters", success: false });
+        return;
+    }
+
+    pool.query("DELETE FROM employees WHERE id = $1", [id])
+        .then(() => {
+            res.status(200).send({ success: true });
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send({ error: "Server Error", success: false });
+        })
+})
+
+/**
  * Get Inventory
  * *******************
  * URI: /inventory
@@ -514,7 +630,8 @@ app.get('/inventory', (req, res) => {
                         name: inventory_name_capital,
                         quantity: row["quantity"],
                         fill_rate: row["rec_fill_wk"],
-                        unit: row["unit"]
+                        unit: row["unit"],
+                        is_topping: row["is_topping"],
                     });
                 }
 
@@ -614,18 +731,18 @@ app.post('/inventory/edit', (req, res) => {
 app.post('/inventory/add', (req, res) => {
     if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
-    let { name, quantity, is_topping } = req.body;
+    let { name, quantity, is_topping, unit } = req.body;
     quantity = parseInt(quantity);
     is_topping = Boolean(is_topping);
 
-    if (typeof name != "string" || typeof quantity != "number" || typeof is_topping != "boolean") {
-        res.status(500).send({ error: "Unable to add, please check properties", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
+    if (typeof name != "string" || typeof unit != "string" || unit.length > 10 || typeof quantity != "number" || typeof is_topping != "boolean") {
+        res.status(500).send({ error: "Invalid parameters" });
         return;
     }
 
     name = name.toLowerCase();
 
-    pool.query("INSERT INTO Inventory(name, quantity, unit_base_consumption, req_fill_rate, is_topping) VALUES ($1, $2, $3, $4, $5)", [name, quantity, 1, 0, is_topping])
+    pool.query("INSERT INTO Inventory(name, quantity, unit_base_consumption, req_fill_rate, is_topping, unit) VALUES ($1, $2, $3, $4, $5, $6)", [name, quantity, 1, 0, is_topping, unit])
         .then((result) => {
             if (result.rowCount < 1) {
                 res.status(500).send({ error: "Unable to add item", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
