@@ -15,10 +15,17 @@ import Cookies from 'js-cookie';
 import ManagerInventory from './pages/managerInventory.jsx';
 import ManagerMenu from './pages/managerMenu.jsx';
 import ManagerReports from './pages/managerReports.jsx';
+import { formatInTimeZone } from 'date-fns-tz';
+
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD',
 });
+
+const getCentralTime = () => {
+  const date = new Date();
+  return formatInTimeZone(date, 'America/Chicago', 'yyyy-MM-dd');
+}
 
 function Main() {
   const [loggedInState, setLoggedInState] = useState({
@@ -98,4 +105,4 @@ function Main() {
 createRoot(document.getElementById('root')).render(<Main />);
 
 
-export { currencyFormatter };
+export { currencyFormatter, getCentralTime };

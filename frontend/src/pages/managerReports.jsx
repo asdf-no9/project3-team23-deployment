@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import styles from '../styles/managerInventory.module.css';
 import Cookies from 'js-cookie';
 import Modal from '../components/modal';
+import { getCentralTime } from '../main';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -10,7 +11,7 @@ export default function ManagerReports() {
     const mainRef = useRef(null);
 
     const [fromDate, setFromDate] = useState('');
-    const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
+    const [toDate, setToDate] = useState(getCentralTime());
 
     const [status, setStatus] = useState('Run a Report');
     const [reportType, setReportType] = useState('');
@@ -200,7 +201,7 @@ export default function ManagerReports() {
                             required
                         />
 
-                        <button type='submit' disabled={loading}>
+                        <button type='submit' className='blue' disabled={loading}>
                             Submit
                         </button>
                     </div>

@@ -357,7 +357,7 @@ export default function OrderKiosk({ loginInfo }) {
             if (!topping["in_stock"]) color = "black";
             else if (orderState.currentDrinkSelection.toppings.includes(topping["name"])) color = "darkgray";
             toppingArray.push(<button disabled={topping["in_stock"] ? false : true} className={kioskStyles.drinkbuttonitem + ' ' + color} onClick={() => interactionChangeTopping(topping["name"])
-            }> {topping["name"]}</button >)
+            }> {topping["name"] + (topping["in_stock"] ? "" : " (Out of Stock)")}</button >)
         }
 
         const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !loading();

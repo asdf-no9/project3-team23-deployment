@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export default function ManagerMenu() {
 
-     const mainRef = useRef(null);
+    const mainRef = useRef(null);
 
     const [menu, setMenu] = useState([]);
     const [disableButton, setDisableButton] = useState(false);
@@ -103,7 +103,7 @@ export default function ManagerMenu() {
                     return response.json();
                 })
                 .then((r) => console.log(r))
-                .finally( () => {
+                .finally(() => {
                     closeModal();
                     loadMenu();
                 })
@@ -238,7 +238,7 @@ export default function ManagerMenu() {
                                     </>
                                 )}
 
-                                <button type='submit' disabled={disableButton}>
+                                <button type='submit' className="blue" disabled={disableButton}>
                                     Submit
                                 </button>
                             </div>

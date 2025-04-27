@@ -99,7 +99,7 @@ export default function ManagerInventory() {
                     return response.json();
                 })
                 .then((r) => console.log(r))
-                .finally( () => {
+                .finally(() => {
                     closeModal();
                     loadInventory();
                 })
@@ -251,7 +251,7 @@ export default function ManagerInventory() {
                             </>
                         )}
 
-                        <button type='submit' disabled={disableButton}>
+                        <button type='submit' className='blue' disabled={disableButton}>
                             Submit
                         </button>
                     </div>
