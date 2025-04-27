@@ -3,6 +3,13 @@ import styles from '../styles/startOrder.module.css';
 import logo from '../assets/ShareTeaLogo.png';
 import { Link } from 'react-router';
 
+/**
+ * This component renders the initial order screen for the kiosk.
+ * It prompts the user to start their order by interacting with the screen.
+ * @returns startOrder component
+ * @author Antony Quach
+ */
+
 export default function StartOrder() {
     return (
         <div className={styles.startBody}>

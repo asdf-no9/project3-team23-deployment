@@ -6,6 +6,12 @@ import { useTranslation } from 'react-i18next';
 import React from 'react';
 import LanguageSwitcher from './languageSwitch';
 
+/**
+ * Used to render the sidebar of the order kiosk interface, which includes logo and category buttons.
+ * The sidebar also includes the login and accessibility features.
+ * @returns Sidebar component of the order kiosk interface
+ * @author Antony Quach
+ */
 
 export default function Sidebar({ loginInfo }) {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage

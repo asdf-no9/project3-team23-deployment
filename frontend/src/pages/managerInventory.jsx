@@ -5,6 +5,13 @@ import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+/**
+ * Used to display the manager inventory
+ * Will be used for adding, deleting, and editing inventory itesm
+ * Only accessible by managers
+ * @returns ManagerInventory component
+ * @author Brayden Bailey
+ */
 export default function ManagerInventory() {
 
     const mainRef = useRef(null);
@@ -156,7 +163,7 @@ export default function ManagerInventory() {
         loadInventory();
         setDisableButton(false);
     }
-
+    
     return (
         <div className="mainBody" ref={mainRef} id="mainBody">
             <div id='scaler'>

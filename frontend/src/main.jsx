@@ -19,6 +19,13 @@ import ManagerStaff from './pages/manageStaff.jsx';
 import { formatInTimeZone } from 'date-fns-tz';
 
 
+/**
+ * This is the main render file for the project application
+ * It renders the main application and uses react router for routing the pages
+ * @author Antony Quach
+ * @author Elliot Michlin
+ */
+
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD',
 });

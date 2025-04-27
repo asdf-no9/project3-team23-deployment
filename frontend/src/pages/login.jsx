@@ -4,14 +4,23 @@ import loginStyles from '../styles/login.module.css'
 import { Link, useNavigate } from 'react-router';
 import Cookies from 'js-cookie';
 
+/**
+ *This component renders the login screen for the kiosk.
+ *@returns Login component
+ *@author Elliot Michlin
+ */
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Login({ loginInfo, logIn, logOut }) {
 
     const [loginStatus, setLoginStatus] = useState("");
-
     const navigate = useNavigate();
-
+  
+    /**
+     * Submits login information to the API and adds a token to cookies if successful
+     * @param {*} event The form event that triggers on submit
+     */
     const interactionLoginSubmit = (event) => {
         event.preventDefault();
 

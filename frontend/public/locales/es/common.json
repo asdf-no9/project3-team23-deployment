@@ -7,7 +7,33 @@
     "logo_alt": "Logotipo de Sharetea"
   },
   "language": {
-    "english": "English",
+    "english": "Inglés",
     "spanish": "Español"
+  },
+  "orderKiosk": {
+    "selectCategory": "Seleccionar Categoría",
+    "currentOrder": "Pedido Actual",
+    "selectDrink": "Seleccionar Bebida",
+    "iceLevel": "Nivel de Hielo",
+    "sugarLevel": "Nivel de Azúcar",
+    "toppings": "Toppings",
+    "checkout": "Finalizar Compra",
+    "leaveTip": "¿Le gustaría dejar una propina?",
+    "selectPayment": "Seleccione su tipo de pago.",
+    "thankYou": "¡Gracias!",
+    "orderComplete": "Su pedido está completo.",
+    "emptyOrder": "Orden vacía",
+    "selectDrinkHeader": "Seleccionar Bebida", 
+    "iceLevelHeader": "Nivel de Hielo",      
+    "sugarLevelHeader": "Nivel de Azúcar",     
+    "toppingsHeader": "Toppings",
+    "selectDrinkSubtext": "(Requerido)",
+    "toppingsSubtext": "($0.75 cada uno, creama $1.00)"        
+  },
+  "categories": {
+    "drinks": "Bebidas",
+    "brewed_tea": "Té Preparado",
+    "milk_tea": "Té con Leche",
+    "fruit_tea": "Té de Frutas"
   }
 }

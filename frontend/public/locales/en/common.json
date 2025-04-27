@@ -9,5 +9,31 @@
   "language": {
     "english": "English",
     "spanish": "Español"
+  },
+  "orderKiosk": {
+    "selectCategory": "Select Category",
+    "currentOrder": "Current Order",
+    "selectDrink": "Select Drink",
+    "iceLevel": "Ice Level",
+    "sugarLevel": "Sugar Level",
+    "toppings": "Toppings",
+    "checkout": "Checkout",
+    "leaveTip": "Would you like to leave a Tip?",
+    "selectPayment": "Select your payment type.",
+    "thankYou": "Thank You!",
+    "orderComplete": "Your order is complete.",
+    "emptyOrder": "Empty order",
+    "selectDrinkHeader": "Select Drink", 
+    "iceLevelHeader": "Ice Level",      
+    "sugarLevelHeader": "Sugar Level",     
+    "toppingsHeader": "Toppings",
+    "selectDrinkSubtext": "(Required)",
+    "toppingsSubtext": "($0.75 each, creama $1.00)"         
+  },
+  "categories": {
+    "drinks": "Drinks",
+    "brewed tea": "Brewed Tea",
+    "milk tea": "Milk Tea",
+    "fruit tea": "Fruit Tea"
   }
 }

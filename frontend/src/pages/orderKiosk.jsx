@@ -5,6 +5,19 @@ import { Link, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
 import Confetti from 'react-confetti'
 import Cookies from 'js-cookie';
+import { useTranslation } from 'react-i18next';
+
+/**
+ * This component renders the main order kiosk screen for the user to select drinks and toppings.
+ * It has 4 different screens:
+ * - Select Category: Prompts the user to select a drink category
+ * - Select Drink: Prompts the user to select a drink and customize it
+ * - Checkout: Prompts the user to select a tip and payment type
+ * - Order Complete: Displays a thank you message and prompts the user to start another order
+ * TODO: Split into 4 separate components
+ * @returns Orderkiosk component
+ * @author Elliot Michlin
+ */
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -14,6 +27,7 @@ export default function OrderKiosk({ loginInfo }) {
     const mainRef = useRef(null)
     const runBefore = useRef(false);
     const inputRef = useRef(null);
+    const { t, i18n } = useTranslation('common'); //For i18n translation
 
     const [menuState, setMenuState] = useState({ menuLoading: true, categories: {} });
     const [toppingsState, setToppingsState] = useState({ toppingsLoading: true, toppings: [] });
@@ -45,6 +59,9 @@ export default function OrderKiosk({ loginInfo }) {
             orderState.drinkAddLoading || orderState.checkoutLoading || orderIDState.orderID == -1;
     }
 
+    /**
+     * Handles one-time initial API calls including downloading the menu, downloading the toppings list, and creating a new order ID
+     */
     useEffect(() => {
         if (runBefore.current) return;
         runBefore.current = true;
@@ -81,9 +98,10 @@ export default function OrderKiosk({ loginInfo }) {
             });
     }, []);
 
-    // if (!options.includes(category))
-    //     return (<Navigate to="/order-kiosk/drinks" />)
-
+    /**
+     * Opens the drink selection screen for the selected category
+     * @param {*} name - the name of the selected category
+     */
     const interactionCategorySelection = (name) => {
         changeOrderState({
             ...orderState, selectedCategory: name, orderStep: 1, currentDrinkSelection: {
@@ -93,6 +111,9 @@ export default function OrderKiosk({ loginInfo }) {
         mainRef.current.scrollTo(0, 0);
     }
 
+    /**
+     * Runs when the final checkout button is pressed. This handles all final payment logic and tipping.
+     */
     const interactionCompleteCheckout = () => {
         if (loading() || (orderState.tipError && orderState.tipSelection == 4))
             return;
@@ -147,6 +168,9 @@ export default function OrderKiosk({ loginInfo }) {
             });
     }
 
+    /**
+     * Runs when the user completes their order. Moves the screen to checkout
+     */
     const interactionOrderComplete = () => {
         changeOrderState({
             ...orderState, orderStep: 2, currentDrinkSelection: {
@@ -156,6 +180,9 @@ export default function OrderKiosk({ loginInfo }) {
         mainRef.current.scrollTo(0, 0);
     }
 
+    /**
+     * Goes back to category selection when a user decides to cancel their drink selection
+     */
     const interactionCancelDrink = () => {
         changeOrderState({
             ...orderState, orderStep: 0, currentDrinkSelection: {
@@ -165,6 +192,9 @@ export default function OrderKiosk({ loginInfo }) {
         mainRef.current.scrollTo(0, 0);
     }
 
+    /**
+     * Adds a drink selection to the order. This is run when the user presses the "Add to Order" button.
+     */
     const interactionAddToOrder = () => {
 
         if (loading() || orderState.currentDrinkSelection.drink == null)
@@ -207,14 +237,26 @@ export default function OrderKiosk({ loginInfo }) {
             });
     }
 
+    /**
+     * Updates the drink selection in the drink menu 
+     * @param {*} drink The object containing drink information
+     */
     const interactionChangeDrink = (drink) => {
         changeOrderState({ ...orderState, currentDrinkSelection: { ...orderState.currentDrinkSelection, drink: drink } });
     }
 
+    /**
+     * Updates the ice selection in the drink menu
+     * @param {*} level The level of ice selected: 0 = no ice, 1 = less ice, 2 = regular ice
+     */
     const interactionChangeIceLevel = (level) => {
         changeOrderState({ ...orderState, currentDrinkSelection: { ...orderState.currentDrinkSelection, iceLevel: level } });
     }
 
+    /**
+     * Updates the sugar selection in the drink menu
+     * @param {*} level The level of sugar selected: 0 = no sugar, 1 = 30% sugar, 2 = 50% sugar, 3 = 80% sugar, 4 = regular sugar
+     */
     const interactionChangeSugarLevel = (level) => {
         changeOrderState({ ...orderState, currentDrinkSelection: { ...orderState.currentDrinkSelection, sugarLevel: level } });
     }
@@ -228,6 +270,11 @@ export default function OrderKiosk({ loginInfo }) {
         }
     }
 
+    /**
+     * Updates the tip selection in the checkout screen
+     * @param {*} option The tip option selected: 0 = no tip, 1 = 15% tip, 2 = 20% tip, 3 = 25% tip, 4 = custom tip
+     * @param {*} other The textbox input containing the custom tip amount. Has built in error checking to ensure the input is valid.
+     */
     const interactionChangeTip = (option, other) => {
         if (loading()) return;
 
@@ -260,6 +307,9 @@ export default function OrderKiosk({ loginInfo }) {
         }
     }
 
+    /**
+     * Finalizes the custom tip selection. This is run when the user clicks outside of the textbox or presses enter.
+     */
     const interactionFinalizeTip = () => {
         if (loading()) return;
         if (orderState.tipError || orderState.tipSelection != 4) return;
@@ -272,6 +322,10 @@ export default function OrderKiosk({ loginInfo }) {
         changeOrderState({ ...orderState, tipSelection: 4, customTipChoice_raw: currencyFormatter.format(orderState.customTipChoice).replace("$", "") })
     }
 
+    /**
+     * Updates the payment type selection in the checkout screen
+     * @param {*} type 0 - Credit Card, 1 - Cash
+     */
     const interactionSelectPaymentType = (type) => {
         if (loading()) return;
         changeOrderState({ ...orderState, paymentType: type })
@@ -300,7 +354,7 @@ export default function OrderKiosk({ loginInfo }) {
         orderStepHTML = (
             <>
                 <div className='headerbar one'>
-                    <h1>Select Category</h1>
+                    <h1>{t('orderKiosk.selectCategory')}</h1>
                     <div></div>
                     <hr className='phone' />
                     <Link to="/"><button className='darkgray'>Start Over</button></Link>
@@ -313,9 +367,9 @@ export default function OrderKiosk({ loginInfo }) {
                     <div>
                         <div className={kioskStyles.itemlist + ' ' + kioskStyles.hideitemlist}>
                             <hr className='full' />
-                            <h3 className='centeralign'>Current Order</h3>
+                            <h3 className='centeralign'>{t('Current Order')}</h3>
                             <hr className='full' />
-                            {itemList.length == 0 ? <p className='centeralign'>Empty order.</p> :
+                            {itemList.length == 0 ? <p className='centeralign'>{t('Empty order.')}</p> :
                                 <ol>
                                     {itemList}
                                 </ol>}
@@ -367,7 +421,7 @@ export default function OrderKiosk({ loginInfo }) {
         orderStepHTML =
             <>
                 <div className='headerbar one'>
-                    <h1>{orderState.selectedCategory}</h1>
+                    <h1>orderState.selectedCategory</h1>
                     <hr className='phone' />
                     <button className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
                     {/* <hr className='phone' /> */}
@@ -375,23 +429,23 @@ export default function OrderKiosk({ loginInfo }) {
                 </div >
                 <div className={kioskStyles.drinkgrid}>
                     <div>
-                        <h2>Select Drink <span className='subtext'>(Required)</span></h2>
+                        <h2>{t('orderKiosk.selectDrink')} <span className='subtext'>{t('orderKiosk.selectDrinkSubtext')}</span></h2>
                         <div className={kioskStyles.drinkbuttons}>{drinkArray}</div>
                     </div>
                     <div>
-                        <h2>Ice Level</h2>
+                        <h2>{t('orderKiosk.iceLevel')}</h2>
                         <div className={kioskStyles.drinkbuttons}>
                             {iceArray}
                         </div>
                     </div>
                     <div>
-                        <h2>Sugar Level</h2>
+                        <h2>{t('orderKiosk.sugarLevel')}</h2>
                         <div className={kioskStyles.drinkbuttons}>
                             {sugarArray}
                         </div>
                     </div>
                     <div >
-                        <h2>Toppings <span className='subtext'>($0.75 each, creama $1.00)</span></h2>
+                        <h2>{t('orderKiosk.toppings')} <span className='subtext'>{t('orderKiosk.toppingsSubtext')}</span></h2>
                         {toppingsState.toppingsLoading ?
                             <p className='centeralign'>Loading...</p> :
                             <div className={'spacer ' + kioskStyles.drinkbuttons}>{toppingArray}</div>
@@ -430,7 +484,7 @@ export default function OrderKiosk({ loginInfo }) {
 
         orderStepHTML = <>
             <div className='headerbar one'>
-                <h1>Checkout</h1>
+                <h1>{t('Checkout')}</h1>
                 <div></div>
                 <hr className='phone' />
                 <button disabled={loading()} className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
