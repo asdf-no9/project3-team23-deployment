@@ -118,7 +118,7 @@ button.white {
   color: black;
 }
 
-button.blue {
+.blue {
   background-color: rgb(66, 124, 233);
   color: white;
 }

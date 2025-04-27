@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import styles from '../styles/managerInventory.module.css';
 import Modal from '../components/modal';
 import Cookies from 'js-cookie';
-import { currencyFormatter } from '../main';
+import { currencyFormatter, capitalizeEveryWord } from '../main';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,14 +11,17 @@ export default function ManagerMenu() {
     const mainRef = useRef(null);
 
     const [menu, setMenu] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [ingredients, setIngredients] = useState([]);
     const [disableButton, setDisableButton] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const [modalMode, setModalMode] = useState('');
     const [itemName, setItemName] = useState('');
     const [itemPrice, setItemPrice] = useState('');
     const [isHotItem, setIsHotItem] = useState(false);
     const [itemCategory, setItemCategory] = useState('');
+    const [itemIngredients, setItemIngredients] = useState([]);
 
     const [selectedRow, setSelectedRow] = useState(null);
 
@@ -35,11 +38,29 @@ export default function ManagerMenu() {
             },
         })
             .then((response) => response.json())
-            .then((r) => setMenu(r ? r.result ? r.result : [] : []))
-            .catch((e) => {
+            .then((r) => {
+                setMenu(r ? r.result ? r.result : [] : [])
+                if (r && r.result) {
+                    setCategories(Array.from(new Set(r.result.map(item => item.category))));
+                }
+
+                fetch(API_URL + 'inventory', {
+                    headers: {
+                        'Authorization': Cookies
+                            .get('token') ? 'Bearer ' + Cookies.get('token') : '',
+                    }
+                }).then((r2) => r2.json())
+                    .then((r3) => {
+                        setIngredients(r3 ? r3.inventory ? r3.inventory.map((item) => item.name) : [] : [])
+                    })
+                    .catch((e) => {
+                        console.log(e);
+                    })
+                    .finally(() => setLoading(false))
+            }
+            ).catch((e) => {
                 console.log(e);
             })
-            .finally(() => setLoading(false))
     }
 
     const closeModal = () => {
@@ -67,7 +88,8 @@ export default function ManagerMenu() {
                 name: itemName,
                 category: itemCategory,
                 price: parseFloat(itemPrice),
-                option_hot: isHotItem
+                option_hot: isHotItem,
+                ingredients: itemIngredients
             }
         }
         else if (modalMode === 'delete') {
@@ -134,6 +156,18 @@ export default function ManagerMenu() {
         setDisableButton(false);
     }
 
+    const handleSelectChange = (e) => {
+        const options = e.target.options;
+        const list = [];
+        for (let i in options) {
+            if (options[i].selected) {
+                list.push(options[i].value);
+            }
+        }
+
+        setItemIngredients(list);
+    }
+
     return (
         <div className="mainBody" ref={mainRef} id="mainBody">
             <div id='scaler'>
@@ -157,6 +191,9 @@ export default function ManagerMenu() {
                                         <th>Item Name</th>
                                         <th>Item Category</th>
                                         <th>Price</th>
+                                        <th>Hot Item</th>
+                                        <th>In Stock</th>
+                                        <th>Ingredients</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -164,7 +201,10 @@ export default function ManagerMenu() {
                                         <tr key={idx} onClick={() => setSelectedRow(idx)} className={selectedRow === idx ? styles.selected : ''}>
                                             <td>{item.name}</td>
                                             <td>{item.category}</td>
-                                            <td>{currencyFormatter.format(item.price / 100_000)}</td>
+                                            <td>{currencyFormatter.format(item.price / 100000)}</td>
+                                            <td>{item.option_hot ? "True" : "False"}</td>
+                                            <td>{item.in_stock ? "True" : <b>False</b>}</td>
+                                            <td>{item.ingredients ? capitalizeEveryWord(item.ingredients.join(", ")) : "None Listed"}</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -219,7 +259,7 @@ export default function ManagerMenu() {
 
                                 {modalMode === 'add' && (
                                     <>
-                                        <label htmlFor="item-category">Category</label>
+                                        <label htmlFor="item-category">Category (case sensitive)</label>
                                         <input
                                             type="text"
                                             id="item-category"
@@ -227,7 +267,16 @@ export default function ManagerMenu() {
                                             value={itemCategory}
                                             onChange={e => setItemCategory(e.target.value)}
                                             required
+                                            list="categories"
+                                            autoComplete='off'
                                         />
+                                        <datalist id="categories">
+                                            {
+                                                categories.map((item, idx) => (
+                                                    <option value={item}></option>
+                                                ))
+                                            }
+                                        </datalist>
                                         <label htmlFor="item-topping">Hot Item:</label>
                                         <input
                                             type="checkbox"
@@ -235,6 +284,20 @@ export default function ManagerMenu() {
                                             value={isHotItem}
                                             onChange={e => setIsHotItem(e.target.value)}
                                         />
+                                        <label htmlFor="ingredients">Ingredients (select all):</label>
+                                        <select
+                                            multiple
+                                            type="text"
+                                            id="ingredients"
+                                            // value={itemCategory}
+                                            onChange={e => handleSelectChange(e)}
+                                        >
+                                            {
+                                                ingredients.map((item, idx) => (
+                                                    <option key={idx} value={item} className={itemIngredients.includes(item) ? "blue" : ""}>{item}</option>
+                                                ))
+                                            }
+                                        </select>
                                     </>
                                 )}
 

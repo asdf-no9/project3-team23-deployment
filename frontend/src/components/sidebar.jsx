@@ -25,7 +25,7 @@ export default function Sidebar({ loginInfo }) {
                 {loginInfo.manager ? <>
                     <Link to="/manager-menu"><button className='highContrast'>Edit Menu</button></Link>
                     <Link to="/manager-inventory"><button className='highContrast'>Inventory</button></Link>
-                    <Link to="/"><button className='highContrast'>Manage Staff</button></Link>
+                    <Link to="/manager-staff"><button className='highContrast'>Manage Staff</button></Link>
                     <Link to="/manager-reports"><button className='highContrast'>Reports</button></Link>
                     <hr />
                 </> : <></>}

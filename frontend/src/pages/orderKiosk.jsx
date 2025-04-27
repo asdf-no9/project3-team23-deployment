@@ -334,7 +334,8 @@ export default function OrderKiosk({ loginInfo }) {
         for (let i in menuState.categories[orderState.selectedCategory]) {
             const drink = menuState.categories[orderState.selectedCategory][i];
             const selected = orderState.currentDrinkSelection.drink && (orderState.currentDrinkSelection.drink.name == drink.name);
-            drinkArray.push(<button disabled={selected} onClick={() => interactionChangeDrink(drink)} className={kioskStyles.drinkbuttonitem + ' ' + (selected ? 'darkgray' : 'gray')}>{drink.name + ' (' + drink.price + ')'}</button>)
+            const disable = !drink["in_stock"];
+            drinkArray.push(<button disabled={selected || disable} onClick={() => interactionChangeDrink(drink)} className={kioskStyles.drinkbuttonitem + ' ' + (disable ? 'black' : selected ? 'darkgray' : 'gray')}>{drink.name + ' (' + (disable ? 'Out of Stock' : drink.price) + ')'}</button>)
         }
         for (let i = 2; i >= 0; i--) {
             const name = i == 2 ? "Regular Ice" : i == 1 ? "Less Ice" : "No Ice";

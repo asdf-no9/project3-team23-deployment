@@ -326,7 +326,9 @@ app.post('/menu/edit', (req, res) => {
  * PARAMETERS: {
  *      name: string,
  *      price: float,
- *      option_hot
+ *      option_hot,
+ *      category: string,
+ *      ingredients: [string, ...]
  * }
  * 
  * RESPONSE:
@@ -339,16 +341,18 @@ app.post('/menu/edit', (req, res) => {
 app.post('/menu/add', (req, res) => {
     if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
-    let { name, category, price, option_hot } = req.body;
+    let { name, category, price, option_hot, ingredients } = req.body;
     price = parseFloat(price);
     option_hot = (option_hot === "true")
 
-    if (typeof name != "string" || typeof category != "string" || typeof price != "number" || typeof option_hot != "boolean") {
+    if (typeof name != "string" || typeof category != "string" || typeof price != "number" || typeof option_hot != "boolean" || !Array.isArray(ingredients)) {
         res.status(500).send({ error: "Unable to add, please check properties", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
         return;
     }
 
-    pool.query("INSERT INTO menu(name, category, price, in_stock, option_hot, ingredients) VALUES ($1, $2, $3, $4, $5, $6)", [name, category, price * 100_000, true, option_hot, []])
+    ingredients = ingredients.map(ingredient => ingredient.toLowerCase());
+
+    pool.query("INSERT INTO menu(name, category, price, in_stock, option_hot, ingredients) VALUES ($1, $2, $3, $4, $5, $6)", [name, category, price * 100_000, true, option_hot, ingredients])
         .then((result) => {
             if (result.rowCount < 1) {
                 res.status(500).send({ error: "Unable to add item", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
@@ -543,7 +547,7 @@ app.post('/inventory/edit', (req, res) => {
         return;
     }
 
-    pool.query("UPDATE inventory SET quantity = $1 WHERE name = $2", [quantity, name])
+    pool.query("UPDATE inventory SET quantity = $1 WHERE name = $2", [quantity, name.toLowerCase()])
         .then((result) => {
             if (result.rowCount < 1) {
                 res.status(500).send({ error: "Inventory item not found", name: name, quantity: quantity });
@@ -591,6 +595,8 @@ app.post('/inventory/add', (req, res) => {
         return;
     }
 
+    name = name.toLowerCase();
+
     pool.query("INSERT INTO Inventory(name, quantity, unit_base_consumption, req_fill_rate, is_topping) VALUES ($1, $2, $3, $4, $5)", [name, quantity, 1, 0, is_topping])
         .then((result) => {
             if (result.rowCount < 1) {
@@ -633,6 +639,8 @@ app.post('/inventory/delete', (req, res) => {
         res.status(500).send({ error: "Unable to delete please check properties", name: name });
         return;
     }
+
+    name = name.toLowerCase();
 
     pool.query("DELETE FROM inventory WHERE name = $1", [name])
         .then((result) => {
@@ -887,7 +895,7 @@ app.post('/order/checkout', (req, res) => {
  * }
  */
 app.get('/reports/inventory', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { from, to } = req.query;
     if (from == null) {
@@ -951,7 +959,7 @@ app.get('/reports/inventory', (req, res) => {
  * }
  */
 app.get('/reports/x', (req, res) => {
-    //  if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     pool.query('SELECT x_report();')
         .then((response) => {
@@ -1011,7 +1019,7 @@ app.get('/reports/x', (req, res) => {
  * }
  */
 app.get('/reports/z', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     pool.query('SELECT z_run_date FROM xreport_helper LIMIT 1;')
         .then((r1) => {

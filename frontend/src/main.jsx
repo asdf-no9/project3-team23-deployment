@@ -15,6 +15,7 @@ import Cookies from 'js-cookie';
 import ManagerInventory from './pages/managerInventory.jsx';
 import ManagerMenu from './pages/managerMenu.jsx';
 import ManagerReports from './pages/managerReports.jsx';
+import ManagerStaff from './pages/manageStaff.jsx';
 import { formatInTimeZone } from 'date-fns-tz';
 
 
@@ -25,6 +26,18 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 const getCentralTime = () => {
   const date = new Date();
   return formatInTimeZone(date, 'America/Chicago', 'yyyy-MM-dd');
+}
+
+/**
+ * Capitalizes every first-letter of a word in a string.
+ * @param {string} input The string to modify
+ * @returns {string} The new string
+ */
+const capitalizeEveryWord = (input) => {
+  return input
+    .split(" ")
+    .map(w => w ? w[0].toUpperCase() + w.slice(1) : "")
+    .join(" ");
 }
 
 function Main() {
@@ -91,6 +104,7 @@ function Main() {
                   <Route path='/manager-inventory' element={<ManagerInventory />} />
                   <Route path='/manager-menu' element={<ManagerMenu />} />
                   <Route path='/manager-reports' element={<ManagerReports />} />
+                  <Route path='/manager-staff' element={<ManagerStaff />} />
                   <Route path='*' element={<Navigate to="/" replace />} />
                 </Routes>
               </div>
@@ -105,4 +119,4 @@ function Main() {
 createRoot(document.getElementById('root')).render(<Main />);
 
 
-export { currencyFormatter, getCentralTime };
+export { currencyFormatter, getCentralTime, capitalizeEveryWord };

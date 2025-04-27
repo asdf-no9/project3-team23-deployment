@@ -28,11 +28,14 @@
   border-bottom: 5px double black;
   border-right: 5px double black;
   background-color: whitesmoke;
+
+  /* min-width: 600px; */
 }
 
 .page table {
   padding-left: 30px;
   padding-right: 30px;
+  padding-top: 10px;
   width: 100%;
   /* max-width: 100vw; */
 
@@ -40,6 +43,21 @@
   text-align: left;
   border-spacing: 0px;
   min-width: 400px;
+  table-layout: auto;
+}
+
+.page td,
+.page th {
+  padding: 5px 10px; /* top/bottom, left/right */
+}
+
+.page select option {
+  user-select: none;
+}
+
+.page select option:checked {
+  background-color: rgb(66, 124, 233);
+  color: white;
 }
 
 @media (max-width: 750px) {
@@ -60,6 +78,11 @@
     justify-content: space-around;
     gap: 4px;
   }
+
+  .page td,
+  .page th {
+    padding: 4px 4px; /* top/bottom, left/right */
+  }
 }
 
 .page th {
@@ -69,7 +92,6 @@
 }
 
 .page tr {
-  gap: 2px;
   border-spacing: 2px;
   cursor: pointer;
 }
