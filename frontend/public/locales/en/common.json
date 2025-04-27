@@ -1,8 +1,8 @@
 {
   "sidebar": {
     "language": "Language",
-    "disable_high_contrast": "Disable High Contrast",
-    "enable_high_contrast": "Enable High Contrast",
+    "disable_high_contrast": "High Contrast",
+    "enable_high_contrast": "High Contrast",
     "login": "Login",
     "logo_alt": "Sharetea Logo"
   },

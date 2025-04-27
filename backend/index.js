@@ -6,6 +6,7 @@ const cors = require('cors');
 const crypto = require('crypto');
 const { error } = require('console');
 const bodyParser = require('body-parser');
+const { formatInTimeZone } = require('date-fns-tz');
 
 const app = express();
 const port = 3000;
@@ -34,6 +35,11 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency', currency: 'USD',
 });
 
+const getCentralTime = () => {
+    const date = new Date();
+    return formatInTimeZone(date, 'America/Chicago', 'yyyy-MM-dd');
+}
+
 /**
  * A local cache of tokens. Stores until API resets.
  * 
@@ -41,6 +47,7 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
  * {
  *      UUID: {
  *          "creation_date": UTC Timestamp,
+ *          "username": username,
  *          "id": User ID,
  *          "manager": boolean, if they are or are not a manager
  *      },
@@ -65,13 +72,31 @@ const LOGGED_IN_MANAGER = 2;
  * RESPONSE
  * {
  *     "message": "Welcome!",
- *     "auth": boolean
+ *     "username: string,
+ *     "auth": boolean,
+ *     "id": int,
  * }
  */
 app.get('/', (req, res) => {
+
+    let authCode = 0;
+    let username = 'Self-Serve Kiosk'
+    let id = -1;
+
+    if (req.query.token && token_cache[req.query.token]) {
+        username = token_cache[req.query.token].username.join(" ");
+        id = token_cache[req.query.token].id;
+        if (token_cache[req.query.token].manager)
+            authCode = 2;
+        else
+            authCode = 1;
+    }
+
     const data = {
         message: "Welcome!",
-        auth: req.query.token && token_cache[req.query.token] ? true : false
+        username: username,
+        auth: authCode,
+        id: id
     }
     res.status(200).send(data);
 });
@@ -91,14 +116,20 @@ app.get('/', (req, res) => {
  *      "error": SQL Error, (optional)
  *      "success": boolean, 
  *      "token": UUID,
- *      "is_manager": boolean
+ *      "is_manager": boolean,
+ *      "id": the employee ID
  * }
  */
 app.post('/login', (req, res) => {
 
+    if (!req.body) {
+        res.status(401).send({ success: false, error: "Incorrect or missing credentials." })
+        return
+    }
+
     let { username, password } = req.body; // Use body-parser to get the body of the request
 
-    if (username == null || password == null || String(username).split(" ").length != 2) {
+    if (username == undefined || username == null || password == null || password == undefined || String(username).split(" ").length != 2) {
         res.status(401).send({ success: false, error: "Incorrect or missing credentials." })
         return
     }
@@ -126,9 +157,10 @@ app.post('/login', (req, res) => {
                                 {
                                     creation_date: new Date().getTime(),
                                     id: user_id,
-                                    manager: is_manager
+                                    manager: is_manager,
+                                    username: username
                                 }
-                                res.status(200).send({ success: true, token: new_token, manager: is_manager })
+                                res.status(200).send({ success: true, token: new_token, id: user_id, manager: is_manager })
                                 return
                             } else {
                                 res.status(500).send({ success: false, error: "Server error." })
@@ -260,7 +292,7 @@ app.get('/menu', (req, res) => {
  *
  */
 app.post('/menu/edit', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name, price } = req.body;
     price = parseFloat(price);
@@ -294,7 +326,9 @@ app.post('/menu/edit', (req, res) => {
  * PARAMETERS: {
  *      name: string,
  *      price: float,
- *      option_hot
+ *      option_hot: boolean,
+ *      category: string,
+ *      ingredients: [string, ...]
  * }
  * 
  * RESPONSE:
@@ -305,18 +339,19 @@ app.post('/menu/edit', (req, res) => {
  * }
  */
 app.post('/menu/add', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
-    let { name, category, price, option_hot } = req.body;
+    let { name, category, price, option_hot, ingredients } = req.body;
     price = parseFloat(price);
-    option_hot = (option_hot === "true")
 
-    if (typeof name != "string" || typeof category != "string" || typeof price != "number" || typeof option_hot != "boolean") {
+    if (typeof name != "string" || typeof category != "string" || typeof price != "number" || typeof option_hot != "boolean" || !Array.isArray(ingredients)) {
         res.status(500).send({ error: "Unable to add, please check properties", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
         return;
     }
 
-    pool.query("INSERT INTO menu(name, category, price, in_stock, option_hot, ingredients) VALUES ($1, $2, $3, $4, $5, $6)", [name, category, price * 100_000, true, option_hot, []])
+    ingredients = ingredients.map(ingredient => ingredient.toLowerCase());
+
+    pool.query("INSERT INTO menu(name, category, price, in_stock, option_hot, ingredients) VALUES ($1, $2, $3, $4, $5, $6)", [name, category, price * 100_000, true, option_hot ? true : false, ingredients])
         .then((result) => {
             if (result.rowCount < 1) {
                 res.status(500).send({ error: "Unable to add item", name: name, category: category, price: price, in_stock: null, option_hot: option_hot, ingredients: [] });
@@ -330,17 +365,44 @@ app.post('/menu/add', (req, res) => {
         })
 })
 
+/**
+ * Get Menu
+ * *******************
+ * URI: /menu/get
+ * TYPE: Get
+ * 
+ * NEEDS AUTH: manager
+ * PARAMETERS: none
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error message, (optional)
+ *      menu: [
+ *          {
+ *              "name": text,
+ *              "category": text,
+ *              "price": int,
+ *          },
+ *      ]
+ * }
+ */
 app.get('/menu/get', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
     pool.query("SELECT * FROM menu ORDER BY id ASC")
         .then((result) => {
-            res.status(500).send({ result: result.rows });
+            res.status(200).send({ result: result.rows });
         })
+        .catch((error) => {
+            res.status(500).send({ error: "Server Error." });
+            console.log(error);
+        });
 })
 
 /**
  * Delete Menu Item
  * *******************
- * URI: /menu/edit
+ * URI: /menu/delete
  * 
  * NEEDS AUTH: manager
  * 
@@ -355,7 +417,7 @@ app.get('/menu/get', (req, res) => {
  *
  */
 app.post('/menu/delete', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name } = req.body;
 
@@ -379,6 +441,151 @@ app.post('/menu/delete', (req, res) => {
 })
 
 /**
+ * Get Staff List
+ * *******************
+ * URI: /staff/get
+ * TYPE: Get
+ * 
+ * NEEDS AUTH: manager
+ * PARAMETERS: none
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error message, (optional)
+ *      menu: database results
+ * }
+ */
+app.get('/staff/get', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    pool.query("SELECT first_name, last_name, id, is_manager, last_login FROM employees ORDER BY id ASC")
+        .then((result) => {
+            res.status(200).send({ result: result.rows });
+        })
+        .catch((error) => {
+            res.status(500).send({ error: "Server Error." });
+            console.log(error);
+        });
+})
+
+/**
+ * Edit Staff Roles
+ * *******************
+ * URI: /staff/edit
+ * 
+ * NEEDS AUTH: manager
+ * 
+ * PARAMETERS: {
+ *      id: int,
+ *      is_manager: boolean,
+ * }
+ * 
+ * RESPONSE:
+ * {
+ *     error: error message, (optional)
+ *     success: boolean,
+ * }
+ *
+ */
+app.post('/staff/edit', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    let { id, is_manager } = req.body;
+
+    if (typeof id != "number" || !Number.isInteger(id) || typeof is_manager != "boolean" || id < 0) {
+        res.status(400).send({ error: "Invalid parameters", success: false });
+        return;
+    }
+
+    pool.query("UPDATE employees SET is_manager = $1 WHERE id = $2", [is_manager ? true : false, parseInt(id)])
+        .then(() => {
+            res.status(200).send({ success: true });
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send({ error: "Server Error", success: false });
+        })
+})
+
+/**
+ * Add Staff 
+ * *******************
+ * URI: /staff/add
+ * 
+ * NEEDS AUTH: manager
+ * 
+ * PARAMETERS: {
+ *      first_name: string,
+ *      last_name: string,
+ *      is_manager: boolean,
+ * }
+ * 
+ * RESPONSE:
+ * {
+ *     error: error message, (optional)
+ *     success: boolean,
+ * }
+ */
+app.post('/staff/add', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    let { first_name, last_name, is_manager } = req.body;
+
+    if (typeof first_name != "string" || typeof is_manager != "boolean" || typeof last_name != "string" || first_name.length < 1 || last_name.length < 1 || first_name.split(" ").length != 1 || last_name.split(" ").length != 1 || first_name.length > 50 || last_name.length > 50) {
+        res.status(400).send({ error: "Invalid parameters", success: false });
+        return;
+    }
+
+    pool.query("INSERT INTO employees(first_name, last_name, is_manager) VALUES ($1, $2, $3)", [first_name, last_name, is_manager ? true : false])
+        .then(() => {
+            res.status(200).send({ success: true });
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send({ error: "Server Error", success: false });
+        })
+})
+
+
+/**
+ * Delete Staff Member
+ * *******************
+ * URI: /staff/delete
+ * 
+ * NEEDS AUTH: manager
+ * 
+ * PARAMETERS: {
+ *      id: integer,
+ * }
+ * 
+ * RESPONSE:
+ * {
+ *     error: error message, (optional)
+ *     success: boolean,
+ * }
+ *
+ */
+app.post('/staff/delete', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    let { id } = req.body;
+
+    if (typeof id != "number" || !Number.isInteger(id) || id < 0) {
+        res.status(400).send({ error: "Invalid parameters", success: false });
+        return;
+    }
+
+    pool.query("DELETE FROM employees WHERE id = $1", [id])
+        .then(() => {
+            res.status(200).send({ success: true });
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send({ error: "Server Error", success: false });
+        })
+})
+
+/**
  * Get Inventory
  * *******************
  * URI: /inventory
@@ -391,21 +598,19 @@ app.post('/menu/delete', (req, res) => {
  * {
  *      error: error message, (optional)
  *      inventory: [
- *          inventory_item: [
- *              {
- *                  "name": text,
- *                  "quantity": int,
- *                  "fill_rate": int,
- *                  "unit": text
- *              },
- *          ],
+ *          {
+ *              "name": text,
+ *              "quantity": int,
+ *              "fill_rate": int,
+ *              "unit": text
+ *          },
  *      ]
  * }
  */
 app.get('/inventory', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
-    let fillUpdate = req.query.fillUpdate || false;
+    let fillUpdate = (req.query.fillUpdate === 'false') ? false : true;
 
     const getInventory = () => {
         pool.query('SELECT * FROM Inventory ORDER BY name;')
@@ -425,7 +630,8 @@ app.get('/inventory', (req, res) => {
                         name: inventory_name_capital,
                         quantity: row["quantity"],
                         fill_rate: row["rec_fill_wk"],
-                        unit: row["unit"]
+                        unit: row["unit"],
+                        is_topping: row["is_topping"],
                     });
                 }
 
@@ -443,6 +649,10 @@ app.get('/inventory', (req, res) => {
             .then(() => {
                 getInventory();
                 fillUpdate = true;
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).send({ error: "Server error.", inventory: [] });
             });
     }
     else {
@@ -472,7 +682,7 @@ app.get('/inventory', (req, res) => {
  *
  */
 app.post('/inventory/edit', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name, quantity } = req.body;
     quantity = parseInt(quantity);
@@ -482,7 +692,7 @@ app.post('/inventory/edit', (req, res) => {
         return;
     }
 
-    pool.query("UPDATE inventory SET quantity = $1 WHERE name = $2", [quantity, name])
+    pool.query("UPDATE inventory SET quantity = $1 WHERE name = $2", [quantity, name.toLowerCase()])
         .then((result) => {
             if (result.rowCount < 1) {
                 res.status(500).send({ error: "Inventory item not found", name: name, quantity: quantity });
@@ -519,18 +729,20 @@ app.post('/inventory/edit', (req, res) => {
  * }
  */
 app.post('/inventory/add', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
-    let { name, quantity } = req.body;
+    let { name, quantity, is_topping, unit } = req.body;
     quantity = parseInt(quantity);
-    let is_topping = (req.query.is_topping === "true")
+    is_topping = Boolean(is_topping);
 
-    if (typeof name != "string" || typeof quantity != "number" || typeof is_topping != "boolean") {
-        res.status(500).send({ error: "Unable to add, please check properties", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
+    if (typeof name != "string" || typeof unit != "string" || unit.length > 10 || typeof quantity != "number" || typeof is_topping != "boolean") {
+        res.status(500).send({ error: "Invalid parameters" });
         return;
     }
 
-    pool.query("INSERT INTO Inventory(name, quantity, unit_base_consumption, req_fill_rate, is_topping) VALUES ($1, $2, $3, $4, $5)", [name, quantity, 1, 0, is_topping])
+    name = name.toLowerCase();
+
+    pool.query("INSERT INTO Inventory(name, quantity, unit_base_consumption, req_fill_rate, is_topping, unit) VALUES ($1, $2, $3, $4, $5, $6)", [name, quantity, 1, 0, is_topping, unit])
         .then((result) => {
             if (result.rowCount < 1) {
                 res.status(500).send({ error: "Unable to add item", name: name, quantity: quantity, unit_base_consumption: 1, req_fill_rate: 0, is_topping: is_topping });
@@ -564,7 +776,7 @@ app.post('/inventory/add', (req, res) => {
  *
  */
 app.post('/inventory/delete', (req, res) => {
-    // if (!auth(req, res, LOGGED_IN_MANAGER)) return;    
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
     let { name } = req.body;
 
@@ -572,6 +784,8 @@ app.post('/inventory/delete', (req, res) => {
         res.status(500).send({ error: "Unable to delete please check properties", name: name });
         return;
     }
+
+    name = name.toLowerCase();
 
     pool.query("DELETE FROM inventory WHERE name = $1", [name])
         .then((result) => {
@@ -798,8 +1012,223 @@ app.post('/order/checkout', (req, res) => {
         })
 })
 
+
+/**
+ * Inventory Usage Report
+ * *******************
+ * URI: /reports/inventory
+ * Type: GET
+ * 
+ * NEEDS AUTH: yes
+ * PARAMETERS: {
+ *      from: date string in YYYY-MM-DD format,
+ *      to: date string in YYYY-MM-DD format (optional - defaults to today),
+ * }
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      columns: ["Item Name", "Current Stock", "Units Consumed", "Usage Rate"],
+ *      report: [
+ *           [
+ *              text,
+ *              "int unit",
+ *              "int unit",
+ *              "int unit",
+ *           ],
+ *      ],  
+ * }
+ */
+app.get('/reports/inventory', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    let { from, to } = req.query;
+    if (from == null) {
+        res.status(400).send({ error: "Invalid parameters." })
+        return
+    }
+
+    if (to == null)
+        to = getCentralTime();
+
+    pool.query('SELECT get_usage($1, $2);', [from, to])
+        .then((response) => {
+            if (response.rowCount == 0) {
+                res.status(500).send({ error: "No inventory information." })
+                return
+            }
+
+            const report = []
+
+            for (let row in response.rows) {
+                let temp = String(response.rows[row]["get_usage"]).replace(/[\(\)\"]/g, "").split(",");
+                report.push([
+                    capitalizeEveryWord(temp[0]),
+                    temp[1] + " " + temp[4],
+                    temp[2] + " " + temp[4],
+                    temp[3] + " " + temp[4],
+                ])
+            }
+
+            res.status(200).send({
+                columns: ["Item Name", "Current Stock", "Units Consumed", "Usage Rate"],
+                report: report
+            });
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send({ error: "Server Error." })
+        })
+});
+
+/**
+ * X Report
+ * *******************
+ * URI: /reports/x
+ * Type: GET
+ * 
+ * NEEDS AUTH: yes
+ * PARAMETERS: none
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      columns: ["Hour", "Total Orders", "Total Items", "Total Sales"],
+ *      report: [
+ *           [
+ *              text,
+ *              int,
+ *              int,
+ *              text,
+ *           ],
+ *      ],  
+ * }
+ */
+app.get('/reports/x', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    pool.query('SELECT x_report();')
+        .then((response) => {
+            if (response.rowCount == 0) {
+                res.status(500).send({ error: "X-Report Empty", report: [] })
+                return
+            }
+
+            const report = []
+
+            for (let row in response.rows) {
+                // console.log(response.rows[row])
+                let temp = String(response.rows[row]["x_report"]).replace(/[\(\)\"]/g, "").split(",");
+                let hr = parseInt(temp[0]);
+                if (hr < 10) {
+                    temp[0] = "0" + hr + ":00 - 0" + hr + ":59";
+                } else {
+                    temp[0] = hr + ":00 - " + hr + ":59";
+                }
+
+                report.push([
+                    temp[0],
+                    temp[1],
+                    temp[2],
+                    currencyFormatter.format(temp[3] / 100000),
+                ])
+            }
+
+            res.status(200).send({ columns: ["Hour", "Total Orders", "Total Items", "Total Sales"], report: report });
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send({ error: "Server Error." })
+        })
+});
+
+/**
+ * Z Report
+ * *******************
+ * URI: /reports/z
+ * Type: GET
+ * 
+ * NEEDS AUTH: yes
+ * PARAMETERS: none
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error msg (optional),
+ *      columns: ["Date", "Total Orders", "Total Items Ordered", "Total Sales Gross", "Total Tax Owed", "Total Sales Next"],
+ *      report: [
+ *           date string in YYYY-MM-DD format,
+ *           int, 
+ *           int, 
+ *           $text, 
+ *           $text, 
+ *           $text
+ *      ],  
+ * }
+ */
+app.get('/reports/z', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    pool.query('SELECT z_run_date FROM xreport_helper LIMIT 1;')
+        .then((r1) => {
+            console.log(r1.rows)
+            if (r1.rowCount > 0) {
+                const date = r1.rows[0]["z_run_date"];
+                if (date != null && date.toISOString().split('T')[0] == getCentralTime()) {
+                    res.status(500).send({ error: "Z-Report has already run today." })
+                    return
+                }
+            }
+
+            pool.query('SELECT z_report();')
+                .then((response) => {
+                    if (response.rowCount == 0) {
+                        res.status(500).send({ error: "Z-Report Empty", report: [] })
+                        return
+                    }
+
+                    const reportRow = String(response.rows[0]["z_report"]).replace(/[\(\)\"]/g, "").split(",");
+
+
+                    res.status(200).send({
+                        columns: ["Date", "Total Orders", "Total Items Ordered", "Total Sales Gross", "Total Tax Owed", "Total Sales Next"],
+                        report: [[
+                            getCentralTime(),
+                            reportRow[0],
+                            reportRow[1],
+                            currencyFormatter.format(reportRow[2] / 100000),
+                            currencyFormatter.format(reportRow[3] / 100000),
+                            currencyFormatter.format(reportRow[4] / 100000)
+                        ]
+                        ]
+                    });
+
+
+                }).catch((err) => {
+                    console.log(err);
+                    res.status(500).send({ error: "Server Error." })
+                })
+        }
+        ).catch((err) => {
+            console.log(err);
+            res.status(500).send({ error: "Server Error." })
+        });
+})
+
+/**
+ * Authorizes a connection for a certain user level.
+ * @param {*} req The request object
+ * @param {*} res The response object
+ * @param {*} level The desired level for authorization
+ * @returns If the user is authorized or not
+ */
 function auth(req, res, level = LOGGED_IN_EMPLOYEE) {
-    token = req.query.token
+    if (!req || !req.headers || !req.headers.authorization) {
+        res.status(401).send({ success: false, error: "Not authenticated." })
+        return false
+    }
+
+
+    let token = null;
+    if (req.headers.authorization.length > 7)
+        token = req.headers.authorization.substring(7);
 
     if (token && token_cache[token])
         if (level == LOGGED_IN_EMPLOYEE || (level == LOGGED_IN_MANAGER && token_cache[token].manager))

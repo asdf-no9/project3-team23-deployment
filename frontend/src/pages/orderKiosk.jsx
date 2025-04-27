@@ -1,7 +1,7 @@
 
-import '../styles/layout.css'
+import kioskStyles from '../styles/orderKiosk.module.css'
 import { useState, useEffect, useRef } from 'react'
-import { Link, useParams, Navigate } from 'react-router';
+import { Link, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
 import Confetti from 'react-confetti'
 import Cookies from 'js-cookie';
@@ -21,9 +21,10 @@ import { useTranslation } from 'react-i18next';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function OrderKiosk() {
+export default function OrderKiosk({ loginInfo }) {
     // const { category } = useParams();
 
+    const mainRef = useRef(null)
     const runBefore = useRef(false);
     const inputRef = useRef(null);
     const { t, i18n } = useTranslation('common'); //For i18n translation
@@ -107,13 +108,14 @@ export default function OrderKiosk() {
                 drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
             }
         });
+        mainRef.current.scrollTo(0, 0);
     }
 
     /**
      * Runs when the final checkout button is pressed. This handles all final payment logic and tipping.
      */
     const interactionCompleteCheckout = () => {
-        if (loading() || orderState.tipError)
+        if (loading() || (orderState.tipError && orderState.tipSelection == 4))
             return;
 
         changeOrderState({ ...orderState, checkoutLoading: true, checkoutError: false });
@@ -146,7 +148,7 @@ export default function OrderKiosk() {
                 paymentType: orderState.paymentType,
                 tip: tip,
                 orderID: orderIDState.orderID,
-                cashierID: -1,
+                cashierID: loginInfo.isLoggedIn ? loginInfo.id : -1,
             })
         })
             .then((response) => response.json())
@@ -159,6 +161,7 @@ export default function OrderKiosk() {
                 }
 
                 changeOrderState({ ...orderState, checkoutLoading: false, orderStep: 3 });
+                mainRef.current.scrollTo(0, 0);
             })
             .catch((e) => {
                 console.error(e);
@@ -174,6 +177,7 @@ export default function OrderKiosk() {
                 drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
             }, tipSelection: 0, customTipChoice: 0, tipError: false, customTipChoice_raw: "", paymentType: 0, checkoutError: false
         });
+        mainRef.current.scrollTo(0, 0);
     }
 
     /**
@@ -185,6 +189,7 @@ export default function OrderKiosk() {
                 drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
             }
         });
+        mainRef.current.scrollTo(0, 0);
     }
 
     /**
@@ -225,6 +230,7 @@ export default function OrderKiosk() {
                         drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
                     }, drinkAddLoading: false, oldsubtotal_raw: orderState.subtotal_raw, subtotal: r["subtotal"], subtotal_raw: r["subtotal_raw"]
                 });
+                mainRef.current.scrollTo(0, 0);
             })
             .catch((e) => {
                 console.error(e);
@@ -342,7 +348,7 @@ export default function OrderKiosk() {
         const categoryButtons = [];
         for (let i in menuState.categories) {
             // console.log(menuState.categories[i]);
-            categoryButtons.push(<button className='drinkbuttonitem catbuttonitem gray' onClick={() => interactionCategorySelection(i)}>{i}</button>)
+            categoryButtons.push(<button className={kioskStyles.drinkbuttonitem + ' ' + kioskStyles.catbuttonitem + ' gray'} onClick={() => interactionCategorySelection(i)}>{i}</button>)
         }
 
         orderStepHTML = (
@@ -353,13 +359,13 @@ export default function OrderKiosk() {
                     <hr className='phone' />
                     <Link to="/"><button className='darkgray'>Start Over</button></Link>
                 </div>
-                <div className='drinkgrid catgrid'>
+                <div className={kioskStyles.drinkgrid + ' ' + kioskStyles.catgrid}>
                     {loading() ?
                         <p className='centeralign'>Loading...</p> :
-                        <div className='catbuttons'>{categoryButtons}</div>
+                        <div className={kioskStyles.catbuttons}>{categoryButtons}</div>
                     }
                     <div>
-                        <div className='itemlist hideitemlist'>
+                        <div className={kioskStyles.itemlist + ' ' + kioskStyles.hideitemlist}>
                             <hr className='full' />
                             <h3 className='centeralign'>{t('Current Order')}</h3>
                             <hr className='full' />
@@ -369,8 +375,8 @@ export default function OrderKiosk() {
                                 </ol>}
                         </div>
                     </div>
-                    <div className='addbutton'>
-                        <button disabled={!enableCheckout} className={'finalcheckout ' + (enableCheckout ? ' blue' : ' invisible')} onClick={interactionOrderComplete}>{checkoutText}</button>
+                    <div className={kioskStyles.addbutton}>
+                        <button disabled={!enableCheckout} className={kioskStyles.finalcheckout + ' ' + (enableCheckout ? ' blue' : kioskStyles.invisible)} onClick={interactionOrderComplete}>{checkoutText}</button>
                     </div>
                 </div></>
         );
@@ -382,12 +388,13 @@ export default function OrderKiosk() {
         for (let i in menuState.categories[orderState.selectedCategory]) {
             const drink = menuState.categories[orderState.selectedCategory][i];
             const selected = orderState.currentDrinkSelection.drink && (orderState.currentDrinkSelection.drink.name == drink.name);
-            drinkArray.push(<button disabled={selected} onClick={() => interactionChangeDrink(drink)} className={'drinkbuttonitem ' + (selected ? 'darkgray' : 'gray')}>{drink.name + ' (' + drink.price + ')'}</button>)
+            const disable = !drink["in_stock"];
+            drinkArray.push(<button disabled={selected || disable} onClick={() => interactionChangeDrink(drink)} className={kioskStyles.drinkbuttonitem + ' ' + (disable ? 'black' : selected ? 'darkgray' : 'gray')}>{drink.name + ' (' + (disable ? 'Out of Stock' : drink.price) + ')'}</button>)
         }
         for (let i = 2; i >= 0; i--) {
             const name = i == 2 ? "Regular Ice" : i == 1 ? "Less Ice" : "No Ice";
             const selected = orderState.currentDrinkSelection.iceLevel == i;
-            iceArray.push(<button disabled={selected} onClick={() => interactionChangeIceLevel(i)} className={'drinkbuttonitem ' + (selected ? 'darkgray' : 'gray')}>{name}</button>)
+            iceArray.push(<button disabled={selected} onClick={() => interactionChangeIceLevel(i)} className={kioskStyles.drinkbuttonitem + ' ' + (selected ? 'darkgray' : 'gray')}>{name}</button>)
         }
         for (let i = 4; i >= 0; i--) {
             let amount = 0;
@@ -397,14 +404,15 @@ export default function OrderKiosk() {
             else if (i == 1) amount = 0.3;
 
             const selected = orderState.currentDrinkSelection.sugarLevel == amount;
-            sugarArray.push(<button disabled={selected} onClick={() => interactionChangeSugarLevel(amount)} className={'drinkbuttonitem ' + (selected ? 'darkgray' : 'gray')}>{amount * 100}%</button>)
+            sugarArray.push(<button disabled={selected} onClick={() => interactionChangeSugarLevel(amount)} className={kioskStyles.drinkbuttonitem + ' ' + (selected ? 'darkgray' : 'gray')}>{amount * 100}%</button>)
         }
         for (let i in toppingsState.toppings) {
             const topping = toppingsState.toppings[i];
             let color = "gray";
             if (!topping["in_stock"]) color = "black";
             else if (orderState.currentDrinkSelection.toppings.includes(topping["name"])) color = "darkgray";
-            toppingArray.push(<button disabled={topping["in_stock"] ? false : true} className={'drinkbuttonitem ' + color} onClick={() => interactionChangeTopping(topping["name"])}>{topping["name"]}</button>)
+            toppingArray.push(<button disabled={topping["in_stock"] ? false : true} className={kioskStyles.drinkbuttonitem + ' ' + color} onClick={() => interactionChangeTopping(topping["name"])
+            }> {topping["name"] + (topping["in_stock"] ? "" : " (Out of Stock)")}</button >)
         }
 
         const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !loading();
@@ -419,20 +427,20 @@ export default function OrderKiosk() {
                     {/* <hr className='phone' /> */}
                     {/* <button disabled={!addButtonEnabled} className={"totalButton " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button> */}
                 </div >
-                <div className='drinkgrid'>
+                <div className={kioskStyles.drinkgrid}>
                     <div>
                         <h2>{t('orderKiosk.selectDrink')} <span className='subtext'>{t('orderKiosk.selectDrinkSubtext')}</span></h2>
-                        <div className='drinkbuttons'>{drinkArray}</div>
+                        <div className={kioskStyles.drinkbuttons}>{drinkArray}</div>
                     </div>
                     <div>
                         <h2>{t('orderKiosk.iceLevel')}</h2>
-                        <div className='drinkbuttons'>
+                        <div className={kioskStyles.drinkbuttons}>
                             {iceArray}
                         </div>
                     </div>
                     <div>
                         <h2>{t('orderKiosk.sugarLevel')}</h2>
-                        <div className='drinkbuttons'>
+                        <div className={kioskStyles.drinkbuttons}>
                             {sugarArray}
                         </div>
                     </div>
@@ -440,12 +448,12 @@ export default function OrderKiosk() {
                         <h2>{t('orderKiosk.toppings')} <span className='subtext'>{t('orderKiosk.toppingsSubtext')}</span></h2>
                         {toppingsState.toppingsLoading ?
                             <p className='centeralign'>Loading...</p> :
-                            <div className='spacer drinkbuttons'>{toppingArray}</div>
+                            <div className={'spacer ' + kioskStyles.drinkbuttons}>{toppingArray}</div>
                         }
                     </div>
                     {/* <hr /> */}
-                    <div className='addbutton'>
-                        <button disabled={!addButtonEnabled} className={"finalcheckout " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button>
+                    <div className={kioskStyles.addbutton}>
+                        <button disabled={!addButtonEnabled} className={kioskStyles.finalcheckout + " " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button>
                     </div>
                 </div>
 
@@ -481,35 +489,35 @@ export default function OrderKiosk() {
                 <hr className='phone' />
                 <button disabled={loading()} className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
             </div>
-            <div className='drinkgrid'>
+            <div className={kioskStyles.drinkgrid}>
                 <div>
                     <h2 className='h3'>Would you like to leave a Tip?</h2>
-                    <div className='drinkbuttons tips'>
-                        <button onClick={() => interactionChangeTip(0)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 0 ? 'darkgray' : 'gray')}><h2>0%</h2><h2 className='h3'>$0.00</h2></button>
-                        <button onClick={() => interactionChangeTip(1)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 1 ? 'darkgray' : 'gray')}><h2>15%</h2><h2 className='h3'>{currencyFormatter.format(0.15 * orderState.subtotal_raw / 100000)}</h2></button>
-                        <button onClick={() => interactionChangeTip(2)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 2 ? 'darkgray' : 'gray')}><h2>20%</h2><h2 className='h3'>{currencyFormatter.format(0.2 * orderState.subtotal_raw / 100000)}</h2></button>
-                        <button onClick={() => interactionChangeTip(3)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 3 ? 'darkgray' : 'gray')}><h2>25%</h2><h2 className='h3'>{currencyFormatter.format(0.25 * orderState.subtotal_raw / 100000)}</h2></button>
+                    <div className={kioskStyles.drinkbuttons + ' ' + kioskStyles.tips} >
+                        <button onClick={() => interactionChangeTip(0)} className={kioskStyles.drinkbuttonitem + ' ' + kioskStyles.tips + ' ' + (orderState.tipSelection == 0 ? 'darkgray' : 'gray')}><h2>0%</h2><h2 className={kioskStyles.h3}>$0.00</h2></button>
+                        <button onClick={() => interactionChangeTip(1)} className={kioskStyles.drinkbuttonitem + ' ' + kioskStyles.tips + ' ' + (orderState.tipSelection == 1 ? 'darkgray' : 'gray')}><h2>15%</h2><h2 className={kioskStyles.h3}>{currencyFormatter.format(0.15 * orderState.subtotal_raw / 100000)}</h2></button>
+                        <button onClick={() => interactionChangeTip(2)} className={kioskStyles.drinkbuttonitem + ' ' + kioskStyles.tips + ' ' + (orderState.tipSelection == 2 ? 'darkgray' : 'gray')}><h2>20%</h2><h2 className={kioskStyles.h3}>{currencyFormatter.format(0.2 * orderState.subtotal_raw / 100000)}</h2></button>
+                        <button onClick={() => interactionChangeTip(3)} className={kioskStyles.drinkbuttonitem + ' ' + kioskStyles.tips + ' ' + (orderState.tipSelection == 3 ? 'darkgray' : 'gray')}><h2>25%</h2><h2 className={kioskStyles.h3}>{currencyFormatter.format(0.25 * orderState.subtotal_raw / 100000)}</h2></button>
                         {/* <button onClick={() => interactionChangeTip(4)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray')}><h2>Other</h2></button> */}
                     </div>
-                    <div className={'tips input-button ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray') + ' ' + (orderState.tipSelection == 4 ? "visible" : "invisible")} onClick={() => interactionChangeTip(4)}>
+                    <div className={kioskStyles.tips + ' ' + kioskStyles.inputbutton + ' ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray') + ' ' + (orderState.tipSelection == 4 ? "visible" : "invisible")} onClick={() => interactionChangeTip(4)}>
                         <span>{orderState.tipSelection == 4 ? "$" : "Other"}</span>
-                        <input id="customtipfield" ref={inputRef} onChange={(event) => interactionChangeTip(4, event)} onBlur={() => interactionFinalizeTip()} value={orderState.tipSelection == 4 ? orderState.customTipChoice_raw : ''} maxLength={5} placeholder='0.00' type="text" />
+                        <input id={kioskStyles.customtipfield} ref={inputRef} onChange={(event) => interactionChangeTip(4, event)} onBlur={() => interactionFinalizeTip()} value={orderState.tipSelection == 4 ? orderState.customTipChoice_raw : ''} maxLength={5} placeholder='0.00' type="text" />
                     </div>
-                    {orderState.tipError ? <h2 className='tips error'>Invalid tip choice.</h2> : <></>}
+                    {orderState.tipError && orderState.tipSelection == 4 ? <h2 className={kioskStyles.tips + ' ' + kioskStyles.error}>Invalid tip choice.</h2> : <></>}
                 </div>
                 <div>
                     <h2 className='h3'>Select your payment type.</h2>
-                    <div className='drinkbuttons'>
-                        <button onClick={() => interactionSelectPaymentType(0)} className={'drinkbuttonitem ' + (orderState.paymentType == 0 ? 'darkgray' : 'gray')}>Credit Card</button>
-                        <button onClick={() => interactionSelectPaymentType(1)} className={'drinkbuttonitem ' + (orderState.paymentType == 1 ? 'darkgray' : 'gray')}>Cash</button>
+                    <div className={kioskStyles.drinkbuttons}>
+                        <button onClick={() => interactionSelectPaymentType(0)} className={kioskStyles.drinkbuttonitem + ' ' + (orderState.paymentType == 0 ? 'darkgray' : 'gray')}>Credit Card</button>
+                        <button onClick={() => interactionSelectPaymentType(1)} className={kioskStyles.drinkbuttonitem + ' ' + (orderState.paymentType == 1 ? 'darkgray' : 'gray')}>Cash</button>
                     </div>
                 </div>
-                <div className='orderdetails'>
+                <div className={kioskStyles.orderdetails}>
                     <h2 className='subtext'>Subtotal: {orderState.subtotal}</h2>
                     <h2 className='subtext'>Tax: {currencyFormatter.format(tax)}</h2>
                     <h2 className='subtext'>Tip: {currencyFormatter.format(tip)}</h2>
                     <h2 className=''>Total: {currencyFormatter.format(total)}</h2>
-                    <div><button onClick={() => interactionCompleteCheckout()} className={'finalcheckout ' + (loading() ? 'black' : orderState.checkoutError ? 'red' : 'blue')}>{checkoutFinalText}</button></div>
+                    <div><button onClick={() => interactionCompleteCheckout()} className={kioskStyles.finalcheckout + ' ' + (loading() || (orderState.tipError && orderState.tipSelection == 4) ? 'black' : orderState.checkoutError ? 'red' : 'blue')}>{checkoutFinalText}</button></div>
                 </div>
             </div>
         </>;
@@ -517,7 +525,7 @@ export default function OrderKiosk() {
         orderStepHTML = (
             <>
                 <Confetti style={{ maxHeight: '100%', maxWidth: '100%' }} width={window.innerWidth} height={window.innerHeight} numberOfPieces={300} recycle={false} initialVelocityY={10} gravity={0.2} initialVelocityX={5} tweenDuration={2000} run={true} onConfettiComplete={(confetti) => confetti.reset()} />
-                <div className='completedscreen '>
+                <div className={kioskStyles.completedscreen}>
                     <h1>Thank You!</h1>
                     <p>Your order is complete.</p>
                     <Link to="/"><button className='blue'>Start Another Order</button></Link>
@@ -530,16 +538,16 @@ export default function OrderKiosk() {
     // const addButtonText = orderState.drinkAddLoading ? "Loading..." : "Add to Order +";
     // <button disabled={!enableCheckout} className={'totalButton' + (enableCheckout ? ' blue' : ' black')} onClick={interactionOrderComplete}>{checkoutText}</button>
     return (
-        <div className={orderState.orderStep == 3 ? "layout complete" : "layout"}>
-            <div className="mainBody" id="mainBody">
+        <div className={orderState.orderStep == 3 ? kioskStyles.layout + " " + kioskStyles.complete : kioskStyles.layout}>
+            <div className="mainBody" id="mainBody" ref={mainRef}>
                 <div id='scaler'>
 
                     {orderStepHTML}
                 </div>
             </div>
             {orderState.orderStep != 3 ?
-                <div className="subtotal">
-                    <div className='itemlist'>
+                <div className={kioskStyles.subtotal}>
+                    <div className={kioskStyles.itemlist}>
                         <h3 className='centeralign'>Current Order</h3>
                         <hr />
                         {itemList.length == 0 ? <p className='centeralign'>Empty order.</p> :

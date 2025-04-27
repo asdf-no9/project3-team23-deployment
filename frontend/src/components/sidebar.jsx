@@ -1,11 +1,10 @@
-import '../styles/layout.css';
+import styles from '../styles/sidebar.module.css';
 import logo from '../assets/ShareTeaLogo.png';
-import { useLocation, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useHighContrast } from '../context/highContrast.jsx'; //Correct import
-import { useTranslation } from 'react-i18next'; //Importing i18n for translation
-import React, { useState } from 'react';
-import LanguageSwitcher from './languageSwitch'; //Importing language translation module
-import Cookies from 'js-cookie';
+import { useTranslation } from 'react-i18next';
+import React from 'react';
+import LanguageSwitcher from './languageSwitch';
 
 /**
  * Used to render the sidebar of the order kiosk interface, which includes logo and category buttons.
@@ -14,19 +13,29 @@ import Cookies from 'js-cookie';
  * @author Antony Quach
  */
 
-export default function Sidebar() {
+export default function Sidebar({ loginInfo }) {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
-    const { t, i18n } = useTranslation('common'); //Used in i18n for translation
+    const { t } = useTranslation('common');
 
     return (
 
-        <div className="sidebarContent">
-            <div className="sidebarlogocontainer">
+        <div className={styles.sidebarcontent}>
+            <div className={styles.sidebarlogocontainer}>
                 <Link to="/" >
                     <img src={logo} alt={t('sidebar.logo_alt')} className="logo" />
                 </Link>
             </div>
-            <div className="accessibleFeatures">
+            <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : "Self-Serve Kiosk"}</h2>
+            <div className={styles.accessibleFeatures}>
+
+                {loginInfo.manager ? <>
+                    <Link to="/manager-menu"><button className='highContrast'>Edit Menu</button></Link>
+                    <Link to="/manager-inventory"><button className='highContrast'>Inventory</button></Link>
+                    <Link to="/manager-staff"><button className='highContrast'>Manage Staff</button></Link>
+                    <Link to="/manager-reports"><button className='highContrast'>Reports</button></Link>
+                    <hr />
+                </> : <></>}
+
 
                 {/*Language Drop-down*/}
                 <LanguageSwitcher />
@@ -35,8 +44,9 @@ export default function Sidebar() {
                 <button className="highContrast" onClick={toggleTheme}>
                     {isHighContrast ? t('sidebar.disable_high_contrast') : t('sidebar.enable_high_contrast')}
                 </button>
+
                 {/*Login Button*/}
-                <Link to='/login'><button className="highContrast">{t('sidebar.login')}</button></Link>
+                <Link to='/login'><button className="highContrast">{!loginInfo.isLoggedIn ? t('sidebar.login') : 'Logout'}</button></Link>
 
             </div>
         </div>

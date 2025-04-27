@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import styles from '../styles/languageSwitch.module.css';
 
 /**
  * This component uses the i18next library to provide language switching functionality.
@@ -22,17 +23,16 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <div className="languageDropdownContainer">
+    <div className={styles.languageDropdownContainer}>
       <button
-        className="language"
+        className={styles.language}
         onClick={() => setDropdownVisible(!isDropdownVisible)} //Toggle dropdown visibility
       >
         {t('sidebar.language')}
       </button>
       {isDropdownVisible && (
-
         /*Dropdown for language selection*/
-        <div className="languageDropdown">
+        <div className={styles.languageDropdown}>
           <button onClick={() => changeLanguage('en')}>{t('language.english')}</button>
           <button onClick={() => changeLanguage('es')}>{t('language.spanish')}</button>
         </div>
