@@ -442,6 +442,34 @@ app.post('/menu/delete', (req, res) => {
 })
 
 /**
+ * Get Staff List
+ * *******************
+ * URI: /staff/get
+ * TYPE: Get
+ * 
+ * NEEDS AUTH: manager
+ * PARAMETERS: none
+ * 
+ * RESPONSE: 
+ * {
+ *      error: error message, (optional)
+ *      menu: database results
+ * }
+ */
+app.get('/staff/get', (req, res) => {
+    if (!auth(req, res, LOGGED_IN_MANAGER)) return;
+
+    pool.query("SELECT first_name, last_name, id, is_manager, last_login FROM employees ORDER BY id ASC")
+        .then((result) => {
+            res.status(200).send({ result: result.rows });
+        })
+        .catch((error) => {
+            res.status(500).send({ error: "Server Error." });
+            console.log(error);
+        });
+})
+
+/**
  * Get Inventory
  * *******************
  * URI: /inventory

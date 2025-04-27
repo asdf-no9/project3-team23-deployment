@@ -9,31 +9,32 @@ export default function ManagerStaff() {
 
     const mainRef = useRef(null);
 
-    const [inventory, setInventory] = useState([]);
+    const [staffList, setStaffList] = useState([]);
     const [disableButton, setDisableButton] = useState(false);
     const [loading, setLoading] = useState(true);
 
     const [modalMode, setModalMode] = useState('');
-    const [itemName, setItemName] = useState('');
-    const [itemQuantity, setItemQuantity] = useState('');
-    const [isTopping, setIsTopping] = useState(false);
+    const [fullName, setFullName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [isManager, setIsManager] = useState(false);
 
     const [selectedRow, setSelectedRow] = useState(null);
 
     useEffect(() => {
         mainRef.current.scrollTo(0, 0);
-        loadInventory();
+        loadStaffList();
     }, [])
 
-    const loadInventory = () => {
+    const loadStaffList = () => {
         setLoading(true);
-        fetch(API_URL + 'inventory', {
+        fetch(API_URL + 'staff/get', {
             headers: {
                 'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
             },
         })
             .then((response) => response.json())
-            .then((r) => setInventory(r ? r.inventory ? r.inventory : [] : []))
+            .then((r) => setStaffList(r ? r.result ? r.result : [] : []))
             .catch((e) => {
                 console.log(e);
             })
@@ -42,9 +43,8 @@ export default function ManagerStaff() {
 
     const closeModal = () => {
         setModalMode('');
-        setItemName('');
-        setItemQuantity('');
-        setIsTopping(false);
+        setFullName('');
+        setIsManager(false);
     }
 
     // Function used for taking data from the form and then calling the specified api
@@ -55,28 +55,28 @@ export default function ManagerStaff() {
 
         setDisableButton(true);
 
-        let url = API_URL + 'inventory/';
+        let url = API_URL + 'staff/';
         let data = {};
 
         if (modalMode === 'add') {
             url += 'add';
             data = {
-                name: itemName,
-                quantity: parseInt(itemQuantity),
-                is_topping: isTopping
+                first_name: firstName,
+                last_name: lastName,
+                is_manager: isManager
             }
         }
         else if (modalMode === 'delete') {
             url += 'delete'
             data = {
-                name: itemName
+                name: fullName
             }
         }
         else if (modalMode === 'edit') {
             url += 'edit'
             data = {
-                name: itemName,
-                quantity: parseInt(itemQuantity)
+                name: fullName,
+                is_manager: isManager
             }
         }
 
@@ -101,7 +101,7 @@ export default function ManagerStaff() {
                 .then((r) => console.log(r))
                 .finally(() => {
                     closeModal();
-                    loadInventory();
+                    loadStaffList();
                 })
         }
         catch (err) {
@@ -148,7 +148,7 @@ export default function ManagerStaff() {
                         </div>
                     </div>
                     {loading ?
-                        <p>Loading Inventory...</p> :
+                        <p>Loading Staff List...</p> :
                         <div className={styles.tablecontainer}>
                             <table>
                                 <thead>
@@ -160,11 +160,12 @@ export default function ManagerStaff() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {inventory.map((item, idx) =>
+                                    {staffList.map((item, idx) =>
                                         <tr key={idx} onClick={() => setSelectedRow(idx)} className={selectedRow === idx ? styles.selected : ''}>
-                                            <td>{item.name}</td>
-                                            <td>{item.quantity} {item.unit}</td>
-                                            <td>{item.fill_rate} {item.unit}/wk</td>
+                                            <td>{item.first_name + " " + item.last_name}</td>
+                                            <td>{item.id}</td>
+                                            <td>{item.is_manager ? "Manager" : "Employee"}</td>
+                                            <td>{item.last_login}</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -175,59 +176,60 @@ export default function ManagerStaff() {
             </div>
             <Modal
                 isOpen={modalMode !== ''}
-                title={modalMode.charAt(0).toUpperCase() + modalMode.slice(1) + " Inventory Item"}
+                title={modalMode.charAt(0).toUpperCase() + modalMode.slice(1) + " Staff"}
                 onClose={closeModal}
             >
                 <form onSubmit={handleSubmit} className='modal-form'>
                     <div>
-                        <label htmlFor="item-name">Name:</label>
-                        {modalMode === 'add' ? (
-                            <input
-                                type="text"
-                                id="item-name"
-                                placeholder='Item Name'
-                                value={itemName}
-                                onChange={e => setItemName(e.target.value)}
-                                required
-                            />
-                        ) : (
-                            <select
-                                id="item-name"
-                                value={itemName}
-                                onChange={e => setItemName(e.target.value)}
-                            >
-                                <option value="">Select item</option>
-                                {inventory.map(item => (
-                                    <option key={item.name} value={item.name}>{item.name}</option>
-                                ))}
-                            </select>
-                        )}
 
-                        {(modalMode === 'add' || modalMode === 'edit') && (
+                        {modalMode === 'add' ? (
                             <>
-                                <label htmlFor="item-quantity">Quantity:</label>
+                                <label htmlFor="first-name">First Name:</label>
                                 <input
-                                    type="number"
-                                    id="item-quantity"
-                                    placeholder='Enter quantity'
-                                    value={itemQuantity}
-                                    onChange={e => setItemQuantity(e.target.value)}
+                                    type="text"
+                                    id="first-name"
+                                    placeholder='First Name'
+                                    value={firstName}
+                                    onChange={e => setFirstName(e.target.value)}
+                                    required
+                                />
+                                <label htmlFor="last-name">Last Name:</label>
+                                <input
+                                    type="text"
+                                    id="last-name"
+                                    placeholder='Last Name'
+                                    value={lastName}
+                                    onChange={e => setLastName(e.target.value)}
                                     required
                                 />
                             </>
-                        )}
-
-                        {modalMode === 'add' && (
+                        ) : (
                             <>
-                                <label htmlFor="item-topping">Topping:</label>
-                                <input
-                                    type="checkbox"
-                                    id="item-topping"
-                                    value={isTopping}
-                                    onChange={e => setIsTopping(e.target.value)}
-                                />
+                                <label htmlFor="name">Name:</label>
+                                <select
+                                    id="name"
+                                    value={fullName}
+                                    onChange={e => setFullName(e.target.value)}
+                                >
+                                    <option value="">Select name</option>
+                                    {staffList.map((item, idx) => (
+                                        <option key={idx} value={item.first_name + " " + item.last_name}>{item.first_name + " " + item.last_name}</option>
+                                    ))}
+                                </select>
                             </>
                         )}
+
+                        {(modalMode === 'add' || modalMode === 'edit') ? (
+                            <>
+                                <label htmlFor="item-manager">Manager:</label>
+                                <input
+                                    type="checkbox"
+                                    id="item-manager"
+                                    value={isManager}
+                                    onChange={e => setIsManager(e.target.value)}
+                                />
+                            </>
+                        ) : <></>}
 
                         <button type='submit' className='blue' disabled={disableButton}>
                             Submit
