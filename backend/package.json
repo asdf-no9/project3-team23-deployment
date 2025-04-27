@@ -15,8 +15,10 @@
     "date-fns-tz": "^3.2.0",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
+    "firebase-admin": "^13.3.0",
     "nodemon": "^3.1.9",
     "pg": "^8.14.1",
+    "pg-format": "^1.0.4",
     "team23-backend": "file:"
   }
 }

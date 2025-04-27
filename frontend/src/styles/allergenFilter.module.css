@@ -1,0 +1,39 @@
+.layout {
+    background-color: white;
+    display: grid;
+    grid-template-columns: 4fr auto;
+    grid-template-rows: auto;
+    height: 100%;
+    width: 100%;
+}
+
+.optionbuttonitem {
+    margin: 10px;
+    height: 100%;
+    width: 30%;
+}
+
+.optionsgrid {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: 10px;
+    /* height: 90%;
+    max-height: 90%; */
+    max-width: 1000px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.optionbuttons {
+    display: grid;
+    grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(150px, calc((100% - 40px) / 5)), 1fr)
+  );
+    align-items: start;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-self: flex-start;
+}

@@ -2,11 +2,16 @@
   margin-left: 0;
   margin-right: auto;
   padding-bottom: 20px;
+  display: flex;
 }
 
 .sidebarlogocontainer img {
   height: 150px;
   width: auto;
+}
+
+.weathericon {
+  border-radius: 50%;
 }
 
 .sidebarcontent {

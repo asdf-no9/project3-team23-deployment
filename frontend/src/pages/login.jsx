@@ -4,6 +4,9 @@ import loginStyles from '../styles/login.module.css'
 import { Link, useNavigate } from 'react-router';
 import Cookies from 'js-cookie';
 
+import { getAuth, signInWithCustomToken } from 'firebase/auth';
+import fb_app from '../firebase';
+
 /**
  *This component renders the login screen for the kiosk.
  *@returns Login component
@@ -16,7 +19,7 @@ export default function Login({ loginInfo, logIn, logOut }) {
 
     const [loginStatus, setLoginStatus] = useState("");
     const navigate = useNavigate();
-  
+
     /**
      * Submits login information to the API and adds a token to cookies if successful
      * @param {*} event The form event that triggers on submit
@@ -44,9 +47,16 @@ export default function Login({ loginInfo, logIn, logOut }) {
                     } else {
                         setLoginStatus("");
                         // console.log(response)
-                        logIn(username, response.manager, response.id, response.token);
-                        navigate('/');
-                        return;
+                        const fb_auth = getAuth(fb_app);
+                        signInWithCustomToken(fb_auth, response.token)
+                            .then(() => {
+                                logIn(username, response.manager, response.id, response.token);
+                                navigate('/');
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                                setLoginStatus("Sorry, an error occurred with Firebase. Please try again.");
+                            })
                     }
                 })
                 .catch((err) => {

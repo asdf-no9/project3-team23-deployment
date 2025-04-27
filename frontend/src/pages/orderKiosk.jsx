@@ -80,7 +80,20 @@ export default function OrderKiosk({ loginInfo }) {
             .catch((e) => {
                 console.error(e);
             });
-        fetch(API_URL + "menu")
+
+        let stored;
+        if (Cookies.get('allergens')) {
+            stored = Cookies.get('allergens');
+        } else {
+            stored = '[]';
+        }
+
+        fetch(API_URL + "menu", {
+            method: 'GET',
+            headers: {
+                'Filter': stored
+            }
+        })
             .then((response) => response.json())
             .then((r) => {
                 setMenuState({ ...menuState, menuLoading: false, categories: r["categories"] });
@@ -160,6 +173,7 @@ export default function OrderKiosk({ loginInfo }) {
                     return;
                 }
 
+                Cookies.set('allergens', '[]', { expires: 7, path: '/', secure: true, sameSite: 'Strict' });
                 changeOrderState({ ...orderState, checkoutLoading: false, orderStep: 3 });
                 mainRef.current.scrollTo(0, 0);
             })
@@ -528,6 +542,7 @@ export default function OrderKiosk({ loginInfo }) {
                 <div className={kioskStyles.completedscreen}>
                     <h1>Thank You!</h1>
                     <p>Your order is complete.</p>
+                    {/*<Link to='rate-order'><button className='blue'>Rate Your Order!</button></Link>*/}
                     <Link to="/"><button className='blue'>Start Another Order</button></Link>
                 </div>
             </>

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import React from 'react';
 import LanguageSwitcher from './languageSwitch';
 
+const API_URL = import.meta.env.VITE_API_URL;
 /**
  * Used to render the sidebar of the order kiosk interface, which includes logo and category buttons.
  * The sidebar also includes the login and accessibility features.
@@ -16,6 +17,13 @@ import LanguageSwitcher from './languageSwitch';
 export default function Sidebar({ loginInfo }) {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
     const { t } = useTranslation('common');
+    const [icon, setIcon] = React.useState('');
+    React.useEffect(() => {
+        fetch(API_URL + 'weather_icon')
+            .then(res => res.text())
+            .then(data => setIcon(data))
+            .catch(err => console.log(err));
+    }, []);
 
     return (
 
@@ -24,6 +32,7 @@ export default function Sidebar({ loginInfo }) {
                 <Link to="/" >
                     <img src={logo} alt={t('sidebar.logo_alt')} className="logo" />
                 </Link>
+                <img className={styles.weathericon} src={icon} alt={'weather.icon'}/>
             </div>
             <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : "Self-Serve Kiosk"}</h2>
             <div className={styles.accessibleFeatures}>
@@ -44,6 +53,9 @@ export default function Sidebar({ loginInfo }) {
                 <button className="highContrast" onClick={toggleTheme}>
                     {isHighContrast ? t('sidebar.disable_high_contrast') : t('sidebar.enable_high_contrast')}
                 </button>
+
+                {/*Allergen Filter Button*/}
+                <Link to='/allergen-filter'><button className="highContrast"> Allergen Filter </button></Link>
 
                 {/*Login Button*/}
                 <Link to='/login'><button className="highContrast">{!loginInfo.isLoggedIn ? t('sidebar.login') : 'Logout'}</button></Link>

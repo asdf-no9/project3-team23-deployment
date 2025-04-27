@@ -1,12 +1,20 @@
 
 const express = require('express');
 const { Pool } = require('pg');
+const format = require('pg-format');
 const dotenv = require('dotenv').config();
 const cors = require('cors');
 const crypto = require('crypto');
 const { error } = require('console');
 const bodyParser = require('body-parser');
 const { formatInTimeZone } = require('date-fns-tz');
+
+const fs = require('fs');
+const admin = require('firebase-admin');
+const service_acc = JSON.parse(fs.readFileSync(process.env.FIREBASE_ACC, 'utf8'));
+admin.initializeApp({
+    credential: admin.credential.cert(service_acc)
+});
 
 const app = express();
 const port = 3000;
@@ -39,6 +47,13 @@ const getCentralTime = () => {
     const date = new Date();
     return formatInTimeZone(date, 'America/Chicago', 'yyyy-MM-dd');
 }
+
+let weather_cache = {
+    last_temp: null,
+    last_weather: null,
+    last_icon: null,
+    last_update: 0
+};
 
 /**
  * A local cache of tokens. Stores until API resets.
@@ -96,7 +111,9 @@ app.get('/', (req, res) => {
         message: "Welcome!",
         username: username,
         auth: authCode,
-        id: id
+        id: id,
+        temp: weather_cache.last_temp,
+        weather: weather_cache.last_weather
     }
     res.status(200).send(data);
 });
@@ -152,16 +169,22 @@ app.post('/login', (req, res) => {
                                 //SUCCESS
                                 is_manager = result2.rows[0]["is_manager"]
 
-                                new_token = crypto.randomUUID()
-                                token_cache[new_token] =
-                                {
-                                    creation_date: new Date().getTime(),
-                                    id: user_id,
-                                    manager: is_manager,
-                                    username: username
-                                }
-                                res.status(200).send({ success: true, token: new_token, id: user_id, manager: is_manager })
-                                return
+                                admin.auth().createCustomToken(user_id.toString())
+                                    .then(customToken => {
+                                        token_cache[customToken] =
+                                            {
+                                                creation_date: new Date().getTime(),
+                                                id: user_id,
+                                                manager: is_manager,
+                                                username: username
+                                            }
+                                        res.status(200).send({ success: true, token: customToken, id: user_id, manager: is_manager })
+                                    })
+                                    .catch(err => {
+                                        console.error(err)
+                                        res.status(500).send({ success: false, error: "Firebase token error." })
+                                    })
+
                             } else {
                                 res.status(500).send({ success: false, error: "Server error." })
                                 return
@@ -236,7 +259,24 @@ app.get('/logout', (req, res) => {
  * }
  */
 app.get('/menu', (req, res) => {
-    pool.query('SELECT * FROM menu;')
+    let allergens = [];
+    try {
+        let header = req.header('Filter');
+        if (header) {
+            allergens = JSON.parse(decodeURIComponent(header));
+        }
+    } catch (err) {
+        allergens = [];
+        console.error(err);
+    }
+    let ordered_query = 'SELECT * FROM menu WHERE NOT (ingredients && ARRAY[%L]::text[]) ORDER BY option_hot';
+    if (weather_cache.last_temp > 70) {
+        ordered_query += ';'
+    } else {
+        ordered_query += ' DESC;';
+    }
+    let format_query = format(ordered_query, allergens);
+    pool.query(format_query)
         .then((result) => {
             if (result.rowCount == 0) {
                 result.status(500).send({ error: "Menu empty.", categories: [] })
@@ -370,11 +410,11 @@ app.post('/menu/add', (req, res) => {
  * *******************
  * URI: /menu/get
  * TYPE: Get
- * 
+ *
  * NEEDS AUTH: manager
  * PARAMETERS: none
- * 
- * RESPONSE: 
+ *
+ * RESPONSE:
  * {
  *      error: error message, (optional)
  *      menu: [
@@ -445,11 +485,11 @@ app.post('/menu/delete', (req, res) => {
  * *******************
  * URI: /staff/get
  * TYPE: Get
- * 
+ *
  * NEEDS AUTH: manager
  * PARAMETERS: none
- * 
- * RESPONSE: 
+ *
+ * RESPONSE:
  * {
  *      error: error message, (optional)
  *      menu: database results
@@ -472,14 +512,14 @@ app.get('/staff/get', (req, res) => {
  * Edit Staff Roles
  * *******************
  * URI: /staff/edit
- * 
+ *
  * NEEDS AUTH: manager
- * 
+ *
  * PARAMETERS: {
  *      id: int,
  *      is_manager: boolean,
  * }
- * 
+ *
  * RESPONSE:
  * {
  *     error: error message, (optional)
@@ -508,18 +548,18 @@ app.post('/staff/edit', (req, res) => {
 })
 
 /**
- * Add Staff 
+ * Add Staff
  * *******************
  * URI: /staff/add
- * 
+ *
  * NEEDS AUTH: manager
- * 
+ *
  * PARAMETERS: {
  *      first_name: string,
  *      last_name: string,
  *      is_manager: boolean,
  * }
- * 
+ *
  * RESPONSE:
  * {
  *     error: error message, (optional)
@@ -551,13 +591,13 @@ app.post('/staff/add', (req, res) => {
  * Delete Staff Member
  * *******************
  * URI: /staff/delete
- * 
+ *
  * NEEDS AUTH: manager
- * 
+ *
  * PARAMETERS: {
  *      id: integer,
  * }
- * 
+ *
  * RESPONSE:
  * {
  *     error: error message, (optional)
@@ -1018,14 +1058,14 @@ app.post('/order/checkout', (req, res) => {
  * *******************
  * URI: /reports/inventory
  * Type: GET
- * 
+ *
  * NEEDS AUTH: yes
  * PARAMETERS: {
  *      from: date string in YYYY-MM-DD format,
  *      to: date string in YYYY-MM-DD format (optional - defaults to today),
  * }
- * 
- * RESPONSE: 
+ *
+ * RESPONSE:
  * {
  *      error: error msg (optional),
  *      columns: ["Item Name", "Current Stock", "Units Consumed", "Usage Rate"],
@@ -1036,7 +1076,7 @@ app.post('/order/checkout', (req, res) => {
  *              "int unit",
  *              "int unit",
  *           ],
- *      ],  
+ *      ],
  * }
  */
 app.get('/reports/inventory', (req, res) => {
@@ -1085,11 +1125,11 @@ app.get('/reports/inventory', (req, res) => {
  * *******************
  * URI: /reports/x
  * Type: GET
- * 
+ *
  * NEEDS AUTH: yes
  * PARAMETERS: none
- * 
- * RESPONSE: 
+ *
+ * RESPONSE:
  * {
  *      error: error msg (optional),
  *      columns: ["Hour", "Total Orders", "Total Items", "Total Sales"],
@@ -1100,7 +1140,7 @@ app.get('/reports/inventory', (req, res) => {
  *              int,
  *              text,
  *           ],
- *      ],  
+ *      ],
  * }
  */
 app.get('/reports/x', (req, res) => {
@@ -1145,22 +1185,22 @@ app.get('/reports/x', (req, res) => {
  * *******************
  * URI: /reports/z
  * Type: GET
- * 
+ *
  * NEEDS AUTH: yes
  * PARAMETERS: none
- * 
- * RESPONSE: 
+ *
+ * RESPONSE:
  * {
  *      error: error msg (optional),
  *      columns: ["Date", "Total Orders", "Total Items Ordered", "Total Sales Gross", "Total Tax Owed", "Total Sales Next"],
  *      report: [
  *           date string in YYYY-MM-DD format,
- *           int, 
- *           int, 
- *           $text, 
- *           $text, 
+ *           int,
+ *           int,
+ *           $text,
+ *           $text,
  *           $text
- *      ],  
+ *      ],
  * }
  */
 app.get('/reports/z', (req, res) => {
@@ -1212,6 +1252,44 @@ app.get('/reports/z', (req, res) => {
         });
 })
 
+
+/**
+ * Fetch weather icon for sidebar
+ * *****************************
+ * URI: /weather_icon
+ *
+ * NEEDS AUTH: no
+ * PARAMETERS:
+ *      none
+ *
+ * RESPONSE:
+ *     link to icon, or nothing if no link available
+ */
+app.get('/weather_icon', (req, res) => {
+    if (weather_cache.last_icon) {
+        res.status(200).send(weather_cache.last_icon);
+    } else {
+        res.status(500).send();
+    }
+});
+
+app.get('/ingredients', (req, res) => {
+    pool.query("SELECT name FROM inventory WHERE unit <> '';")
+        .then((result) => {
+            if (result.rowCount === 0) {
+                return result.status(500).send([]);
+            } else {
+                const ingrs = result.rows.map(ing => ing.name);
+                return res.status(200).send(ingrs);
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            return result.status(500).send({ error: "Bad query" });
+        });
+});
+
+
 /**
  * Authorizes a connection for a certain user level.
  * @param {*} req The request object
@@ -1249,6 +1327,28 @@ function capitalizeEveryWord(input) {
         .map(w => w ? w[0].toUpperCase() + w.slice(1) : "")
         .join(" ");
 }
+
+async function getWeather() {
+    try {
+
+        const api_req = await fetch('https://api.weather.gov/gridpoints/HGX/28,135/forecast/hourly', {
+            headers: { 'User-Agent': '(project3-team23.onrender.com, zhanggl@tamu.edu)' }
+        });
+        const api_data = await api_req.json();
+        weather_cache.last_temp = api_data.properties.periods[0].temperature;
+        weather_cache.last_weather = api_data.properties.periods[0].shortForecast;
+        weather_cache.last_icon = api_data.properties.periods[0].icon;
+        console.log(api_data.properties.periods[0]['icon']);
+        console.log(api_data.properties.periods[0]['temperature']);
+        weather_cache.last_update = Date.now();
+    } catch (e) {
+        console.error(e);
+    }
+}
+getWeather().then();
+setInterval(getWeather, 15 * 60 * 1000);
+console.log(weather_cache.last_icon);
+
 
 app.listen(port, () => {
     console.log(`Listening on port at http://localhost:${port}`);

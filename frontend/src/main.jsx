@@ -17,6 +17,7 @@ import ManagerMenu from './pages/managerMenu.jsx';
 import ManagerReports from './pages/managerReports.jsx';
 import ManagerStaff from './pages/manageStaff.jsx';
 import { formatInTimeZone } from 'date-fns-tz';
+import AllergenFilter from "./pages/allergenFilter.jsx";
 
 
 /**
@@ -112,6 +113,7 @@ function Main() {
                   <Route path='/manager-menu' element={<ManagerMenu />} />
                   <Route path='/manager-reports' element={<ManagerReports />} />
                   <Route path='/manager-staff' element={<ManagerStaff />} />
+                  <Route path='allergen-filter' element={<AllergenFilter />} />
                   <Route path='*' element={<Navigate to="/" replace />} />
                 </Routes>
               </div>
