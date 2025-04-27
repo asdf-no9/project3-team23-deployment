@@ -1338,8 +1338,6 @@ async function getWeather() {
         weather_cache.last_temp = api_data.properties.periods[0].temperature;
         weather_cache.last_weather = api_data.properties.periods[0].shortForecast;
         weather_cache.last_icon = api_data.properties.periods[0].icon;
-        console.log(api_data.properties.periods[0]['icon']);
-        console.log(api_data.properties.periods[0]['temperature']);
         weather_cache.last_update = Date.now();
     } catch (e) {
         console.error(e);
