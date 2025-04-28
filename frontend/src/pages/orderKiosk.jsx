@@ -24,9 +24,14 @@ const API_URL = import.meta.env.VITE_API_URL;
 export default function OrderKiosk({ loginInfo }) {
     // const { category } = useParams();
 
-    const mainRef = useRef(null)
+    const mainRef = useRef(null);
     const runBefore = useRef(false);
     const inputRef = useRef(null);
+
+    const catSelectionTabRef = useRef(null);
+    const drinkSelectionTabRef = useRef(null);
+    const checkoutTabRef = useRef(null);
+
     const { t } = useTranslation('common'); //For i18n translation
 
     const [menuState, setMenuState] = useState({ menuLoading: true, categories: {} });
@@ -123,6 +128,18 @@ export default function OrderKiosk({ loginInfo }) {
         });
         mainRef.current.scrollTo(0, 0);
     }
+
+    /**
+    * Handle tabbing when changing the order step
+    */
+    useEffect(() => {
+        if (orderState.orderStep == 0)
+            catSelectionTabRef.current?.focus()
+        else if (orderState.orderStep == 1)
+            drinkSelectionTabRef.current?.focus()
+        else if (orderState.orderStep == 2)
+            checkoutTabRef.current?.focus()
+    }, [orderState.orderStep]);
 
     /**
      * Runs when the final checkout button is pressed. This handles all final payment logic and tipping.
@@ -293,13 +310,10 @@ export default function OrderKiosk({ loginInfo }) {
         if (loading()) return;
 
         if (orderState.tipSelection != option) {
-            changeOrderState({ ...orderState, tipSelection: option }), () => {
-                if (option == 4) {
-                    inputRef.current.focus();
-                }
-            }
+            changeOrderState({ ...orderState, tipSelection: option })
             return;
         }
+
         if (option == 4 && other != null) {
             const input = other.target.value.trim();
 
@@ -320,6 +334,15 @@ export default function OrderKiosk({ loginInfo }) {
             }
         }
     }
+
+    /**
+     * Handle tabbing for the custom tip selection button.
+     */
+    useEffect(() => {
+        if (orderState.tipSelection === 4) {
+            inputRef.current?.focus();
+        }
+    }, [orderState.tipSelection]);
 
     /**
      * Finalizes the custom tip selection. This is run when the user clicks outside of the textbox or presses enter.
@@ -371,7 +394,7 @@ export default function OrderKiosk({ loginInfo }) {
                     <h1>{t('orderKiosk.selectCategory')}</h1>
                     <div></div>
                     <hr className='phone' />
-                    <Link to="/"><button className='darkgray'>Start Over</button></Link>
+                    <Link to="/"><button ref={catSelectionTabRef} tabIndex={-1} className='darkgray'>Start Over</button></Link>
                 </div>
                 <div className={kioskStyles.drinkgrid + ' ' + kioskStyles.catgrid}>
                     {loading() ?
@@ -445,7 +468,7 @@ export default function OrderKiosk({ loginInfo }) {
                 <div className='headerbar one'>
                     <h1>{orderState.selectedCategory}</h1>
                     <hr className='phone' />
-                    <button className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
+                    <button className='darkgray backButton' ref={drinkSelectionTabRef} onClick={() => interactionCancelDrink()}>Back</button>
                     {/* <hr className='phone' /> */}
                     {/* <button disabled={!addButtonEnabled} className={"totalButton " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button> */}
                 </div >
@@ -509,7 +532,7 @@ export default function OrderKiosk({ loginInfo }) {
                 <h1>{t('Checkout')}</h1>
                 <div></div>
                 <hr className='phone' />
-                <button disabled={loading()} className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
+                <button disabled={loading()} className='darkgray backButton' ref={checkoutTabRef} onClick={() => interactionCancelDrink()}>Back</button>
             </div>
             <div className={kioskStyles.drinkgrid}>
                 <div>
@@ -521,10 +544,22 @@ export default function OrderKiosk({ loginInfo }) {
                         <button onClick={() => interactionChangeTip(3)} className={kioskStyles.drinkbuttonitem + ' ' + kioskStyles.tips + ' ' + (orderState.tipSelection == 3 ? 'darkgray' : 'gray')}><h2>25%</h2><h2 className={kioskStyles.h3}>{currencyFormatter.format(0.25 * orderState.subtotal_raw / 100000)}</h2></button>
                         {/* <button onClick={() => interactionChangeTip(4)} className={'drinkbuttonitem tips ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray')}><h2>Other</h2></button> */}
                     </div>
-                    <div className={kioskStyles.tips + ' ' + kioskStyles.inputbutton + ' ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray') + ' ' + (orderState.tipSelection == 4 ? "visible" : "invisible")} onClick={() => interactionChangeTip(4)}>
+                    <button
+                        className={kioskStyles.tips + ' ' + kioskStyles.inputbutton + ' ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray') + ' ' + (orderState.tipSelection == 4 ? "visible" : "invisible")}
+                        onClick={() => interactionChangeTip(4)}
+                    >
                         <span>{orderState.tipSelection == 4 ? "$" : "Other"}</span>
-                        <input id={kioskStyles.customtipfield} ref={inputRef} onChange={(event) => interactionChangeTip(4, event)} onBlur={() => interactionFinalizeTip()} value={orderState.tipSelection == 4 ? orderState.customTipChoice_raw : ''} maxLength={5} placeholder='0.00' type="text" />
-                    </div>
+                        <input
+                            id={kioskStyles.customtipfield}
+                            ref={inputRef}
+                            onChange={(event) => interactionChangeTip(4, event)}
+                            onBlur={() => interactionFinalizeTip()}
+                            value={orderState.tipSelection == 4 ? orderState.customTipChoice_raw : ''}
+                            maxLength={5}
+                            placeholder='0.00'
+                            tabIndex={orderState.tipSelection == 4 ? 0 : -1}
+                            type="text" />
+                    </button>
                     {orderState.tipError && orderState.tipSelection == 4 ? <h2 className={kioskStyles.tips + ' ' + kioskStyles.error}>Invalid tip choice.</h2> : <></>}
                 </div>
                 <div>

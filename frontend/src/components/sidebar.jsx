@@ -29,14 +29,14 @@ export default function Sidebar({ loginInfo, forecast }) {
 
         <div className={styles.sidebarcontent}>
             <div className={styles.sidebarlogocontainer}>
-                <Link to="/" >
+                <Link to="/" title={'Start Order'} >
                     <img src={logo} alt={t('sidebar.logo_alt')} className="logo" />
                 </Link>
             </div>
             <div className={styles.middlecontent}>
                 <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : "Self-Serve Kiosk"}</h2>
                 <div className={styles.weathericon}>
-                    <img src={icon} alt={'weather.icon'} />
+                    <img src={icon} alt={'Weather Icon'} />
                     <div>
                         <p className={styles.temp}>{forecast.split(", ")[0]}</p>
                         <p className={styles.temp}>{forecast.split(", ")[1]}</p>
@@ -48,10 +48,10 @@ export default function Sidebar({ loginInfo, forecast }) {
             <div className={styles.accessibleFeatures}>
 
                 {loginInfo.manager ? <>
-                    <Link to="/manager-menu"><button className='highContrast'><i class="fa-solid fa-list"></i> Edit Menu</button></Link>
-                    <Link to="/manager-inventory"><button className='highContrast'><i class="fa-solid fa-warehouse"></i> Inventory</button></Link>
-                    <Link to="/manager-staff"><button className='highContrast'><i class="fa-solid fa-clipboard-user"></i> Manage Staff</button></Link>
-                    <Link to="/manager-reports"><button className='highContrast'><i class="fa-solid fa-file"></i> Reports</button></Link>
+                    <Link to="/manager-menu"><button tabIndex="-1" className='highContrast'><i class="fa-solid fa-list"></i> Edit Menu</button></Link>
+                    <Link to="/manager-inventory"><button tabIndex="-1" className='highContrast'><i class="fa-solid fa-warehouse"></i> Inventory</button></Link>
+                    <Link to="/manager-staff"><button tabIndex="-1" className='highContrast'><i class="fa-solid fa-clipboard-user"></i> Manage Staff</button></Link>
+                    <Link to="/manager-reports"><button tabIndex="-1" className='highContrast'><i class="fa-solid fa-file"></i> Reports</button></Link>
                     <hr className='' />
                 </> : <></>}
 
@@ -65,10 +65,10 @@ export default function Sidebar({ loginInfo, forecast }) {
                 </button>
 
                 {/*Allergen Filter Button*/}
-                <Link to='/allergen-filter'><button className="highContrast"><i class="fa-solid fa-wheat-awn-circle-exclamation"></i> Allergen Filter </button></Link>
+                <Link to='/allergen-filter'><button tabIndex="-1" className="highContrast"><i class="fa-solid fa-wheat-awn-circle-exclamation"></i> Allergen Filter </button></Link>
 
                 {/*Login Button*/}
-                <Link to='/login'><button className="highContrast"><i class="fa-solid fa-arrow-right-to-bracket"></i> {!loginInfo.isLoggedIn ? t('sidebar.login') : 'Logout'}</button></Link>
+                <Link to='/login'><button tabIndex="-1" className="highContrast"><i class="fa-solid fa-arrow-right-to-bracket"></i> {!loginInfo.isLoggedIn ? t('sidebar.login') : 'Logout'}</button></Link>
 
             </div>
         </div>

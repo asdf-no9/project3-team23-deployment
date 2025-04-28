@@ -191,12 +191,17 @@
   transition: border-color 0.25s;
 }
 
+button.tips {
+  padding: 0;
+}
+
 .inputbutton.tips:hover {
   border-color: #646cff;
 }
 
 .inputbutton.tips span {
   padding: 10px;
+  padding-top: 12px;
   margin-left: 10px;
   padding-right: 0;
   white-space: nowrap;
