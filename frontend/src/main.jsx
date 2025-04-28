@@ -18,6 +18,7 @@ import ManagerReports from './pages/managerReports.jsx';
 import ManagerStaff from './pages/manageStaff.jsx';
 import { formatInTimeZone } from 'date-fns-tz';
 import AllergenFilter from "./pages/allergenFilter.jsx";
+import { useTranslation } from 'react-i18next';
 
 
 /**
@@ -51,6 +52,12 @@ const capitalizeEveryWord = (input) => {
 }
 
 function Main() {
+
+  const { t, i18n } = useTranslation('common');
+
+  const [stateLang, setStateLang] = useState('en')
+  const [isLangDropdownVisible, setLangDropdownVisible] = useState(false); //Set default visibility off
+
   const [loggedInState, setLoggedInState] = useState({
     isLoggedIn: false,
     username: '',
@@ -85,8 +92,29 @@ function Main() {
   const [forecast, setForecast] = useState('');
   const [rec, setRec] = useState('');
 
+  /**
+   * Updates the language based on user selection in the dropdown
+   * @param {*} lng The language code to switch to, e.g. 'en' for English or 'es' for Spanish
+   */
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    Cookies.set('language', lng, { expires: 7, secure: true, sameSite: 'Strict' });
+    // setDropdownVisible(false); //Hide dropdown after selection
+    // window.location.reload();
+    setStateLang(lng)
+    setLangDropdownVisible(false)
+  };
+
   useEffect(() => {
     const token = Cookies.get('token');
+    const language = Cookies.get('language')
+
+    if (!language || language == null) {
+      Cookies.set('language', 'en', { expires: 7, secure: true, sameSite: 'Strict' });
+    } else {
+      i18n.changeLanguage(language)
+    }
+
     if (token) {
       fetch(import.meta.env.VITE_API_URL + '?token=' + token)
         .then(response => response.json())
@@ -99,7 +127,11 @@ function Main() {
         .catch(() => logOut());
     }
 
-    fetch(API_URL)
+    fetch(API_URL, {
+      headers: {
+        'language': Cookies.get('language') ? Cookies.get('language') : "en"
+      }
+    })
       .then(res => res.json())
       .then(data => {
 
@@ -116,7 +148,7 @@ function Main() {
 
       })
       .catch(err => console.log(err));
-  }, []);
+  }, [stateLang]);
 
   return (
     <StrictMode>
@@ -125,18 +157,24 @@ function Main() {
           <Router>
             <div id="bodysplit">
               <div className='sidebar'>
-                <Sidebar forecast={forecast} loginInfo={loggedInState} />
+                <Sidebar
+                  changeLanguage={changeLanguage}
+                  isLangDropdownVisible={isLangDropdownVisible}
+                  setLangDropdownVisible={setLangDropdownVisible}
+                  forecast={forecast}
+                  loginInfo={loggedInState}
+                />
               </div>
               <div className='router'>
                 <Routes>
                   <Route path="/" element={<StartOrder forecast={forecast} rec={rec} />} />
                   <Route path="/login" element={<Login loginInfo={loggedInState} logIn={(username, manager, id, token) => logIn(username, manager, id, token)} logOut={() => logOut()} />} />
-                  <Route path='/order-kiosk/' element={<OrderKiosk loginInfo={loggedInState} />} />
+                  <Route path='/order-kiosk/' element={<OrderKiosk stateLang={stateLang} loginInfo={loggedInState} />} />
                   <Route path='/manager-inventory' element={<ManagerInventory />} />
                   <Route path='/manager-menu' element={<ManagerMenu />} />
                   <Route path='/manager-reports' element={<ManagerReports />} />
                   <Route path='/manager-staff' element={<ManagerStaff />} />
-                  <Route path='allergen-filter' element={<AllergenFilter />} />
+                  <Route path='allergen-filter' element={<AllergenFilter stateLang={stateLang} />} />
                   <Route path='*' element={<Navigate to="/" replace />} />
                 </Routes>
               </div>

@@ -93,7 +93,7 @@ const LOGGED_IN_MANAGER = 2;
  *     "id": int,
  * }
  */
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
 
     let authCode = 0;
     let username = 'Self-Serve Kiosk'
@@ -114,7 +114,7 @@ app.get('/', (req, res) => {
         auth: authCode,
         id: id,
         temp: weather_cache.last_temp,
-        weather: weather_cache.last_weather
+        weather: await translate(weather_cache.last_weather, req.header('Language'))
     }
     res.status(200).send(data);
 });
@@ -259,7 +259,7 @@ app.get('/logout', (req, res) => {
  *      ]
  * }
  */
-app.get('/menu', (req, res) => {
+app.get('/menu', async (req, res) => {
     let allergens = [];
     try {
         let header = req.header('Filter');
@@ -278,7 +278,7 @@ app.get('/menu', (req, res) => {
     }
     let format_query = format(ordered_query, allergens);
     pool.query(format_query)
-        .then((result) => {
+        .then(async (result) => {
             if (result.rowCount == 0) {
                 result.status(500).send({ error: "Menu empty.", categories: [] })
                 return
@@ -288,7 +288,7 @@ app.get('/menu', (req, res) => {
 
             for (let i in result.rows) {
                 const row = result.rows[i]
-                const cat_name_capital = capitalizeEveryWord(String(row["category"]).toLowerCase())
+                const cat_name_capital = await translate(capitalizeEveryWord(String(row["category"]).toLowerCase()), req.header('Language'))
 
                 // create empty list if category is new
                 if (!menu[cat_name_capital])
@@ -298,7 +298,7 @@ app.get('/menu', (req, res) => {
 
                 menu[cat_name_capital].push({
                     id: row["id"],
-                    name: row["name"],
+                    name: await translate(row["name"], req.header('Language')),
                     price: price,
                     in_stock: row["in_stock"],
                     hot: row["option_hot"] ? true : false,
@@ -872,9 +872,9 @@ app.post('/inventory/delete', (req, res) => {
  *      ]
  * }
  */
-app.get('/toppings', (req, res) => {
+app.get('/toppings', async (req, res) => {
     pool.query('SELECT name, quantity, unit_base_consumption FROM inventory WHERE is_topping = true;')
-        .then((result) => {
+        .then(async (result) => {
             if (result.rowCount == 0) {
                 result.status(500).send({ error: "Topping list empty.", categories: [] })
                 return
@@ -886,7 +886,7 @@ app.get('/toppings', (req, res) => {
                 const row = result.rows[i]
 
                 toppings.push({
-                    name: capitalizeEveryWord(row["name"]),
+                    name: await translate(capitalizeEveryWord(row["name"]), req.header('Language')),
                     in_stock: row["quantity"] > row["unit_base_consumption"]
                 })
             }
@@ -1284,13 +1284,19 @@ app.get('/weather_icon', (req, res) => {
     }
 });
 
-app.get('/ingredients', (req, res) => {
+app.get('/ingredients', async (req, res) => {
     pool.query("SELECT name FROM inventory WHERE unit <> '';")
-        .then((result) => {
+        .then(async (result) => {
             if (result.rowCount === 0) {
                 return result.status(500).send([]);
             } else {
-                const ingrs = result.rows.map(ing => ing.name);
+                const ingrs = []
+
+                for (let i in result.rows) {
+                    const row = result.rows[i]
+                    ingrs.push(await translate(row.name, req.header('Language')))
+                }
+
                 return res.status(200).send(ingrs);
             }
         })
@@ -1390,9 +1396,12 @@ app.post('/translate', async (req, res) => {
  * @returns {Promise<string>} TThe translated text or null if an error occurs.
  */
 async function translate(text, targetLanguage) {
-    if (targetLanguage === 'English') {
+    if (targetLanguage === 'en') {
         return text; // No translation needed for English
     }
+
+    if (targetLanguage === 'es')
+        targetLanguage = 'Spanish'
 
     const cacheKey = `${text}-${targetLanguage}`; // Create a unique key for caching
 

@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function OrderKiosk({ loginInfo }) {
+export default function OrderKiosk({ loginInfo, stateLang }) {
     // const { category } = useParams();
 
     const mainRef = useRef(null);
@@ -68,8 +68,8 @@ export default function OrderKiosk({ loginInfo }) {
      * Handles one-time initial API calls including downloading the menu, downloading the toppings list, and creating a new order ID
      */
     useEffect(() => {
-        if (runBefore.current) return;
-        runBefore.current = true;
+        // if (runBefore.current) return;
+        // runBefore.current = true;
 
         fetch(API_URL + "order/start", {
             method: 'POST',
@@ -97,7 +97,7 @@ export default function OrderKiosk({ loginInfo }) {
             method: 'GET',
             headers: {
                 'Filter': stored,
-                'language': t('language')
+                'language': Cookies.get('language') ? Cookies.get('language') : "en"
             }
         })
             .then((response) => response.json())
@@ -107,25 +107,13 @@ export default function OrderKiosk({ loginInfo }) {
             .catch((e) => {
                 console.error(e);
             });
+
         fetch(API_URL + "toppings", {
             method: 'GET',
             headers: {
-                'language': t('language')
+                'language': Cookies.get('language') ? Cookies.get('language') : "en"
             }
         })
-            .then((response) => {
-                if (response.status == 401) {
-                    Cookies.remove('token', { path: '/' });
-                    return <Navigate to="/login" />;
-                } else if (response.status == 403) {
-                    return <Navigate to="/forbidden" />;
-                } else if (response.status == 404) {
-                    return <Navigate to="/notfound" />;
-                } else if (response.status == 500) {
-                    return <Navigate to="/servererror" />;
-                }
-        })
-
             .then((response) => response.json())
             .then((r) => {
                 setToppingsState({ ...toppingsState, toppingsLoading: false, toppings: r["toppings"] });
@@ -133,7 +121,7 @@ export default function OrderKiosk({ loginInfo }) {
             .catch((e) => {
                 console.error(e);
             });
-    }, []);
+    }, [stateLang]);
 
     /**
      * Opens the drink selection screen for the selected category
@@ -192,7 +180,7 @@ export default function OrderKiosk({ loginInfo }) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
-                'language': t('language')
+                'language': Cookies.get('language') ? Cookies.get('language') : "en"
             },
             body: JSON.stringify({
                 paymentType: orderState.paymentType,
@@ -258,7 +246,7 @@ export default function OrderKiosk({ loginInfo }) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
-                'language': t('language')
+                'language': Cookies.get('language') ? Cookies.get('language') : "en"
             },
             body: JSON.stringify({
                 drinkID: orderState.currentDrinkSelection.drink.id,
@@ -280,7 +268,7 @@ export default function OrderKiosk({ loginInfo }) {
                     ...orderState, orderStep: 0, drinkSelections: [...orderState.drinkSelections, priceUpdater],
                     currentDrinkSelection: {
                         drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
-                    }, drinkAddLoading: false, oldsubtotal_raw: ommerState.subtotal_raw, subtotal: r["subtotal"], subtotal_raw: r["subtotal_raw"]
+                    }, drinkAddLoading: false, oldsubtotal_raw: orderState.subtotal_raw, subtotal: r["subtotal"], subtotal_raw: r["subtotal_raw"]
                 });
                 mainRef.current.scrollTo(0, 0);
             })

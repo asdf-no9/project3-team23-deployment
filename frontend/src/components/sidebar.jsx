@@ -14,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL;
  * @author Antony Quach
  */
 
-export default function Sidebar({ loginInfo, forecast }) {
+export default function Sidebar({ loginInfo, forecast, changeLanguage, isLangDropdownVisible, setLangDropdownVisible }) {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
     const { t } = useTranslation('common');
     const [icon, setIcon] = React.useState('');
@@ -57,7 +57,11 @@ export default function Sidebar({ loginInfo, forecast }) {
 
 
                 {/*Language Drop-down*/}
-                <LanguageSwitcher />
+                <LanguageSwitcher
+                    changeLanguage={changeLanguage}
+                    isLangDropdownVisible={isLangDropdownVisible}
+                    setLangDropdownVisible={setLangDropdownVisible}
+                />
 
                 {/*High-Contrast Toggle*/}
                 <button className="highContrast" onClick={toggleTheme}>
