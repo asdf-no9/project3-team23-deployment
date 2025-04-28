@@ -18,6 +18,7 @@ export default function ManagerStaff() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [isManager, setIsManager] = useState(false);
+    const [password, setPassword] = useState('');
 
     const [selectedRow, setSelectedRow] = useState(null);
 
@@ -63,7 +64,8 @@ export default function ManagerStaff() {
             data = {
                 first_name: firstName,
                 last_name: lastName,
-                is_manager: isManager
+                is_manager: isManager,
+                password: password
             }
         }
         else if (modalMode === 'delete') {
@@ -75,7 +77,7 @@ export default function ManagerStaff() {
 
             const staffID = parseInt(fullName.split(":")[0]);
 
-            if (staffID === null || staffID === undefined || staffID === NaN) {
+            if (staffID === null || staffID === undefined) {
                 console.error("Invalid staff ID: ", fullName);
                 return;
             }
@@ -95,7 +97,7 @@ export default function ManagerStaff() {
 
             const staffID = parseInt(fullName.split(":")[0]);
 
-            if (staffID === null || staffID === undefined || staffID === NaN) {
+            if (staffID === null || staffID === undefined) {
                 console.error("Invalid staff ID: ", fullName);
                 return;
             }
@@ -232,6 +234,17 @@ export default function ManagerStaff() {
                                     minLength={1}
                                     maxLength={50}
                                 />
+                                <label htmlFor="last-name">Password:</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    placeholder='Password'
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    required
+                                    minLength={5}
+                                    maxLength={50}
+                                />
                             </>
                         ) : (
                             <>
@@ -242,7 +255,7 @@ export default function ManagerStaff() {
                                     onChange={e => setFullName(e.target.value)}
                                 >
                                     <option value="">Select name</option>
-                                    {staffList.map((item, idx) => (
+                                    {staffList.map((item) => (
                                         <option key={item.id} value={item.id + ": " + item.first_name + " " + item.last_name}>{item.id + ": " + item.first_name + " " + item.last_name}</option>
                                     ))}
                                 </select>

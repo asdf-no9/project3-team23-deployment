@@ -272,7 +272,7 @@ export default function ManagerMenu() {
                                         />
                                         <datalist id="categories">
                                             {
-                                                categories.map((item, idx) => (
+                                                categories.map((item) => (
                                                     <option value={item}></option>
                                                 ))
                                             }

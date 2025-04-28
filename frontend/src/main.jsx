@@ -27,6 +27,8 @@ import AllergenFilter from "./pages/allergenFilter.jsx";
  * @author Elliot Michlin
  */
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD',
 });
@@ -80,6 +82,9 @@ function Main() {
     Cookies.remove('token');
   }
 
+  const [forecast, setForecast] = useState('');
+  const [rec, setRec] = useState('');
+
   useEffect(() => {
     const token = Cookies.get('token');
     if (token) {
@@ -93,6 +98,24 @@ function Main() {
         })
         .catch(() => logOut());
     }
+
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+
+        const temp = data.temp;
+        setForecast(data.weather + ', ' + temp + '°F');
+        const msg = "";
+        if (temp > 80) {
+          setRec(msg + "It's hot out there! How about a drink to cool you down?");
+        } else if (temp > 70) {
+          setRec(msg + "How about a drink to keep you cool?");
+        } else {
+          setRec(msg + "Want a drink to warm you up?");
+        }
+
+      })
+      .catch(err => console.log(err));
   }, []);
 
   return (
@@ -102,11 +125,11 @@ function Main() {
           <Router>
             <div id="bodysplit">
               <div className='sidebar'>
-                <Sidebar loginInfo={loggedInState} />
+                <Sidebar forecast={forecast} loginInfo={loggedInState} />
               </div>
               <div className='router'>
                 <Routes>
-                  <Route path="/" element={<StartOrder />} />
+                  <Route path="/" element={<StartOrder forecast={forecast} rec={rec} />} />
                   <Route path="/login" element={<Login loginInfo={loggedInState} logIn={(username, manager, id, token) => logIn(username, manager, id, token)} logOut={() => logOut()} />} />
                   <Route path='/order-kiosk/' element={<OrderKiosk loginInfo={loggedInState} />} />
                   <Route path='/manager-inventory' element={<ManagerInventory />} />

@@ -1,17 +1,12 @@
 .sidebarlogocontainer {
   margin-left: 0;
   margin-right: auto;
-  padding-bottom: 20px;
-  display: flex;
+  /* padding-bottom: 20px; */
 }
 
 .sidebarlogocontainer img {
   height: 150px;
   width: auto;
-}
-
-.weathericon {
-  border-radius: 50%;
 }
 
 .sidebarcontent {
@@ -23,7 +18,32 @@
   justify-content: space-between;
   min-width: 260px;
   width: 70%;
+  /* gap: 20px; */
+
   /* overflow-y: auto; */
+}
+
+.weathericon {
+  display: flex;
+  font-size: large;
+  gap: 10px;
+  font-weight: light;
+}
+
+.weathericon div {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.weathericon p {
+  margin: 0;
+}
+
+.weathericon img {
+  height: 50px;
+  width: auto;
+  border: 5px solid white;
+  border-radius: 100%;
 }
 
 /*This is for the accessibility options*/
@@ -40,8 +60,20 @@
   width: 100%;
 }
 
+.middlecontent {
+  /* transition: all 250ms ease-in-out; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  height: 100%;
+  padding-top: 10px;
+  padding-bottom: 20px;
+  margin-left: 5px;
+}
+
 .sidebarusername {
-  margin-top: auto;
+  margin: 0;
   text-align: left;
 }
 
@@ -50,6 +82,8 @@
     margin-left: 0;
     margin-right: 0;
     padding: 0;
+    display: flex;
+    flex-direction: row;
     /* padding-bottom: 20px; */
   }
 
@@ -107,10 +141,21 @@
   .accessibleFeatures hr {
     display: none;
   }
+
+  .weathericon {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .middlecontent {
+    padding: 0;
+    justify-content: start;
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 475px) {
-  .sidebarusername {
+  .middlecontent {
     display: none;
   }
 }

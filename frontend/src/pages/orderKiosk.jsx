@@ -27,7 +27,7 @@ export default function OrderKiosk({ loginInfo }) {
     const mainRef = useRef(null)
     const runBefore = useRef(false);
     const inputRef = useRef(null);
-    const { t, i18n } = useTranslation('common'); //For i18n translation
+    const { t } = useTranslation('common'); //For i18n translation
 
     const [menuState, setMenuState] = useState({ menuLoading: true, categories: {} });
     const [toppingsState, setToppingsState] = useState({ toppingsLoading: true, toppings: [] });
@@ -403,7 +403,15 @@ export default function OrderKiosk({ loginInfo }) {
             const drink = menuState.categories[orderState.selectedCategory][i];
             const selected = orderState.currentDrinkSelection.drink && (orderState.currentDrinkSelection.drink.name == drink.name);
             const disable = !drink["in_stock"];
-            drinkArray.push(<button disabled={selected || disable} onClick={() => interactionChangeDrink(drink)} className={kioskStyles.drinkbuttonitem + ' ' + (disable ? 'black' : selected ? 'darkgray' : 'gray')}>{drink.name + ' (' + (disable ? 'Out of Stock' : drink.price) + ')'}</button>)
+            drinkArray.push(
+                <button
+                    disabled={selected || disable}
+                    onClick={() => interactionChangeDrink(drink)}
+                    className={kioskStyles.drinkbuttonitem + ' ' + (disable ? 'black' : selected ? 'darkgray' : 'gray')}
+                >
+                    {drink.name + ' (' + (disable ? 'Out of Stock' : drink.price) + ')'}{drink.hot ? <i class="fa-solid fa-mug-hot"> </i> : <></>}
+                </button>
+            )
         }
         for (let i = 2; i >= 0; i--) {
             const name = i == 2 ? "Regular Ice" : i == 1 ? "Less Ice" : "No Ice";
@@ -435,7 +443,7 @@ export default function OrderKiosk({ loginInfo }) {
         orderStepHTML =
             <>
                 <div className='headerbar one'>
-                    <h1>orderState.selectedCategory</h1>
+                    <h1>{orderState.selectedCategory}</h1>
                     <hr className='phone' />
                     <button className='darkgray backButton' onClick={() => interactionCancelDrink()}>Back</button>
                     {/* <hr className='phone' /> */}
