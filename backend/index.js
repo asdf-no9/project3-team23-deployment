@@ -1354,7 +1354,6 @@ async function getWeather() {
 }
 getWeather().then();
 setInterval(getWeather, 15 * 60 * 1000);
-console.log(weather_cache.last_icon);
 
 
 app.listen(port, () => {
