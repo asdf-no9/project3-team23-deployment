@@ -96,7 +96,8 @@ export default function OrderKiosk({ loginInfo }) {
         fetch(API_URL + "menu", {
             method: 'GET',
             headers: {
-                'Filter': stored
+                'Filter': stored,
+                'language': t('language')
             }
         })
             .then((response) => response.json())
@@ -106,7 +107,25 @@ export default function OrderKiosk({ loginInfo }) {
             .catch((e) => {
                 console.error(e);
             });
-        fetch(API_URL + "toppings")
+        fetch(API_URL + "toppings", {
+            method: 'GET',
+            headers: {
+                'language': t('language')
+            }
+        })
+            .then((response) => {
+                if (response.status == 401) {
+                    Cookies.remove('token', { path: '/' });
+                    return <Navigate to="/login" />;
+                } else if (response.status == 403) {
+                    return <Navigate to="/forbidden" />;
+                } else if (response.status == 404) {
+                    return <Navigate to="/notfound" />;
+                } else if (response.status == 500) {
+                    return <Navigate to="/servererror" />;
+                }
+        })
+
             .then((response) => response.json())
             .then((r) => {
                 setToppingsState({ ...toppingsState, toppingsLoading: false, toppings: r["toppings"] });
@@ -173,6 +192,7 @@ export default function OrderKiosk({ loginInfo }) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
+                'language': t('language')
             },
             body: JSON.stringify({
                 paymentType: orderState.paymentType,
@@ -238,6 +258,7 @@ export default function OrderKiosk({ loginInfo }) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
+                'language': t('language')
             },
             body: JSON.stringify({
                 drinkID: orderState.currentDrinkSelection.drink.id,
@@ -259,7 +280,7 @@ export default function OrderKiosk({ loginInfo }) {
                     ...orderState, orderStep: 0, drinkSelections: [...orderState.drinkSelections, priceUpdater],
                     currentDrinkSelection: {
                         drink: null, iceLevel: 2, sugarLevel: 1, toppings: [], price_raw: 0
-                    }, drinkAddLoading: false, oldsubtotal_raw: orderState.subtotal_raw, subtotal: r["subtotal"], subtotal_raw: r["subtotal_raw"]
+                    }, drinkAddLoading: false, oldsubtotal_raw: ommerState.subtotal_raw, subtotal: r["subtotal"], subtotal_raw: r["subtotal_raw"]
                 });
                 mainRef.current.scrollTo(0, 0);
             })

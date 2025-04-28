@@ -14,6 +14,8 @@ const admin = require('firebase-admin');
 admin.initializeApp({
     credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_ACC))
 });
+const { translateText } = require('./geminiService');
+const translationCache = {}; //Store translations in a cache or dictionary
 
 const app = express();
 const port = 3000;
@@ -1362,3 +1364,48 @@ console.log(weather_cache.last_icon);
 app.listen(port, () => {
     console.log(`Listening on port at http://localhost:${port}`);
 });
+
+/**
+ * Translates text using Gemini API to target language. Otherwise it returns null.
+ * @param {string} text The desired text to translate.
+ * @param {string} targetLanguage The user's desired language.
+ * @returns {string} The translated text or null if an error occurs.
+*/
+
+app.post('/translate', async (req, res) => {
+    const { text, targetLanguage } = req.body;
+    try {
+        const translatedText = await translateText(text, targetLanguage);
+        res.json({ translatedText });
+    } catch (error) {
+        console.error('Error translating text:', error);
+        res.status(500).json({ error: 'Translation failed' });
+    }
+});
+
+/**
+ * Translates text using Gemini API to the target language, caching results for future use.
+ * @param {string} text The desired text to translate.
+ * @param {string} targetLanguage The user's desired language.
+ * @returns {Promise<string>} TThe translated text or null if an error occurs.
+ */
+async function translate(text, targetLanguage) {
+    if (targetLanguage === 'English') {
+        return text; // No translation needed for English
+    }
+
+    const cacheKey = `${text}-${targetLanguage}`; // Create a unique key for caching
+
+    if (translationCache[cacheKey]) {
+        return translationCache[cacheKey]; // Return cached translation
+    }
+
+    try {
+        const translatedText = await translateText(text, targetLanguage); //Use geminiService.js
+        translationCache[cacheKey] = translatedText; // Store translation in cache
+        return translatedText;
+    } catch (error) {
+        console.error('Error translating text:', error);
+        return text; //Return original text on error
+    }
+}
