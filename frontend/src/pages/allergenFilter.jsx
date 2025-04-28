@@ -6,7 +6,7 @@ import { capitalizeEveryWord } from '../main.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function AllergenFilter() {
+export default function AllergenFilter({ stateLang }) {
     const mainRef = useRef(null);
     const tabRef = useRef(null);
 
@@ -25,7 +25,11 @@ export default function AllergenFilter() {
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         tabRef.current?.focus()
-        fetch(API_URL + 'ingredients')
+        fetch(API_URL + 'ingredients', {
+            headers: {
+                'language': Cookies.get('language') ? Cookies.get('language') : "en"
+            }
+        })
             .then(res => res.json())
             .then(arr => {
                 mainRef.current.scrollTo(0, 0);
@@ -33,7 +37,7 @@ export default function AllergenFilter() {
                 setLoading(false);
             })
             .catch(err => { console.log(err); });
-    }, []);
+    }, [stateLang]);
 
     useEffect(() => {
 
