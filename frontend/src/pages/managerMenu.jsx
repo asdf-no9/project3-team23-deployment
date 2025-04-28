@@ -6,6 +6,13 @@ import { currencyFormatter, capitalizeEveryWord } from '../main';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+/**
+ * Used to display the manager menu
+ * Will be used for adding, deleting, and editing menu itesm
+ * Only accessible by managers
+ * @author Brayden Bailey
+ * @returns ManagerMenu component
+ */
 export default function ManagerMenu() {
 
     const mainRef = useRef(null);
