@@ -11,9 +11,8 @@ const { formatInTimeZone } = require('date-fns-tz');
 
 const fs = require('fs');
 const admin = require('firebase-admin');
-const service_acc = JSON.parse(fs.readFileSync(process.env.FIREBASE_ACC, 'utf8'));
 admin.initializeApp({
-    credential: admin.credential.cert(service_acc)
+    credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_ACC))
 });
 
 const app = express();
@@ -172,12 +171,12 @@ app.post('/login', (req, res) => {
                                 admin.auth().createCustomToken(user_id.toString())
                                     .then(customToken => {
                                         token_cache[customToken] =
-                                            {
-                                                creation_date: new Date().getTime(),
-                                                id: user_id,
-                                                manager: is_manager,
-                                                username: username
-                                            }
+                                        {
+                                            creation_date: new Date().getTime(),
+                                            id: user_id,
+                                            manager: is_manager,
+                                            username: username
+                                        }
                                         res.status(200).send({ success: true, token: customToken, id: user_id, manager: is_manager })
                                     })
                                     .catch(err => {
@@ -299,7 +298,8 @@ app.get('/menu', (req, res) => {
                     id: row["id"],
                     name: row["name"],
                     price: price,
-                    in_stock: row["in_stock"]
+                    in_stock: row["in_stock"],
+                    hot: row["option_hot"] ? true : false,
                 })
             }
 
@@ -558,6 +558,7 @@ app.post('/staff/edit', (req, res) => {
  *      first_name: string,
  *      last_name: string,
  *      is_manager: boolean,
+ *      password: password
  * }
  *
  * RESPONSE:
@@ -569,14 +570,19 @@ app.post('/staff/edit', (req, res) => {
 app.post('/staff/add', (req, res) => {
     if (!auth(req, res, LOGGED_IN_MANAGER)) return;
 
-    let { first_name, last_name, is_manager } = req.body;
+    let { first_name, last_name, is_manager, password } = req.body;
 
-    if (typeof first_name != "string" || typeof is_manager != "boolean" || typeof last_name != "string" || first_name.length < 1 || last_name.length < 1 || first_name.split(" ").length != 1 || last_name.split(" ").length != 1 || first_name.length > 50 || last_name.length > 50) {
+    if (typeof first_name != "string" || typeof password != "string" || typeof is_manager != "boolean" ||
+        typeof last_name != "string" || first_name.length < 1 || last_name.length < 1 ||
+        first_name.split(" ").length != 1 || last_name.split(" ").length != 1 || first_name.length > 50 ||
+        last_name.length > 50 || password.length < 5 || password.length > 50) {
+
         res.status(400).send({ error: "Invalid parameters", success: false });
+
         return;
     }
 
-    pool.query("INSERT INTO employees(first_name, last_name, is_manager) VALUES ($1, $2, $3)", [first_name, last_name, is_manager ? true : false])
+    pool.query("INSERT INTO employees(first_name, last_name, is_manager, acc_pw) VALUES ($1, $2, $3, $4)", [first_name, last_name, is_manager ? true : false, password])
         .then(() => {
             res.status(200).send({ success: true });
         })
@@ -1132,7 +1138,7 @@ app.get('/reports/inventory', (req, res) => {
  * RESPONSE:
  * {
  *      error: error msg (optional),
- *      columns: ["Hour", "Total Orders", "Total Items", "Total Sales"],
+ *      columns: ["Hour", "Total Orders", "Total Items", "Total Tips", "Cash Sales", "Total Sales"],
  *      report: [
  *           [
  *              text,
@@ -1169,11 +1175,13 @@ app.get('/reports/x', (req, res) => {
                     temp[0],
                     temp[1],
                     temp[2],
+                    currencyFormatter.format(temp[4] / 100000),
+                    currencyFormatter.format(temp[5] / 100000),
                     currencyFormatter.format(temp[3] / 100000),
                 ])
             }
 
-            res.status(200).send({ columns: ["Hour", "Total Orders", "Total Items", "Total Sales"], report: report });
+            res.status(200).send({ columns: ["Hour", "Total Orders", "Total Items", "Total Tips", "Cash Sales", "Total Sales"], report: report });
         }).catch((err) => {
             console.log(err);
             res.status(500).send({ error: "Server Error." })
@@ -1228,14 +1236,15 @@ app.get('/reports/z', (req, res) => {
 
 
                     res.status(200).send({
-                        columns: ["Date", "Total Orders", "Total Items Ordered", "Total Sales Gross", "Total Tax Owed", "Total Sales Next"],
+                        columns: ["Date", "Total Orders", "Total Items Ordered", "Total Sales Gross", "Total Tips", "Total Tax Owed", "Total Sales Next"],
                         report: [[
                             getCentralTime(),
                             reportRow[0],
                             reportRow[1],
                             currencyFormatter.format(reportRow[2] / 100000),
                             currencyFormatter.format(reportRow[3] / 100000),
-                            currencyFormatter.format(reportRow[4] / 100000)
+                            currencyFormatter.format(reportRow[4] / 100000),
+                            currencyFormatter.format(reportRow[5] / 100000)
                         ]
                         ]
                     });
@@ -1332,7 +1341,7 @@ async function getWeather() {
     try {
 
         const api_req = await fetch('https://api.weather.gov/gridpoints/HGX/28,135/forecast/hourly', {
-            headers: { 'User-Agent': '(project3-team23.onrender.com, zhanggl@tamu.edu)' }
+            headers: { 'User-Agent': '(project3-team23-deployment.onrender.com, zhanggl@tamu.edu)' }
         });
         const api_data = await api_req.json();
         weather_cache.last_temp = api_data.properties.periods[0].temperature;

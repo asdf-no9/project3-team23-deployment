@@ -93,7 +93,10 @@ export default function Login({ loginInfo, logIn, logOut }) {
                             </> : <></>
                         }
                         <p className={loginStyles.error}>{loginStatus}</p>
-                        <button className='blue' id="submit" type="submit">{!loginInfo.isLoggedIn ? "Sign In" : "Sign Out"}</button>
+                        <button className='blue' id="submit" type="submit">
+                            {!loginInfo.isLoggedIn ?
+                                <><i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In</> :
+                                <><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</>}</button>
                     </form>
                 </div>
             </div>

@@ -28,7 +28,7 @@ const LanguageSwitcher = () => {
         className={styles.language}
         onClick={() => setDropdownVisible(!isDropdownVisible)} //Toggle dropdown visibility
       >
-        {t('sidebar.language')}
+        <i class="fa-solid fa-earth-americas"></i> {t('sidebar.language')}
       </button>
       {isDropdownVisible && (
         /*Dropdown for language selection*/

@@ -14,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL;
  * @author Antony Quach
  */
 
-export default function Sidebar({ loginInfo }) {
+export default function Sidebar({ loginInfo, forecast }) {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
     const { t } = useTranslation('common');
     const [icon, setIcon] = React.useState('');
@@ -32,17 +32,27 @@ export default function Sidebar({ loginInfo }) {
                 <Link to="/" >
                     <img src={logo} alt={t('sidebar.logo_alt')} className="logo" />
                 </Link>
-                <img className={styles.weathericon} src={icon} alt={'weather.icon'}/>
             </div>
-            <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : "Self-Serve Kiosk"}</h2>
+            <div className={styles.middlecontent}>
+                <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : "Self-Serve Kiosk"}</h2>
+                <div className={styles.weathericon}>
+                    <img src={icon} alt={'weather.icon'} />
+                    <div>
+                        <p className={styles.temp}>{forecast.split(", ")[0]}</p>
+                        <p className={styles.temp}>{forecast.split(", ")[1]}</p>
+                    </div>
+                </div>
+
+            </div>
+
             <div className={styles.accessibleFeatures}>
 
                 {loginInfo.manager ? <>
-                    <Link to="/manager-menu"><button className='highContrast'>Edit Menu</button></Link>
-                    <Link to="/manager-inventory"><button className='highContrast'>Inventory</button></Link>
-                    <Link to="/manager-staff"><button className='highContrast'>Manage Staff</button></Link>
-                    <Link to="/manager-reports"><button className='highContrast'>Reports</button></Link>
-                    <hr />
+                    <Link to="/manager-menu"><button className='highContrast'><i class="fa-solid fa-list"></i> Edit Menu</button></Link>
+                    <Link to="/manager-inventory"><button className='highContrast'><i class="fa-solid fa-warehouse"></i> Inventory</button></Link>
+                    <Link to="/manager-staff"><button className='highContrast'><i class="fa-solid fa-clipboard-user"></i> Manage Staff</button></Link>
+                    <Link to="/manager-reports"><button className='highContrast'><i class="fa-solid fa-file"></i> Reports</button></Link>
+                    <hr className='' />
                 </> : <></>}
 
 
@@ -51,14 +61,14 @@ export default function Sidebar({ loginInfo }) {
 
                 {/*High-Contrast Toggle*/}
                 <button className="highContrast" onClick={toggleTheme}>
-                    {isHighContrast ? t('sidebar.disable_high_contrast') : t('sidebar.enable_high_contrast')}
+                    <i class="fa-solid fa-circle-half-stroke"></i>{isHighContrast ? t('sidebar.disable_high_contrast') : t('sidebar.enable_high_contrast')}
                 </button>
 
                 {/*Allergen Filter Button*/}
-                <Link to='/allergen-filter'><button className="highContrast"> Allergen Filter </button></Link>
+                <Link to='/allergen-filter'><button className="highContrast"><i class="fa-solid fa-wheat-awn-circle-exclamation"></i> Allergen Filter </button></Link>
 
                 {/*Login Button*/}
-                <Link to='/login'><button className="highContrast">{!loginInfo.isLoggedIn ? t('sidebar.login') : 'Logout'}</button></Link>
+                <Link to='/login'><button className="highContrast"><i class="fa-solid fa-arrow-right-to-bracket"></i> {!loginInfo.isLoggedIn ? t('sidebar.login') : 'Logout'}</button></Link>
 
             </div>
         </div>

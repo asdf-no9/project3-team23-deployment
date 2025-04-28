@@ -163,7 +163,7 @@ export default function ManagerInventory() {
         loadInventory();
         setDisableButton(false);
     }
-    
+
     return (
         <div className="mainBody" ref={mainRef} id="mainBody">
             <div id='scaler'>
