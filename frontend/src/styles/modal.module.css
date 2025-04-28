@@ -63,12 +63,24 @@
 } */
 
 .modalbody input[type="checkbox"] {
+  /* display: block; */
   transform: scale(2);
-  width: 30px;
+  /* transform-origin: left; */
+
+  margin-right: auto;
+  /* width: 30px; */
   margin-top: 15px;
-  margin-left: 0;
+  width: auto;
+  margin-left: 10px;
+  /* margin-left: 15px; */
   /* margin-bottom: 40px; */
 }
+
+/* .checkboxholder {
+  display: flex;
+  justify-content: start;
+  align-content: start;
+} */
 
 .modalbody button {
   margin-top: 20px;

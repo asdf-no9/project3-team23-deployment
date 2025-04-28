@@ -474,7 +474,7 @@ export default function OrderKiosk({ loginInfo }) {
                 </div >
                 <div className={kioskStyles.drinkgrid}>
                     <div>
-                        <h2>{t('orderKiosk.selectDrink')} <span className='subtext'>({t('orderKiosk.selectDrinkSubtext')}, <i class="fa-solid fa-mug-hot"> </i>: Hot Drink)</span></h2>
+                        <h2>{t('orderKiosk.selectDrink')} <span className='subtext'>({t('orderKiosk.selectDrinkSubtext')}, <i style={{ marginRight: "1px" }} class="fa-solid fa-mug-hot"> </i>: Hot Drink)</span></h2>
                         <div className={kioskStyles.drinkbuttons}>{drinkArray}</div>
                     </div>
                     <div>

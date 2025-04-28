@@ -277,13 +277,15 @@ export default function ManagerMenu() {
                                                 ))
                                             }
                                         </datalist>
-                                        <label htmlFor="item-topping">Hot Item:</label>
-                                        <input
-                                            type="checkbox"
-                                            id="item-hot-item"
-                                            checked={isHotItem}
-                                            onChange={e => setIsHotItem(e.target.checked)}
-                                        />
+                                        <label htmlFor="item-hot-item">Hot Item:</label>
+                                        <div className={styles.checkboxholder}>
+                                            <input
+                                                type="checkbox"
+                                                id="item-hot-item"
+                                                checked={isHotItem}
+                                                onChange={e => setIsHotItem(e.target.checked)}
+                                            />
+                                        </div>
                                         <label htmlFor="ingredients">Ingredients (select all):</label>
                                         <select
                                             multiple

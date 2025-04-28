@@ -153,6 +153,7 @@ button.red {
 button.third,
 button.pink {
   background-color: #f87c7c;
+  color: white;
 }
 
 .headerbar h1 {
