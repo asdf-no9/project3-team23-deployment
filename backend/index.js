@@ -93,7 +93,7 @@ const LOGGED_IN_MANAGER = 2;
  *     "id": int,
  * }
  */
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
 
     let authCode = 0;
     let username = 'Self-Serve Kiosk'
@@ -114,7 +114,7 @@ app.get('/', (req, res) => {
         auth: authCode,
         id: id,
         temp: weather_cache.last_temp,
-        weather: weather_cache.last_weather
+        weather: await translate(weather_cache.last_weather, req.header('Language'))
     }
     res.status(200).send(data);
 });

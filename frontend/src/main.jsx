@@ -148,7 +148,7 @@ function Main() {
 
       })
       .catch(err => console.log(err));
-  }, []);
+  }, [stateLang]);
 
   return (
     <StrictMode>
