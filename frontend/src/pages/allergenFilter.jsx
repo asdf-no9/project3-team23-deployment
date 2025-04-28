@@ -8,6 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export default function AllergenFilter() {
     const mainRef = useRef(null);
+    const tabRef = useRef(null);
 
     let stored = [];
     try {
@@ -23,6 +24,7 @@ export default function AllergenFilter() {
     const [ingredients, setIngredients] = useState([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
+        tabRef.current?.focus()
         fetch(API_URL + 'ingredients')
             .then(res => res.json())
             .then(arr => {
@@ -34,6 +36,7 @@ export default function AllergenFilter() {
     }, []);
 
     useEffect(() => {
+
         Cookies.set('allergens', JSON.stringify(allergens), { expires: 7, path: '/', secure: true, sameSite: 'Strict' });
     }, [allergens]);
 
@@ -64,8 +67,8 @@ export default function AllergenFilter() {
                         </div>
 
                         <hr className='phone' />
-                        <Link to="/order-kiosk">
-                            <button className='darkgray backButton'> Back </button>
+                        <Link ref={tabRef} to="/order-kiosk">
+                            <button tabIndex={-1} className='darkgray backButton'> Back </button>
                         </Link>
                     </div >
                     <div className={css_sheet.optionsgrid}>
