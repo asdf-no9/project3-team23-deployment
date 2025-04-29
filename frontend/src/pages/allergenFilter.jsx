@@ -7,6 +7,14 @@ import { capitalizeEveryWord } from '../main.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+/**
+ * Component render and logic for an allergen filter that users can customize to remove menu items
+ * from the drink selection that contain ingredients they are allergic to/do not wish to consume
+ * @param stateLang     state monitor to trigger refresh on language change
+ * @param backButton    function trigger to switch to homepage
+ * @returns {JSX.Element}   AllergenFilter component HTML to render on webpage
+ * @constructor
+ */
 export default function AllergenFilter({ stateLang, backButton }) {
     // const mainRef = useRef(null);
     const tabRef = useRef(null);
@@ -24,6 +32,10 @@ export default function AllergenFilter({ stateLang, backButton }) {
     const [allergens, setAllergens] = useState(stored);
     const [ingredients, setIngredients] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    /**
+     * Refresh hook on language cookie change
+     */
     useEffect(() => {
         tabRef.current?.focus()
         fetch(API_URL + 'ingredients', {
@@ -40,11 +52,18 @@ export default function AllergenFilter({ stateLang, backButton }) {
             .catch(err => { console.log(err); });
     }, [stateLang]);
 
+    /**
+     * Update cookie hook on allergen selection change
+     */
     useEffect(() => {
 
         Cookies.set('allergens', JSON.stringify(allergens), { expires: 7, path: '/', secure: true, sameSite: 'Strict' });
     }, [allergens]);
 
+    /**
+     * Adds the allergen to the filter on select/removes on unselect
+     * @param ingr  allergen to toggle
+     */
     const toggleAllergen = (ingr) => {
         setAllergens((current) => {
             return current.includes(ingr) ? current.filter((i) => i !== ingr) : [...current, ingr];
