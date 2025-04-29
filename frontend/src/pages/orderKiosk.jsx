@@ -1,11 +1,13 @@
 
 import kioskStyles from '../styles/orderKiosk.module.css'
+import managerStyles from '../styles/managerInventory.module.css'
 import { useState, useEffect, useRef } from 'react'
 import { Link, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
 import Confetti from 'react-confetti'
 import Cookies from 'js-cookie';
 import { useTranslation } from 'react-i18next';
+import AllergenFilter from './allergenFilter';
 
 /**
  * This component renders the main order kiosk screen for the user to select drinks and toppings.
@@ -406,11 +408,14 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
 
         orderStepHTML = (
             <>
-                <div className='headerbar one'>
+                <div className='headerbar'>
                     <h1>{t('orderKiosk.selectCategory')}</h1>
                     <div></div>
                     <hr className='phone' />
-                    <Link to="/"><button ref={catSelectionTabRef} tabIndex={-1} className='darkgray'>{t('startOver')}</button></Link>
+                    <div className={managerStyles.actionbuttons}>
+                        <button onClick={interactionSelectAllergenFilter} className='darkgray'><i className='fa-solid fa-wheat-awn-circle-exclamation'></i>Allergen Filter</button>
+                        <Link to="/"><button ref={catSelectionTabRef} tabIndex={-1} className='darkgray'>Start Over</button></Link>
+                    </div>
                 </div>
                 <div className={kioskStyles.drinkgrid + ' ' + kioskStyles.catgrid}>
                     {loading() ?
@@ -548,7 +553,7 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
                 <h1>{t('Checkout')}</h1>
                 <div></div>
                 <hr className='phone' />
-                <button disabled={loading()} className='darkgray backButton' ref={checkoutTabRef} onClick={() => interactionCancelDrink()}></button>
+                <button disabled={loading()} className='darkgray backButton' ref={checkoutTabRef} onClick={() => interactionCancelDrink()}>{t('orderKiosk.back3')}</button>
             </div>
             <div className={kioskStyles.drinkgrid}>
                 <div>
@@ -606,6 +611,8 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
                 </div>
             </>
         )
+    } else if (orderState.orderStep == 4) {
+        orderStepHTML = <AllergenFilter backButton={interactionCancelDrink} stateLang={stateLang} />
     }
 
     // const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !orderState.drinkAddLoading;
