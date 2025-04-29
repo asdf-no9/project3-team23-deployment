@@ -1,0 +1,29 @@
+SCRUM Meeting 1 Sprint 3 for Project 3
+Meeting Date: 4/18/25
+
+Meeting Attendees
+ - Brayden Bailey
+ - Elliot Michlin
+ - Antony Quach
+ - Luke Zhang
+ 
+Meeting Agenda Items
+- Discuss progress
+- Future Work
+- Any issues or help needed
+
+Status Update Since Last Meeting
+Accomplishments:
+- Side bar updates
+- Language support for sidebar
+
+Befere The Next Meeting
+Plans:
+- Get layout for manager inventory, menu, and staff
+- Figure out plan for user auth
+
+Task Assignments:
+- Start Manager Inventory - Brayden
+- Continue working with Gemeni API
+- Research Fireabase auth - Luke
+- Login page - Elliot
