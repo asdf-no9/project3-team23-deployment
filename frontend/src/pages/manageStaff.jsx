@@ -5,6 +5,12 @@ import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+/**
+ * The staff list manager with manager users
+ * Gives managers access to adding, deleting, and editing staff 
+ * Also displays last login time for each staff member
+ * @returns The React component storing the table and buttons
+ */
 export default function ManagerStaff() {
 
     const mainRef = useRef(null);
@@ -27,6 +33,9 @@ export default function ManagerStaff() {
         loadStaffList();
     }, [])
 
+    /**
+     * Loads staff information from the API and displays it in an HTML table 
+     */
     const loadStaffList = () => {
         setLoading(true);
         fetch(API_URL + 'staff/get', {
@@ -42,6 +51,9 @@ export default function ManagerStaff() {
             .finally(() => setLoading(false))
     }
 
+    /**
+     * Closes the modal
+     */
     const closeModal = () => {
         setModalMode('');
         setFullName('');
@@ -140,12 +152,18 @@ export default function ManagerStaff() {
         }
     }
 
+    /**
+     * Opens the add modal
+     */
     const addItem = () => {
         setDisableButton(true);
         setModalMode("add");
         setDisableButton(false);
     }
 
+    /**
+     * Opens the delete modal
+     */
     const deleteItem = () => {
 
         setDisableButton(true);
@@ -153,6 +171,9 @@ export default function ManagerStaff() {
         setDisableButton(false);
     }
 
+    /**
+     * Opens the edit modal
+     */
     const editItem = () => {
 
         setDisableButton(true);

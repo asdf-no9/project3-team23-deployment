@@ -380,6 +380,9 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
         changeOrderState({ ...orderState, paymentType: type })
     }
 
+    /**
+     * Opens the allergen filter menu
+     */
     const interactionSelectAllergenFilter = () => {
         changeOrderState({ ...orderState, orderStep: 4 })
     }

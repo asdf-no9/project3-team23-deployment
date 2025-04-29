@@ -6,6 +6,11 @@ import { getCentralTime } from '../main';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+/**
+ * Gives a manager access to reports on sales and inventory information
+ * @author Elliot Michlin
+ * @returns The react page giving the option for a manager to view the inventory, x, and z-reports.
+ */
 export default function ManagerReports() {
 
     const mainRef = useRef(null);
@@ -26,15 +31,25 @@ export default function ManagerReports() {
         mainRef.current.scrollTo(0, 0);
     }, [])
 
+    /**
+     * Opens the model to set the inventory report to and from dates
+     */
     const openInventoryModal = () => {
         if (loading) return;
         setModalMode('inventory');
     }
 
+    /**
+     * Closes the modal
+     */
     const closeModal = () => {
         setModalMode('');
     }
 
+    /**
+     * Runs the inventory report with the API and stores it in state
+     * @param {*} e 
+     */
     const runInventoryReport = (e) => {
         e.preventDefault();
         if (loading) return;
@@ -70,6 +85,10 @@ export default function ManagerReports() {
             .finally(() => setLoading(false))
     }
 
+    /**
+     * Runs the x-report with the API and stores it in state as the current report
+     * @returns 
+     */
     const runXReport = () => {
         if (loading) return;
         setLoading(true);
@@ -103,6 +122,10 @@ export default function ManagerReports() {
             .finally(() => setLoading(false))
     }
 
+    /**
+     * Runs the z-report with the API and stores it in reports
+     * @returns 
+     */
     const runZReport = () => {
         if (loading) return;
         setLoading(true);

@@ -34,6 +34,9 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD',
 });
 
+/**
+ * @returns The current time in central time in YYYY-MM-DD format
+ */
 const getCentralTime = () => {
   const date = new Date();
   return formatInTimeZone(date, 'America/Chicago', 'yyyy-MM-dd');
@@ -67,6 +70,14 @@ function Main() {
     id: -1,
   });
 
+  /**
+   * Logs the user in locally
+   * @param {*} username - The first + last name of the user, separated by a space
+   * @param {*} manager If the user is a manager or not (token is auth'd at an API-level, 
+   * so manipulation changes nothing)
+   * @param {*} id The id of the user
+   * @param {*} token The token for authenticating with
+   */
   const logIn = (username, manager, id, token) => {
     setLoggedInState({
       isLoggedIn: true,
@@ -79,6 +90,9 @@ function Main() {
     Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'Strict' });
   }
 
+  /**
+   * Logs the user out locally
+   */
   const logOut = () => {
     setLoggedInState({
       isLoggedIn: false,
