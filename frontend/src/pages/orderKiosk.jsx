@@ -605,10 +605,10 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
             <>
                 <Confetti style={{ maxHeight: '100%', maxWidth: '100%' }} width={window.innerWidth} height={window.innerHeight} numberOfPieces={300} recycle={false} initialVelocityY={10} gravity={0.2} initialVelocityX={5} tweenDuration={2000} run={true} onConfettiComplete={(confetti) => confetti.reset()} />
                 <div className={kioskStyles.completedscreen}>
-                    <h1>Thank You!</h1>
-                    <p>Your order is complete.</p>
+                    <h1>{t('orderKiosk.thankYou')}</h1>  {/*Thank You!*/}
+                    <p>{t('orderKiosk.orderComplete')}</p>  {/*Your order is complete.*/}
                     {/*<Link to='rate-order'><button className='blue'>Rate Your Order!</button></Link>*/}
-                    <Link to="/"><button className='blue'>Start Another Order</button></Link>
+                    <Link to="/"><button className='blue'>{t('orderKiosk.startNewOrder')}</button></Link>
                 </div>
             </>
         )
