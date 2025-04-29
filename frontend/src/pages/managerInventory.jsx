@@ -9,8 +9,8 @@ const API_URL = import.meta.env.VITE_API_URL;
  * Used to display the manager inventory
  * Will be used for adding, deleting, and editing inventory itesm
  * Only accessible by managers
- * @returns ManagerInventory component
  * @author Brayden Bailey
+ * @returns ManagerInventory component
  */
 export default function ManagerInventory() {
 

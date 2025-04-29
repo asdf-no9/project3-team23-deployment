@@ -14,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL;
  * @author Antony Quach
  */
 
-export default function Sidebar({ loginInfo, forecast }) {
+export default function Sidebar({ loginInfo, forecast, changeLanguage, isLangDropdownVisible, setLangDropdownVisible }) {
     const { isHighContrast, toggleTheme } = useHighContrast(); //Correct hook usage
     const { t } = useTranslation('common');
     const [icon, setIcon] = React.useState('');
@@ -57,7 +57,11 @@ export default function Sidebar({ loginInfo, forecast }) {
 
 
                 {/*Language Drop-down*/}
-                <LanguageSwitcher />
+                <LanguageSwitcher
+                    changeLanguage={changeLanguage}
+                    isLangDropdownVisible={isLangDropdownVisible}
+                    setLangDropdownVisible={setLangDropdownVisible}
+                />
 
                 {/*High-Contrast Toggle*/}
                 <button className="highContrast" onClick={toggleTheme}>
@@ -65,7 +69,7 @@ export default function Sidebar({ loginInfo, forecast }) {
                 </button>
 
                 {/*Allergen Filter Button*/}
-                <Link to='/allergen-filter'><button tabIndex="-1" className="highContrast"><i class="fa-solid fa-wheat-awn-circle-exclamation"></i> Allergen Filter </button></Link>
+                {/* <Link to='/allergen-filter'><button tabIndex="-1" className="highContrast"><i class="fa-solid fa-wheat-awn-circle-exclamation"></i> Allergen Filter </button></Link> */}
 
                 {/*Login Button*/}
                 <Link to='/login'><button tabIndex="-1" className="highContrast"><i class="fa-solid fa-arrow-right-to-bracket"></i> {!loginInfo.isLoggedIn ? t('sidebar.login') : 'Logout'}</button></Link>
