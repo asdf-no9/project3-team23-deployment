@@ -1,13 +1,13 @@
 {
   "sidebar": {
     "language": "Idioma",
-    "disable_high_contrast": "Alto contraste",
-    "enable_high_contrast": "Alto contraste",
+    "disable_high_contrast": "Desactivar Alto Contraste",
+    "enable_high_contrast": "Activar Alto Contraste",
     "login": "Iniciar sesión",
     "logo_alt": "Logotipo de Sharetea"
   },
   "language": {
-    "english": "English",
+    "english": "Inglés",
     "spanish": "Español"
   },
   "orderKiosk": {
@@ -22,19 +22,40 @@
     "selectPayment": "Seleccione su tipo de pago.",
     "thankYou": "¡Gracias!",
     "orderComplete": "Su pedido está completo.",
-    "emptyOrder": "Orden vacía",
+    "emptyOrder": "Orden vacío",
     "selectDrinkHeader": "Seleccionar Bebida",
     "iceLevelHeader": "Nivel de Hielo",
     "sugarLevelHeader": "Nivel de Azúcar",
     "toppingsHeader": "Toppings",
     "selectDrinkSubtext": "Requerido",
-    "toppingsSubtext": "($0.75 cada uno, creama $1.00)"
+    "toppingsSubtext": "($0.75 cada uno, creama $1.00)",
+    "regularIce": "Hielo Regular",
+    "lessIce": "Menos Hielo",
+    "noIce": "Sin Hielo",
+    "addToOrder": "Añadir al Pedido",
+    "hotDrink": "Bebida Caliente",
+    "payAndCompleteOrder": "Pagar y Completar el Pedido",
+    "other": "Otro",
+    "creditCard": "Tarjeta de Crédito",
+    "cash": "Efectivo",
+    "subtotal": "Subtotal",
+    "tax": "Impuesto",
+    "tip": "Propina",
+    "total": "Total",
+    "wouldYouLikeToLeaveATip": "¿Le gustaría dejar una propina?",
+    "back": "Atrás",
+    "hotDrink": "Bebida Caliente"
   },
   "categories": {
     "drinks": "Bebidas",
-    "brewed_tea": "Té Preparado",
-    "milk_tea": "Té con Leche",
-    "fruit_tea": "Té de Frutas"
+    "brewed tea": "Té Preparado",
+    "milk tea": "Té con Leche",
+    "fruit tea": "Té de Frutas"
   },
-  "currentlang": "Español"
+  "currentlang": "Español",
+  "allergenFilter": "Filtro de Alérgenos",
+  "startOver": "Empezar de Nuevo",
+  "currentOrder": "Pedido Actual",
+  "emptyOrder": "Orden vacío.",
+  "selfServeKiosk": "Kiosco de Autoservicio"
 }
