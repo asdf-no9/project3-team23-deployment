@@ -26,6 +26,7 @@
   align-items: center;
   padding: 16px;
   border-bottom: 1px solid #eee;
+  color: black;
 }
 
 .modalheader h2 {
@@ -47,6 +48,7 @@
 }
 
 .modalbody label {
+  color: black;
   display: block;
 }
 

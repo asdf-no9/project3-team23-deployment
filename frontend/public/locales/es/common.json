@@ -27,7 +27,7 @@
     "iceLevelHeader": "Nivel de Hielo",
     "sugarLevelHeader": "Nivel de Azúcar",
     "toppingsHeader": "Toppings",
-    "selectDrinkSubtext": "(Requerido)",
+    "selectDrinkSubtext": "Requerido",
     "toppingsSubtext": "($0.75 cada uno, creama $1.00)"
   },
   "categories": {
@@ -35,5 +35,6 @@
     "brewed_tea": "Té Preparado",
     "milk_tea": "Té con Leche",
     "fruit_tea": "Té de Frutas"
-  }
+  },
+  "currentlang": "Español"
 }

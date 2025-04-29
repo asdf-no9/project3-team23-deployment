@@ -1,11 +1,13 @@
 
 import kioskStyles from '../styles/orderKiosk.module.css'
+import managerStyles from '../styles/managerInventory.module.css'
 import { useState, useEffect, useRef } from 'react'
 import { Link, Navigate } from 'react-router';
 import { currencyFormatter } from '../main';
 import Confetti from 'react-confetti'
 import Cookies from 'js-cookie';
 import { useTranslation } from 'react-i18next';
+import AllergenFilter from './allergenFilter';
 
 /**
  * This component renders the main order kiosk screen for the user to select drinks and toppings.
@@ -21,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function OrderKiosk({ loginInfo }) {
+export default function OrderKiosk({ loginInfo, stateLang }) {
     // const { category } = useParams();
 
     const mainRef = useRef(null);
@@ -68,8 +70,8 @@ export default function OrderKiosk({ loginInfo }) {
      * Handles one-time initial API calls including downloading the menu, downloading the toppings list, and creating a new order ID
      */
     useEffect(() => {
-        if (runBefore.current) return;
-        runBefore.current = true;
+        // if (runBefore.current) return;
+        // runBefore.current = true;
 
         fetch(API_URL + "order/start", {
             method: 'POST',
@@ -96,7 +98,8 @@ export default function OrderKiosk({ loginInfo }) {
         fetch(API_URL + "menu", {
             method: 'GET',
             headers: {
-                'Filter': stored
+                'Filter': stored,
+                'language': Cookies.get('language') ? Cookies.get('language') : "en"
             }
         })
             .then((response) => response.json())
@@ -106,7 +109,13 @@ export default function OrderKiosk({ loginInfo }) {
             .catch((e) => {
                 console.error(e);
             });
-        fetch(API_URL + "toppings")
+
+        fetch(API_URL + "toppings", {
+            method: 'GET',
+            headers: {
+                'language': Cookies.get('language') ? Cookies.get('language') : "en"
+            }
+        })
             .then((response) => response.json())
             .then((r) => {
                 setToppingsState({ ...toppingsState, toppingsLoading: false, toppings: r["toppings"] });
@@ -114,7 +123,8 @@ export default function OrderKiosk({ loginInfo }) {
             .catch((e) => {
                 console.error(e);
             });
-    }, []);
+    }, [stateLang]);
+
 
     /**
      * Opens the drink selection screen for the selected category
@@ -173,6 +183,7 @@ export default function OrderKiosk({ loginInfo }) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
+                'language': Cookies.get('language') ? Cookies.get('language') : "en"
             },
             body: JSON.stringify({
                 paymentType: orderState.paymentType,
@@ -238,6 +249,7 @@ export default function OrderKiosk({ loginInfo }) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': Cookies.get('token') ? 'Bearer ' + Cookies.get('token') : '',
+                'language': Cookies.get('language') ? Cookies.get('language') : "en"
             },
             body: JSON.stringify({
                 drinkID: orderState.currentDrinkSelection.drink.id,
@@ -368,6 +380,10 @@ export default function OrderKiosk({ loginInfo }) {
         changeOrderState({ ...orderState, paymentType: type })
     }
 
+    const interactionSelectAllergenFilter = () => {
+        changeOrderState({ ...orderState, orderStep: 4 })
+    }
+
     const itemList = [];
 
     for (let item in orderState.drinkSelections) {
@@ -390,12 +406,15 @@ export default function OrderKiosk({ loginInfo }) {
 
         orderStepHTML = (
             <>
-                <div className='headerbar one'>
+                <div className='headerbar'>
                     <h1>{t('orderKiosk.selectCategory')}</h1>
                     <div></div>
                     <hr className='phone' />
-                    <Link to="/"><button ref={catSelectionTabRef} tabIndex={-1} className='darkgray'>Start Over</button></Link>
-                </div>
+                    <div className={managerStyles.actionbuttons}>
+                        <button onClick={interactionSelectAllergenFilter} className='darkgray'><i className='fa-solid fa-wheat-awn-circle-exclamation'></i>Allergen Filter</button>
+                        <Link to="/"><button ref={catSelectionTabRef} tabIndex={-1} className='darkgray'>Start Over</button></Link>
+                    </div>
+                </div >
                 <div className={kioskStyles.drinkgrid + ' ' + kioskStyles.catgrid}>
                     {loading() ?
                         <p className='centeralign'>Loading...</p> :
@@ -590,6 +609,8 @@ export default function OrderKiosk({ loginInfo }) {
                 </div>
             </>
         )
+    } else if (orderState.orderStep == 4) {
+        orderStepHTML = <AllergenFilter stateLang={stateLang} backButton={interactionCancelDrink} />
     }
 
     // const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !orderState.drinkAddLoading;

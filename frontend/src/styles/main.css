@@ -10,6 +10,20 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --background-yellow: #f87c7c;
+  --text-black: white;
+  --text-hidden: lightgray;
+  --background-black: white;
+  --text-white: black;
+}
+
+[data-theme="hc"] {
+  --background-yellow: yellow;
+  --text-black: black;
+  --text-hidden: black;
+  --background-black: black;
+  --text-white: white;
 }
 
 .sidebar {
@@ -157,11 +171,13 @@ button.pink {
 }
 
 .headerbar h1 {
+  color: var(--text-white);
   margin-left: 30px;
   font-size: xx-large;
 }
 
 .headerbar h2 {
+  color: var(--text-white);
   margin-left: 30px;
 }
 
@@ -262,6 +278,42 @@ body.high-contrast .backButton {
   color: white;
 }
 
+/* body.high-contrast ._subtotal_7v7nq_41 {
+  background-color: yellow;
+  color: black; 
+}
+
+body.high-contrast ._inputbutton_7v7nq_349 input {
+  color: black;
+}
+
+body.high-contrast ._middlecontent_17at7_125, h2.h3._sidebarusername_17at7_149 {
+  color: black;
+  font-weight: bold;
+}
+
+body.high-contrast ._itemlist_7v7nq_69 {
+  background-color: black;
+  color: white;
+}
+
+body.high-contrast ._itemlist_7v7nq_69 ol li {
+  background-color: black;
+} */
+
+body.high-contrast .fa-mug-hot {
+  color: white;
+}
+
+body.high-contrast button.darkgray .fa-mug-hot {
+  color: black;
+}
+
+body.high-contrast div.headerbar button.darkgray {
+  background-color: black;
+  color: white;
+}
+
 .subtext {
   /* font-weight: normal; */
   font-size: medium;
@@ -347,6 +399,12 @@ hr {
     max-width: 80%;
     margin-left: auto;
     margin-right: auto;
+    /* margin-top: 30px; */
+  }
+
+  .headerbar:not(.one) a {
+    margin: 0;
+    width: auto;
     /* margin-top: 30px; */
   }
 

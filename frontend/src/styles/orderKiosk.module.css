@@ -23,7 +23,7 @@
   width: 20vw;
   max-width: 400px;
   height: 100vh;
-  background-color: #f87c7c;
+  background-color: var(--background-yellow);
   display: flex;
   flex-direction: column;
   padding-left: 20px;
@@ -34,7 +34,8 @@
 
 .itemlist {
   color: black;
-  background-color: white;
+  background-color: var(--background-black);
+  color: var(--text-white);
   height: 100%;
   margin-top: 20px;
   margin-bottom: 20px;
@@ -62,8 +63,16 @@
   font-weight: 500;
 }
 
+[data-theme="hc"] ol li {
+  background-color: black;
+}
+
 .itemlist ol li:hover {
   background-color: lightblue;
+}
+
+[data-theme="hc"] ol li:hover {
+  background-color: black;
 }
 
 .drinkgrid {
@@ -236,6 +245,14 @@ button.tips {
 
 .inputbutton input::placeholder {
   color: lightgray;
+}
+
+[data-theme="hc"] .inputbutton input::placeholder {
+  color: rgb(0, 0, 0, 0);
+}
+
+[data-theme="hc"] .inputbutton input {
+  color: var(--text-black);
 }
 
 .inputbutton.visible input {
