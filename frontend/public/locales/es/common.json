@@ -45,7 +45,13 @@
     "total": "Total",
     "wouldYouLikeToLeaveATip": "¿Le gustaría dejar una propina?",
     "back": "Atrás",
-    "hotDrink": "Bebida Caliente"
+    "hotDrink": "Bebida Caliente",
+    "loading": "Cargando...",
+    "allergenFilter": "Filtro de alérgenos",
+    "editAllergenFilter": "Editar filtro de alérgenos",
+    "selectAllAlergicTo": "Selecciona todos los ingredientes a los que eres alérgico:",
+    "applyAndRestart": "Aplicar y reiniciar",
+    "startOver": "Empezar de nuevo"
   },
   "categories": {
     "drinks": "Bebidas",

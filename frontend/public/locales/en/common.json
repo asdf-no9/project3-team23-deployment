@@ -45,7 +45,13 @@
     "total": "Total",
     "wouldYouLikeToLeaveATip": "Would you like to leave a tip?",
     "back": "Back",
-    "hotDrink": "Hot Drink"
+    "hotDrink": "Hot Drink",
+    "loading": "Loading...",
+    "allergenFilter": "Allergen Filter",
+    "editAllergenFilter": "Edit Allergen Filter",
+    "selectAllAlergicTo": "Select all the ingredients you're allergic to:",
+    "applyAndRestart": "Apply & Restart",
+    "startOver": "Start Over"
   },
   "categories": {
     "drinks": "Drinks",

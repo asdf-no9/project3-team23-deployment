@@ -413,8 +413,8 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
                     <div></div>
                     <hr className='phone' />
                     <div className={managerStyles.actionbuttons}>
-                        <button onClick={interactionSelectAllergenFilter} className='darkgray'><i className='fa-solid fa-wheat-awn-circle-exclamation'></i>Allergen Filter</button>
-                        <Link to="/"><button ref={catSelectionTabRef} tabIndex={-1} className='darkgray'>Start Over</button></Link>
+                        <button onClick={interactionSelectAllergenFilter} className='darkgray'><i className='fa-solid fa-wheat-awn-circle-exclamation'></i>{t('orderKiosk.allergenFilter')}</button>
+                        <Link to="/"><button ref={catSelectionTabRef} tabIndex={-1} className='darkgray'>{t('orderKiosk.startOver')}</button></Link>
                     </div>
                 </div>
                 <div className={kioskStyles.drinkgrid + ' ' + kioskStyles.catgrid}>

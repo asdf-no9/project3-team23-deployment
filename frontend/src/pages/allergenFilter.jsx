@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { capitalizeEveryWord } from '../main.jsx';
+import { useTranslation } from 'react-i18next';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -18,7 +19,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export default function AllergenFilter({ stateLang, backButton }) {
     // const mainRef = useRef(null);
     const tabRef = useRef(null);
-
+    const { t } = useTranslation('common'); //For i18n translation
     let stored = [];
     try {
         if (Cookies.get('allergens')) {
@@ -87,20 +88,20 @@ export default function AllergenFilter({ stateLang, backButton }) {
         <>
             <div className='headerbar'>
                 <div>
-                    <h1> Edit Allergen Filter</h1>
-                    <h2 className='h3 subtext'> Select all the ingredients you're allergic to: </h2>
+                    <h1> {t('orderKiosk.editAllergenFilter')}</h1>
+                    <h2 className='h3 subtext'> {t('orderKiosk.selectAllAlergicTo')} </h2>
                 </div>
 
                 <hr className='phone' />
                 <div></div>
                 <div className={manager_style.actionbuttons}>
-                    <Link to="/"><button tabIndex={-1} className='blue'> Apply & Restart </button></Link>
-                    <button onClick={backButton} className='darkgray'> Back </button>
+                    <Link to="/"><button tabIndex={-1} className='blue'> {t('orderKiosk.applyAndRestart')} </button></Link>
+                    <button onClick={backButton} className='darkgray'> {t('orderKiosk.back')} </button>
                 </div>
             </div >
             <div className={css_sheet.optionsgrid}>
                 <div> {
-                    loading ? <p className='centeralign'> Loading... </p> :
+                    loading ? <p className='centeralign'> {t('orderKiosk.loading')} </p> :
                         <div className={'spacer ' + css_sheet.optionbuttons}> {ingredientButtons} </div>
                 } </div>
             </div>
