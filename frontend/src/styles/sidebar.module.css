@@ -9,6 +9,10 @@
   width: auto;
 }
 
+[data-theme="hc"] .sidebarlogocontainer img {
+  filter: invert(1);
+}
+
 .sidebarcontent {
   padding: 20px;
   display: flex;
@@ -18,6 +22,7 @@
   justify-content: space-between;
   min-width: 260px;
   width: 70%;
+  color: var(--text-black);
   /* gap: 20px; */
 
   /* overflow-y: auto; */
@@ -28,6 +33,11 @@
   font-size: large;
   gap: 10px;
   font-weight: light;
+}
+
+[data-theme="hc"] .weathericon,
+[data-theme="hc"] .sidebarusername {
+  font-weight: bold;
 }
 
 .weathericon div {
@@ -42,7 +52,7 @@
 .weathericon img {
   height: 50px;
   width: auto;
-  border: 5px solid white;
+  border: 5px solid var(--text-black);
   border-radius: 100%;
 }
 

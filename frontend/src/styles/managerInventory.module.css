@@ -1,7 +1,6 @@
 .page {
   padding: 16px;
   height: 100vh;
-  background-color: white;
   color: black;
   overflow-y: hidden;
   display: flex;

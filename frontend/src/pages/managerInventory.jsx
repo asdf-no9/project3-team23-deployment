@@ -7,7 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 /**
  * Used to display the manager inventory
- * Will be used for adding, deleting, and editing inventory itesm
+ * Used for adding, deleting, and editing inventory itesm
  * Only accessible by managers
  * @author Brayden Bailey
  * @returns ManagerInventory component
@@ -33,6 +33,10 @@ export default function ManagerInventory() {
         loadInventory();
     }, [])
 
+    /**
+     * Queries the API for the inventory information from the database, 
+     * and loads it straight into the table html element
+     */
     const loadInventory = () => {
         setLoading(true);
         fetch(API_URL + 'inventory', {
@@ -48,6 +52,9 @@ export default function ManagerInventory() {
             .finally(() => setLoading(false))
     }
 
+    /**
+     * Closes the modal when adding, editing, or deleting an item
+     */
     const closeModal = () => {
         setModalMode('');
         setItemName('');
@@ -121,12 +128,18 @@ export default function ManagerInventory() {
         }
     }
 
+    /**
+     * Inits the add item modal
+     */
     const addItem = () => {
         setDisableButton(true);
         setModalMode("add");
         setDisableButton(false);
     }
 
+    /**
+     * inits the delete item modal
+     */
     const deleteItem = () => {
 
         setDisableButton(true);
@@ -134,6 +147,9 @@ export default function ManagerInventory() {
         setDisableButton(false);
     }
 
+    /**
+     * inits the edit item modal
+     */
     const editItem = () => {
 
         setDisableButton(true);
@@ -141,6 +157,9 @@ export default function ManagerInventory() {
         setDisableButton(false);
     }
 
+    /**
+     * Refreshes the fill rate column with newer information. This is intensive, so it should be run sparingly. 
+     */
     const runFillRate = () => {
         setDisableButton(true);
 

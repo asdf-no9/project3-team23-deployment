@@ -22,6 +22,7 @@
     "selectPayment": "Select your payment type.",
     "thankYou": "Thank You!",
     "orderComplete": "Your order is complete.",
+    "startNewOrder": "Start Another Order",
     "emptyOrder": "Empty order",
     "selectDrinkHeader": "Select Drink",
     "iceLevelHeader": "Ice Level",
