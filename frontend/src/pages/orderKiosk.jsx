@@ -550,7 +550,7 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
 
         orderStepHTML = <>
             <div className='headerbar one'>
-                <h1>{t('Checkout')}</h1>
+                <h1>{t('orderKiosk.checkout')}</h1>
                 <div></div>
                 <hr className='phone' />
                 <button disabled={loading()} className='darkgray backButton' ref={checkoutTabRef} onClick={() => interactionCancelDrink()}>{t('orderKiosk.back3')}</button>
