@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 /**
  * Used to display the manager menu
- * Will be used for adding, deleting, and editing menu itesm
+ * Used for adding, deleting, and editing menu itesm
  * Only accessible by managers
  * @author Brayden Bailey
  * @returns ManagerMenu component
@@ -37,6 +37,9 @@ export default function ManagerMenu() {
         loadMenu();
     }, [])
 
+    /**
+     * Loads menu information from the database. Is displayed directly into an HTML table.
+     */
     const loadMenu = () => {
         setLoading(true);
         fetch(API_URL + 'menu/get', {
@@ -70,6 +73,9 @@ export default function ManagerMenu() {
             })
     }
 
+    /**
+     * Closes the modal
+     */
     const closeModal = () => {
         setModalMode('');
         setItemName('');
@@ -145,24 +151,38 @@ export default function ManagerMenu() {
         }
     }
 
+    /**
+     * Inits the add item modal
+     */
     const addItem = () => {
         setDisableButton(true);
         setModalMode("add");
         setDisableButton(false);
     }
 
+    /**
+     * Inits the delete item modal
+     */
     const deleteItem = () => {
         setDisableButton(true);
         setModalMode("delete");
         setDisableButton(false);
     }
 
+    /**
+     * Inits the edit item modal
+     */
     const editItem = () => {
         setDisableButton(true);
         setModalMode("edit");
         setDisableButton(false);
     }
 
+    /**
+     * Handles the multi-select field for ingrediants when adding a new drink
+     * This stores all the current ingrediant choices in the state
+     * @param {*} e 
+     */
     const handleSelectChange = (e) => {
         const options = e.target.options;
         const list = [];
