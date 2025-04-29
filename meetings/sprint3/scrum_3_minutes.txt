@@ -1,1 +1,33 @@
+SCRUM Meeting 3 Sprint 3 for Project 3
+Meeting Date: 4/25/25
 
+Meeting Attendees
+ - Brayden Bailey
+ - Elliot Michlin
+ - Antony Quach
+ - Luke Zhang
+ 
+Meeting Agenda Items
+- Discuss progress
+- Remaining tasks
+- Deployment
+
+Status Update Since Last Meeting
+Accomplishments:
+- Gemini API implemented
+- UI updated
+- css revamped
+- all APIs chosen and implemented
+
+Befere The Next Meeting
+Plans:
+- Finish Gemini API translation
+- Firebase auth
+- Implement allergen filter
+
+Task Assignments:
+- Finish up high-contrast mode
+- Manager pages
+- Start working on tip support
+- Finish up i18next coverage for remaining texts
+- Allergen filter
