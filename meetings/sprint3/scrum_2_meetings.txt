@@ -1,1 +1,32 @@
+SCRUM Meeting 2 Sprint 3 for Project 3
+Meeting Date: 4/23/25
 
+Meeting Attendees
+ - Brayden Bailey
+ - Elliot Michlin
+ - Antony Quach
+ - Luke Zhang
+ 
+Meeting Agenda Items
+- Discuss progress
+- Future Work
+- Any issues or help needed
+
+Status Update Since Last Meeting
+Accomplishments:
+- Manager inventory page layout complete
+- 
+
+Befere The Next Meeting
+Plans:
+- Finish manager inventory page
+- Start manager menu page
+- Firebase user auth
+- Weather auth
+- Reports
+
+Task Assignments:
+- Finish firebase auth - Luke
+- Finish Gemeni translation - Antony
+- Finish manger inventory - Brayden
+- Start Reports - Elliot
