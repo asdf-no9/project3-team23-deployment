@@ -171,11 +171,13 @@ button.pink {
 }
 
 .headerbar h1 {
+  color: var(--text-white);
   margin-left: 30px;
   font-size: xx-large;
 }
 
 .headerbar h2 {
+  color: var(--text-white);
   margin-left: 30px;
 }
 
