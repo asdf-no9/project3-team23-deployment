@@ -125,7 +125,6 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
             });
     }, [stateLang]);
 
-
     /**
      * Opens the drink selection screen for the selected category
      * @param {*} name - the name of the selected category
@@ -399,7 +398,7 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
     if (orderState.orderStep == 0) {
 
         const enableCheckout = orderState.drinkSelections.length > 0 && orderState.orderStep != 2 && !loading();
-        const checkoutText = orderState.orderStep == 2 ? "Pending..." : (loading()) ? "Loading..." : ("Checkout: " + orderState.subtotal)
+        const checkoutText = orderState.orderStep == 2 ? "Pending..." : (loading()) ? "Loading..." : t('orderKiosk.checkout')
 
         const categoryButtons = [];
         for (let i in menuState.categories) {
@@ -417,7 +416,7 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
                         <button onClick={interactionSelectAllergenFilter} className='darkgray'><i className='fa-solid fa-wheat-awn-circle-exclamation'></i>Allergen Filter</button>
                         <Link to="/"><button ref={catSelectionTabRef} tabIndex={-1} className='darkgray'>Start Over</button></Link>
                     </div>
-                </div >
+                </div>
                 <div className={kioskStyles.drinkgrid + ' ' + kioskStyles.catgrid}>
                     {loading() ?
                         <p className='centeralign'>Loading...</p> :
@@ -459,7 +458,7 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
             )
         }
         for (let i = 2; i >= 0; i--) {
-            const name = i == 2 ? "Regular Ice" : i == 1 ? "Less Ice" : "No Ice";
+            const name = i == 2 ? t('orderKiosk.regularIce') : i == 1 ? t('orderKiosk.lessIce') : t('orderKiosk.noIce');
             const selected = orderState.currentDrinkSelection.iceLevel == i;
             iceArray.push(<button disabled={selected} onClick={() => interactionChangeIceLevel(i)} className={kioskStyles.drinkbuttonitem + ' ' + (selected ? 'darkgray' : 'gray')}>{name}</button>)
         }
@@ -483,20 +482,20 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
         }
 
         const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !loading();
-        const addButtonText = loading() ? "Loading..." : "Add to Order +";
+        const addButtonText = loading() ? "Loading..." : t('orderKiosk.addToOrder');
 
         orderStepHTML =
             <>
                 <div className='headerbar one'>
                     <h1>{orderState.selectedCategory}</h1>
                     <hr className='phone' />
-                    <button className='darkgray backButton' ref={drinkSelectionTabRef} onClick={() => interactionCancelDrink()}>Back</button>
+                    <button className='darkgray backButton' ref={drinkSelectionTabRef} onClick={() => interactionCancelDrink()}>{t('orderKiosk.back')}</button>
                     {/* <hr className='phone' /> */}
                     {/* <button disabled={!addButtonEnabled} className={"totalButton " + (addButtonEnabled ? 'blue' : 'black')} onClick={() => interactionAddToOrder()}>{addButtonText}</button> */}
                 </div >
                 <div className={kioskStyles.drinkgrid}>
                     <div>
-                        <h2>{t('orderKiosk.selectDrink')} <span className='subtext'>({t('orderKiosk.selectDrinkSubtext')}, <i style={{ marginRight: "1px" }} class="fa-solid fa-mug-hot"> </i>: Hot Drink)</span></h2>
+                        <h2>{t('orderKiosk.selectDrink')} <span className='subtext'>({t('orderKiosk.selectDrinkSubtext')}, <i style={{ marginRight: "1px" }} class="fa-solid fa-mug-hot"> </i>: {t('orderKiosk.hotDrink')})</span></h2>
                         <div className={kioskStyles.drinkbuttons}>{drinkArray}</div>
                     </div>
                     <div>
@@ -547,18 +546,18 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
         }
 
         const total = (orderState.subtotal_raw / 100000) + tip + tax;
-        const checkoutFinalText = orderState.checkoutLoading ? "Processing Transaction..." : orderState.checkoutError ? "Server error occurred. Please try again." : "Pay & Complete Order";
+        const checkoutFinalText = orderState.checkoutLoading ? "Processing Transaction..." : orderState.checkoutError ? "Server error occurred. Please try again." : t('orderKiosk.payAndCompleteOrder');
 
         orderStepHTML = <>
             <div className='headerbar one'>
-                <h1>{t('Checkout')}</h1>
+                <h1>{t('orderKiosk.checkout')}</h1>
                 <div></div>
                 <hr className='phone' />
-                <button disabled={loading()} className='darkgray backButton' ref={checkoutTabRef} onClick={() => interactionCancelDrink()}>Back</button>
+                <button disabled={loading()} className='darkgray backButton' ref={checkoutTabRef} onClick={() => interactionCancelDrink()}>{t('orderKiosk.back3')}</button>
             </div>
             <div className={kioskStyles.drinkgrid}>
                 <div>
-                    <h2 className='h3'>Would you like to leave a Tip?</h2>
+                    <h2 className='h3'>{t('orderKiosk.wouldYouLikeToLeaveATip')}</h2>
                     <div className={kioskStyles.drinkbuttons + ' ' + kioskStyles.tips} >
                         <button onClick={() => interactionChangeTip(0)} className={kioskStyles.drinkbuttonitem + ' ' + kioskStyles.tips + ' ' + (orderState.tipSelection == 0 ? 'darkgray' : 'gray')}><h2>0%</h2><h2 className={kioskStyles.h3}>$0.00</h2></button>
                         <button onClick={() => interactionChangeTip(1)} className={kioskStyles.drinkbuttonitem + ' ' + kioskStyles.tips + ' ' + (orderState.tipSelection == 1 ? 'darkgray' : 'gray')}><h2>15%</h2><h2 className={kioskStyles.h3}>{currencyFormatter.format(0.15 * orderState.subtotal_raw / 100000)}</h2></button>
@@ -570,7 +569,7 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
                         className={kioskStyles.tips + ' ' + kioskStyles.inputbutton + ' ' + (orderState.tipSelection == 4 ? 'darkgray' : 'gray') + ' ' + (orderState.tipSelection == 4 ? "visible" : "invisible")}
                         onClick={() => interactionChangeTip(4)}
                     >
-                        <span>{orderState.tipSelection == 4 ? "$" : "Other"}</span>
+                        <span>{orderState.tipSelection == 4 ? "$" : t('orderKiosk.other')}</span>
                         <input
                             id={kioskStyles.customtipfield}
                             ref={inputRef}
@@ -585,16 +584,16 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
                     {orderState.tipError && orderState.tipSelection == 4 ? <h2 className={kioskStyles.tips + ' ' + kioskStyles.error}>Invalid tip choice.</h2> : <></>}
                 </div>
                 <div>
-                    <h2 className='h3'>Select your payment type.</h2>
+                    <h2 className='h3'>{t('orderKiosk.selectPayment')}</h2>
                     <div className={kioskStyles.drinkbuttons}>
-                        <button onClick={() => interactionSelectPaymentType(0)} className={kioskStyles.drinkbuttonitem + ' ' + (orderState.paymentType == 0 ? 'darkgray' : 'gray')}>Credit Card</button>
-                        <button onClick={() => interactionSelectPaymentType(1)} className={kioskStyles.drinkbuttonitem + ' ' + (orderState.paymentType == 1 ? 'darkgray' : 'gray')}>Cash</button>
+                        <button onClick={() => interactionSelectPaymentType(0)} className={kioskStyles.drinkbuttonitem + ' ' + (orderState.paymentType == 0 ? 'darkgray' : 'gray')}>{t('orderKiosk.creditCard')}</button>
+                        <button onClick={() => interactionSelectPaymentType(1)} className={kioskStyles.drinkbuttonitem + ' ' + (orderState.paymentType == 1 ? 'darkgray' : 'gray')}>{t('orderKiosk.cash')}</button>
                     </div>
                 </div>
                 <div className={kioskStyles.orderdetails}>
-                    <h2 className='subtext'>Subtotal: {orderState.subtotal}</h2>
-                    <h2 className='subtext'>Tax: {currencyFormatter.format(tax)}</h2>
-                    <h2 className='subtext'>Tip: {currencyFormatter.format(tip)}</h2>
+                    <h2 className='subtext'>{t('subtotal')}: {orderState.subtotal}</h2>
+                    <h2 className='subtext'>{t('orderKiosk.tax')}: {currencyFormatter.format(tax)}</h2>
+                    <h2 className='subtext'>{t('orderKiosk.tip')}: {currencyFormatter.format(tip)}</h2>
                     <h2 className=''>Total: {currencyFormatter.format(total)}</h2>
                     <div><button onClick={() => interactionCompleteCheckout()} className={kioskStyles.finalcheckout + ' ' + (loading() || (orderState.tipError && orderState.tipSelection == 4) ? 'black' : orderState.checkoutError ? 'red' : 'blue')}>{checkoutFinalText}</button></div>
                 </div>
@@ -605,15 +604,15 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
             <>
                 <Confetti style={{ maxHeight: '100%', maxWidth: '100%' }} width={window.innerWidth} height={window.innerHeight} numberOfPieces={300} recycle={false} initialVelocityY={10} gravity={0.2} initialVelocityX={5} tweenDuration={2000} run={true} onConfettiComplete={(confetti) => confetti.reset()} />
                 <div className={kioskStyles.completedscreen}>
-                    <h1>Thank You!</h1>
-                    <p>Your order is complete.</p>
+                    <h1>{t('orderKiosk.thankYou')}</h1>  {/*Thank You!*/}
+                    <p>{t('orderKiosk.orderComplete')}</p>  {/*Your order is complete.*/}
                     {/*<Link to='rate-order'><button className='blue'>Rate Your Order!</button></Link>*/}
-                    <Link to="/"><button className='blue'>Start Another Order</button></Link>
+                    <Link to="/"><button className='blue'>{t('orderKiosk.startNewOrder')}</button></Link>
                 </div>
             </>
         )
     } else if (orderState.orderStep == 4) {
-        orderStepHTML = <AllergenFilter stateLang={stateLang} backButton={interactionCancelDrink} />
+        orderStepHTML = <AllergenFilter backButton={interactionCancelDrink} stateLang={stateLang} />
     }
 
     // const addButtonEnabled = orderState.currentDrinkSelection.drink != null && !orderState.drinkAddLoading;
@@ -630,9 +629,9 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
             {orderState.orderStep != 3 ?
                 <div className={kioskStyles.subtotal}>
                     <div className={kioskStyles.itemlist}>
-                        <h3 className='centeralign'>Current Order</h3>
+                        <h3 className='centeralign'>{t('currentOrder')}</h3>
                         <hr />
-                        {itemList.length == 0 ? <p className='centeralign'>Empty order.</p> :
+                        {itemList.length == 0 ? <p className='centeralign'>{t('emptyOrder')}</p> :
                             <ol>
                                 {itemList}
                             </ol>}

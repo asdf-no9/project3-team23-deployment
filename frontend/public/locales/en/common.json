@@ -1,8 +1,8 @@
 {
   "sidebar": {
     "language": "Language",
-    "disable_high_contrast": "High Contrast",
-    "enable_high_contrast": "High Contrast",
+    "disable_high_contrast": "Disable High Contrast",
+    "enable_high_contrast": "Enable High Contrast",
     "login": "Login",
     "logo_alt": "Sharetea Logo"
   },
@@ -18,23 +18,45 @@
     "sugarLevel": "Sugar Level",
     "toppings": "Toppings",
     "checkout": "Checkout",
-    "leaveTip": "Would you like to leave a Tip?",
+    "leaveTip": "Would you like to leave a tip?",
     "selectPayment": "Select your payment type.",
     "thankYou": "Thank You!",
     "orderComplete": "Your order is complete.",
+    "startNewOrder": "Start Another Order",
     "emptyOrder": "Empty order",
     "selectDrinkHeader": "Select Drink",
     "iceLevelHeader": "Ice Level",
     "sugarLevelHeader": "Sugar Level",
     "toppingsHeader": "Toppings",
     "selectDrinkSubtext": "Required",
-    "toppingsSubtext": "($0.75 each, creama $1.00)"
+    "toppingsSubtext": "($0.75 each, creama $1.00)",
+    "regularIce": "Regular Ice",
+    "lessIce": "Less Ice",
+    "noIce": "No Ice",
+    "addToOrder": "Add to Order",
+    "hotDrink": "Hot Drink",
+    "payAndCompleteOrder": "Pay & Complete Order",
+    "other": "Other",
+    "creditCard": "Credit Card",
+    "cash": "Cash",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "tip": "Tip",
+    "total": "Total",
+    "wouldYouLikeToLeaveATip": "Would you like to leave a tip?",
+    "back": "Back",
+    "hotDrink": "Hot Drink"
   },
   "categories": {
     "drinks": "Drinks",
-    "brewed tea": "Brewed Tea",
-    "milk tea": "Milk Tea",
-    "fruit tea": "Fruit Tea"
+    "brewed_tea": "Brewed Tea",
+    "milk_tea": "Milk Tea",
+    "fruit_tea": "Fruit Tea"
   },
-  "currentlang": "English"
+  "currentlang": "English",
+  "allergenFilter": "Allergen Filter",
+  "startOver": "Start Over",
+  "currentOrder": "Current Order",
+  "emptyOrder": "Empty order.",
+  "selfServeKiosk": "Self-Serve Kiosk"
 }

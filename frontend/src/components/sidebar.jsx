@@ -34,7 +34,7 @@ export default function Sidebar({ loginInfo, forecast, changeLanguage, isLangDro
                 </Link>
             </div>
             <div className={styles.middlecontent}>
-                <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : "Self-Serve Kiosk"}</h2>
+                <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : t('selfServeKiosk')}</h2>
                 <div className={styles.weathericon}>
                     <img src={icon} alt={'Weather Icon'} />
                     <div>
