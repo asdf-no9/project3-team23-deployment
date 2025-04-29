@@ -47,6 +47,11 @@
   border-radius: 10px;
 }
 
+[data-theme="hc"] .logoContainer img {
+  background-color: black;
+  filter: invert(1);
+}
+
 .rec {
   font-style: italic;
   margin-bottom: 20px;

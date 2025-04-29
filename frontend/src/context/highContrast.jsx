@@ -15,7 +15,9 @@ export function HighContrastProvider({ children }) {
    * Toggles high contrast mode to switch back and forth
    */
   const toggleTheme = () => {
-    setIsHighContrast((prev) => !prev);
+    const prev = isHighContrast;
+    setIsHighContrast(!prev);
+    document.getElementById('root').setAttribute('data-theme', !prev ? 'hc' : '');
   };
 
   useEffect(() => {

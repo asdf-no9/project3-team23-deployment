@@ -10,6 +10,20 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --background-yellow: #f87c7c;
+  --text-black: white;
+  --text-hidden: lightgray;
+  --background-black: white;
+  --text-white: black;
+}
+
+[data-theme="hc"] {
+  --background-yellow: yellow;
+  --text-black: black;
+  --text-hidden: black;
+  --background-black: black;
+  --text-white: white;
 }
 
 .sidebar {
@@ -262,7 +276,7 @@ body.high-contrast .backButton {
   color: white;
 }
 
-body.high-contrast ._subtotal_7v7nq_41 {
+/* body.high-contrast ._subtotal_7v7nq_41 {
   background-color: yellow;
   color: black; 
 }
@@ -283,9 +297,18 @@ body.high-contrast ._itemlist_7v7nq_69 {
 
 body.high-contrast ._itemlist_7v7nq_69 ol li {
   background-color: black;
-}
+} */
 
 body.high-contrast .fa-mug-hot {
+  color: white;
+}
+
+body.high-contrast button.darkgray .fa-mug-hot {
+  color: black;
+}
+
+body.high-contrast div.headerbar button.darkgray {
+  background-color: black;
   color: white;
 }
 
