@@ -153,13 +153,16 @@ function Main() {
         const temp = data.temp;
         setForecast(data.weather + ', ' + temp + '°F');
         const msg = "";
-        if (temp > 80) {
-          setRec(msg + "It's hot out there! How about a drink to cool you down?");
-        } else if (temp > 70) {
-          setRec(msg + "How about a drink to keep you cool?");
-        } else {
-          setRec(msg + "Want a drink to warm you up?");
-        }
+        if (language == 'en') {
+          if (temp > 80) {
+            setRec(msg + "It's hot out there! How about a drink to cool you down?");
+          } else if (temp > 70) {
+            setRec(msg + "How about a drink to keep you cool?");
+          } else {
+            setRec(msg + "Want a drink to warm you up?");
+          }
+        } else
+          setRec('')
 
       })
       .catch(err => console.log(err));

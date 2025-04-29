@@ -4,6 +4,7 @@ import kioskStyles from '../styles/orderKiosk.module.css';
 import logo from '../assets/ShareTeaLogo.png';
 import { Link } from 'react-router';
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from 'react-i18next';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -16,6 +17,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export default function StartOrder({ rec }) {
 
+    const { t } = useTranslation('common'); //For i18n translation
     const mainRef = useRef(null);
 
     useEffect(() => {
@@ -32,7 +34,7 @@ export default function StartOrder({ rec }) {
                         <div className={styles.logoContainer}>
                             <img src={logo} alt="ShareTea Logo" className="logo" />
                         </div>
-                        <Link to='/order-kiosk'><h2 className={'centeralign ' + styles.start}> Tap to Start Order </h2></Link>
+                        <Link to='/order-kiosk'><h2 className={'centeralign ' + styles.start}> {t('tapToStartOrder')} </h2></Link>
                         <h2 className={"h3 centeralign " + styles.rec}> {rec} </h2>
                         {/* <button className={'blue ' + kioskStyles.finalcheckout}> */}
 

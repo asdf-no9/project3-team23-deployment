@@ -7,7 +7,7 @@
     "logo_alt": "Logotipo de Sharetea"
   },
   "language": {
-    "english": "Inglés",
+    "english": "English",
     "spanish": "Español"
   },
   "orderKiosk": {
@@ -64,5 +64,6 @@
   "startOver": "Empezar de Nuevo",
   "currentOrder": "Pedido Actual",
   "emptyOrder": "Orden vacío.",
-  "selfServeKiosk": "Kiosco de Autoservicio"
+  "selfServeKiosk": "Kiosco de Autoservicio",
+  "tapToStartOrder": "TOCA PARA EMPEZAR EL PEDIDO"
 }

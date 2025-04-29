@@ -64,5 +64,6 @@
   "startOver": "Start Over",
   "currentOrder": "Current Order",
   "emptyOrder": "Empty order.",
-  "selfServeKiosk": "Self-Serve Kiosk"
+  "selfServeKiosk": "Self-Serve Kiosk",
+  "tapToStartOrder": "Tap To Start Order"
 }
