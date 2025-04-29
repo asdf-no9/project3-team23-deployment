@@ -58,6 +58,7 @@ function Main() {
   const [stateLang, setStateLang] = useState('en')
   const [isLangDropdownVisible, setLangDropdownVisible] = useState(false); //Set default visibility off
 
+
   const [loggedInState, setLoggedInState] = useState({
     isLoggedIn: false,
     username: '',
@@ -174,7 +175,7 @@ function Main() {
                   <Route path='/manager-menu' element={<ManagerMenu />} />
                   <Route path='/manager-reports' element={<ManagerReports />} />
                   <Route path='/manager-staff' element={<ManagerStaff />} />
-                  <Route path='allergen-filter' element={<AllergenFilter stateLang={stateLang} />} />
+                  {/* <Route path='allergen-filter' element={<AllergenFilter stateLang={stateLang} />} /> */}
                   <Route path='*' element={<Navigate to="/" replace />} />
                 </Routes>
               </div>
