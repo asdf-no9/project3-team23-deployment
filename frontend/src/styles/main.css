@@ -262,6 +262,33 @@ body.high-contrast .backButton {
   color: white;
 }
 
+body.high-contrast ._subtotal_7v7nq_41 {
+  background-color: yellow;
+  color: black; 
+}
+
+body.high-contrast ._inputbutton_7v7nq_349 input {
+  color: black;
+}
+
+body.high-contrast ._middlecontent_17at7_125, h2.h3._sidebarusername_17at7_149 {
+  color: black;
+  font-weight: bold;
+}
+
+body.high-contrast ._itemlist_7v7nq_69 {
+  background-color: black;
+  color: white;
+}
+
+body.high-contrast ._itemlist_7v7nq_69 ol li {
+  background-color: black;
+}
+
+body.high-contrast .fa-mug-hot {
+  color: white;
+}
+
 .subtext {
   /* font-weight: normal; */
   font-size: medium;
