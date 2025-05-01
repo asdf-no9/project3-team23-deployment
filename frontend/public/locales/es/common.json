@@ -4,7 +4,8 @@
     "disable_high_contrast": "Desactivar Alto Contraste",
     "enable_high_contrast": "Activar Alto Contraste",
     "login": "Iniciar sesión",
-    "logo_alt": "Logotipo de Sharetea"
+    "logo_alt": "Logotipo de Sharetea",
+    "logout": "Cerrar sesión"
   },
   "language": {
     "english": "English",
@@ -65,5 +66,13 @@
   "currentOrder": "Pedido Actual",
   "emptyOrder": "Orden vacío.",
   "selfServeKiosk": "Kiosco de Autoservicio",
-  "tapToStartOrder": "TOCA PARA EMPEZAR EL PEDIDO"
+  "tapToStartOrder": "TOCA PARA EMPEZAR EL PEDIDO",
+  "hello": "Hola, ",
+  "username": "Nombre de usuario",
+  "password": "Contraseña",
+  "signin": "Iniciar sesión",
+  "signout": "Cerrar sesión",
+  "logoutSuccess": "Has cerrado sesión correctamente.",
+  "credentialsIncorrect": "Credenciales faltantes o incorrectas",
+  "errorOccurred": "Lo sentimos, ha ocurrido un error. Por favor, inténtalo de nuevo."
 }

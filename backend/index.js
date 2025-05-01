@@ -138,17 +138,17 @@ app.get('/', async (req, res) => {
  *      "id": the employee ID
  * }
  */
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
 
     if (!req.body) {
-        res.status(401).send({ success: false, error: "Incorrect or missing credentials." })
+        res.status(401).send({ success: false, error: await translate("Incorrect or missing credentials.") })
         return
     }
 
     let { username, password } = req.body; // Use body-parser to get the body of the request
 
     if (username == undefined || username == null || password == null || password == undefined || String(username).split(" ").length != 2) {
-        res.status(401).send({ success: false, error: "Incorrect or missing credentials." })
+        res.status(401).send({ success: false, error: await translate("Incorrect or missing credentials.") })
         return
     }
 
@@ -157,7 +157,7 @@ app.post('/login', (req, res) => {
     let last_name = username[1];
 
     pool.query('SELECT login($1, $2, $3);', [first_name, last_name, password])
-        .then(result => {
+        .then(async (result) => {
             if (result.rowCount == 1 && result.rows[0]["login"] != -1) {
                 // SUCCESS
                 user_id = result.rows[0]["login"]
@@ -165,13 +165,13 @@ app.post('/login', (req, res) => {
                 // GET PERMISSIONS
                 pool.query('SELECT is_manager FROM employees WHERE id = $1', [user_id])
                     .then(
-                        result2 => {
+                        async (result2) => {
                             if (result2.rowCount == 1) {
                                 //SUCCESS
                                 is_manager = result2.rows[0]["is_manager"]
 
                                 admin.auth().createCustomToken(user_id.toString())
-                                    .then(customToken => {
+                                    .then(async (customToken) => {
                                         token_cache[customToken] =
                                         {
                                             creation_date: new Date().getTime(),
@@ -181,30 +181,30 @@ app.post('/login', (req, res) => {
                                         }
                                         res.status(200).send({ success: true, token: customToken, id: user_id, manager: is_manager })
                                     })
-                                    .catch(err => {
+                                    .catch(async (err) => {
                                         console.error(err)
-                                        res.status(500).send({ success: false, error: "Firebase token error." })
+                                        res.status(500).send({ success: false, error: await translate("Server error.") })
                                     })
 
                             } else {
-                                res.status(500).send({ success: false, error: "Server error." })
+                                res.status(500).send({ success: false, error: await translate("Server error.") })
                                 return
                             }
                         }
                     )
-                    .catch(err => {
+                    .catch(async (err) => {
                         console.error(err)
-                        res.status(500).send({ success: false, error: "Server error." })
+                        res.status(500).send({ success: false, error: await translate("Server error.") })
                         return
                     })
             } else {
                 //FAILED
-                res.status(401).send({ success: false, error: "Incorrect or missing credentials." })
+                res.status(401).send({ success: false, error: await translate("Incorrect or missing credentials.") })
                 return
             }
-        }).catch(err => {
+        }).catch(async (err) => {
             console.error(err)
-            res.status(500).send({ success: false, error: "Server error." })
+            res.status(500).send({ success: false, error: await translate("Server error.") })
             return
         });
 });
@@ -1397,8 +1397,8 @@ async function translate(text, targetLanguage) {
         return text; // No translation needed for English
     }
 
-    if (targetLanguage === 'es')
-        targetLanguage = 'Spanish'
+    // if (targetLanguage === 'es') //prevent abuse
+    targetLanguage = 'Spanish'
 
     const cacheKey = `${text}-${targetLanguage}`; // Create a unique key for caching
 

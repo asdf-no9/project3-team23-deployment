@@ -70,6 +70,7 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
      * Handles one-time initial API calls including downloading the menu, downloading the toppings list, and creating a new order ID
      */
     useEffect(() => {
+        changeOrderState({ ...orderState, orderStep: 0 })
         // if (runBefore.current) return;
         // runBefore.current = true;
 
@@ -553,7 +554,7 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
                 <h1>{t('orderKiosk.checkout')}</h1>
                 <div></div>
                 <hr className='phone' />
-                <button disabled={loading()} className='darkgray backButton' ref={checkoutTabRef} onClick={() => interactionCancelDrink()}>{t('orderKiosk.back3')}</button>
+                <button disabled={loading()} className='darkgray backButton' ref={checkoutTabRef} onClick={() => interactionCancelDrink()}>{t('orderKiosk.back')}</button>
             </div>
             <div className={kioskStyles.drinkgrid}>
                 <div>
@@ -591,7 +592,7 @@ export default function OrderKiosk({ loginInfo, stateLang }) {
                     </div>
                 </div>
                 <div className={kioskStyles.orderdetails}>
-                    <h2 className='subtext'>{t('subtotal')}: {orderState.subtotal}</h2>
+                    <h2 className='subtext'>{t('orderKiosk.subtotal')}: {orderState.subtotal}</h2>
                     <h2 className='subtext'>{t('orderKiosk.tax')}: {currencyFormatter.format(tax)}</h2>
                     <h2 className='subtext'>{t('orderKiosk.tip')}: {currencyFormatter.format(tip)}</h2>
                     <h2 className=''>Total: {currencyFormatter.format(total)}</h2>

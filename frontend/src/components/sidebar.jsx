@@ -34,7 +34,7 @@ export default function Sidebar({ loginInfo, forecast, changeLanguage, isLangDro
                 </Link>
             </div>
             <div className={styles.middlecontent}>
-                <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? "Hello, " + loginInfo.username : t('selfServeKiosk')}</h2>
+                <h2 className={'h3 ' + styles.sidebarusername}>{loginInfo.isLoggedIn ? t('hello') + loginInfo.username : t('selfServeKiosk')}</h2>
                 <div className={styles.weathericon}>
                     <img src={icon} alt={'Weather Icon'} />
                     <div>
@@ -72,7 +72,7 @@ export default function Sidebar({ loginInfo, forecast, changeLanguage, isLangDro
                 {/* <Link to='/allergen-filter'><button tabIndex="-1" className="highContrast"><i class="fa-solid fa-wheat-awn-circle-exclamation"></i> Allergen Filter </button></Link> */}
 
                 {/*Login Button*/}
-                <Link to='/login'><button tabIndex="-1" className="highContrast"><i class="fa-solid fa-arrow-right-to-bracket"></i> {!loginInfo.isLoggedIn ? t('sidebar.login') : 'Logout'}</button></Link>
+                <Link to='/login'><button tabIndex="-1" className="highContrast"><i class="fa-solid fa-arrow-right-to-bracket"></i> {!loginInfo.isLoggedIn ? t('sidebar.login') : t('sidebar.logout')}</button></Link>
 
             </div>
         </div>

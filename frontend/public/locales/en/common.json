@@ -4,7 +4,8 @@
     "disable_high_contrast": "Disable High Contrast",
     "enable_high_contrast": "Enable High Contrast",
     "login": "Login",
-    "logo_alt": "Sharetea Logo"
+    "logo_alt": "Sharetea Logo",
+    "logout": "Logout"
   },
   "language": {
     "english": "English",
@@ -65,5 +66,13 @@
   "currentOrder": "Current Order",
   "emptyOrder": "Empty order.",
   "selfServeKiosk": "Self-Serve Kiosk",
-  "tapToStartOrder": "Tap To Start Order"
+  "tapToStartOrder": "Tap To Start Order",
+  "hello": "Hello, ",
+  "username": "Username",
+  "password": "Password",
+  "signin": "Sign In",
+  "signout": "Sign Out",
+  "logoutSuccess": "You have been logged out successfully.",
+  "credentialsIncorrect": "Missing or incorrect credentials",
+  "errorOccurred": "Sorry, an error has occurred. Please try again."
 }

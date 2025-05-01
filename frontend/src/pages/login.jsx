@@ -3,7 +3,7 @@ import { useState } from 'react';
 import loginStyles from '../styles/login.module.css'
 import { Link, useNavigate } from 'react-router';
 import Cookies from 'js-cookie';
-
+import { useTranslation } from 'react-i18next';
 import { getAuth, signInWithCustomToken } from 'firebase/auth';
 import fb_app from '../firebase';
 
@@ -20,6 +20,8 @@ export default function Login({ loginInfo, logIn, logOut }) {
     const [loginStatus, setLoginStatus] = useState("");
     const navigate = useNavigate();
 
+    const { t } = useTranslation('common'); //For i18n translation
+
     /**
      * Submits login information to the API and adds a token to cookies if successful
      * @param {*} event The form event that triggers on submit
@@ -35,7 +37,8 @@ export default function Login({ loginInfo, logIn, logOut }) {
             fetch(API_URL + 'login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'language': Cookies.get('language') ? Cookies.get('language') : "en"
                 },
                 body: JSON.stringify({ username, password })
             })
@@ -55,18 +58,18 @@ export default function Login({ loginInfo, logIn, logOut }) {
                             })
                             .catch((err) => {
                                 console.log(err);
-                                setLoginStatus("Sorry, an error occurred with Firebase. Please try again.");
+                                setLoginStatus(t('errorOccurred'));
                             })
                     }
                 })
                 .catch((err) => {
                     console.log(err);
-                    setLoginStatus("Sorry, an error occurred. Please try again.");
+                    setLoginStatus(t('errorOccurred'));
                 })
         } else {
             // If the user is already logged in, log them out
             logOut();
-            setLoginStatus("You have been logged out successfully.");
+            setLoginStatus(t('logoutSuccess'));
             document.getElementById("username").value = "";
             document.getElementById("password").value = "";
         }
@@ -76,18 +79,18 @@ export default function Login({ loginInfo, logIn, logOut }) {
         <div className="mainBody" id="mainBody">
             <div id='scaler' className='left'>
                 <div className="headerbar">
-                    <h1>{!loginInfo.isLoggedIn ? "Login" : "Logout"}</h1>
+                    <h1>{!loginInfo.isLoggedIn ? t('sidebar.login') : t('sidebar.logout')}</h1>
                 </div>
                 <div className='mainContent'>
                     <form className={loginStyles.login} onSubmit={(event) => interactionLoginSubmit(event)}>
                         {!loginInfo.isLoggedIn ?
                             <>
                                 <div>
-                                    <h2 className={loginStyles.h3}>Username</h2>
+                                    <h2 className={loginStyles.h3}>{t('username')}</h2>
                                     <input type="text" id="username" name="username" minLength="2" required />
                                 </div>
                                 <div>
-                                    <h2 className={loginStyles.h3}>Password</h2>
+                                    <h2 className={loginStyles.h3}>{t('password')}</h2>
                                     <input type="password" id="password" name="password" minLength="2" required />
                                 </div>
                             </> : <></>
@@ -95,8 +98,8 @@ export default function Login({ loginInfo, logIn, logOut }) {
                         <p className={loginStyles.error}>{loginStatus}</p>
                         <button className='blue' id="submit" type="submit">
                             {!loginInfo.isLoggedIn ?
-                                <><i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In</> :
-                                <><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</>}</button>
+                                <><i class="fa-solid fa-arrow-right-to-bracket"></i> {t('signin')}</> :
+                                <><i class="fa-solid fa-arrow-right-from-bracket"></i> {t('signout')}</>}</button>
                     </form>
                 </div>
             </div>
